@@ -1,8 +1,7 @@
 /* eslint-env node */
 
 import { basename, join, relative } from 'path';
-import { readFileSync, mkdirSync } from 'fs';
-import { writeFile } from 'fs/promises';
+import { readFileSync, mkdirSync, writeFileSync } from 'fs';
 import { transformAsync } from '@babel/core';
 
 import esbuild from 'esbuild';
@@ -43,8 +42,8 @@ async function build(format, opts) {
     filenameRelative: relative(process.cwd(), js.path),
   });
 
-  writeFile(js.path, code);
-  writeFile(js.path + '.map', JSON.stringify(map));
+  writeFileSync(js.path, code);
+  writeFileSync(js.path + '.map', JSON.stringify(map));
 }
 
 build(false, {
