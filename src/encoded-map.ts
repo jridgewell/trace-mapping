@@ -6,10 +6,7 @@ import type { EncodedSourceMap } from './types';
 
 export class EncodedSourceMapImpl extends DecodedSourceMapImpl {
   constructor(map: EncodedSourceMap) {
-    const decoded = {
-      ...map,
-      mappings: decode(map.mappings),
-    };
+    const decoded = Object.assign({}, map, { mappings: decode(map.mappings) });
     super(decoded, true);
   }
 }
