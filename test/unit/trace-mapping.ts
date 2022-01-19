@@ -50,49 +50,49 @@ describe('TraceMap', () => {
     return () => {
       describe('map properties', () => {
         test('version', (t) => {
-          const tracer = TraceMap(map);
+          const tracer = new TraceMap(map);
           t.is(tracer.version, decodedMap.version);
         });
 
         test('file', (t) => {
-          const tracer = TraceMap(map);
+          const tracer = new TraceMap(map);
           t.is(tracer.file, decodedMap.file);
         });
 
         test('sourceRoot', (t) => {
-          const tracer = TraceMap(map);
+          const tracer = new TraceMap(map);
           t.is(tracer.sourceRoot, decodedMap.sourceRoot);
         });
 
         test('sources', (t) => {
-          const tracer = TraceMap(map);
+          const tracer = new TraceMap(map);
           t.deepEqual(tracer.sources, decodedMap.sources);
         });
 
         test('names', (t) => {
-          const tracer = TraceMap(map);
+          const tracer = new TraceMap(map);
           t.deepEqual(tracer.names, decodedMap.names);
         });
 
         test('encodedMappings', (t) => {
-          const tracer = TraceMap(map);
-          t.is(tracer.encodedMappings, encodedMap.mappings);
+          const tracer = new TraceMap(map);
+          t.is(tracer.encodedMappings(), encodedMap.mappings);
         });
 
         test('decodedMappings', (t) => {
-          const tracer = TraceMap(map);
-          t.deepEqual(tracer.decodedMappings, decodedMap.mappings);
+          const tracer = new TraceMap(map);
+          t.deepEqual(tracer.decodedMappings(), decodedMap.mappings);
         });
 
         test('sourcesContent', (t) => {
-          const tracer = TraceMap(map);
+          const tracer = new TraceMap(map);
           t.deepEqual(tracer.sourcesContent, decodedMap.sourcesContent);
         });
       });
 
       test('traceSegment', (t) => {
         const { mappings } = decodedMap;
-        const tracer = TraceMap(map);
+        const tracer = new TraceMap(map);
 
         for (let line = 0; line < mappings.length; line++) {
           const segmentLine = mappings[line];
@@ -111,7 +111,7 @@ describe('TraceMap', () => {
       });
 
       test('originalPositionFor', (t) => {
-        const tracer = TraceMap(map);
+        const tracer = new TraceMap(map);
 
         t.deepEqual(tracer.originalPositionFor({ line: 2, column: 13 }), {
           source: 'https://astexplorer.net/input.js',
