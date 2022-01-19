@@ -51,7 +51,7 @@
     "@typescript-eslint/parser": "5.10.0",
     "ava": "4.0.1",
     "esbuild": "0.14.11",
-    "esbuild-node-loader": "github:antfu/esbuild-node-loader#f031299d",
+    "esbuild-node-loader": "0.6.4",
     "eslint": "8.7.0",
     "eslint-config-prettier": "8.3.0",
     "npm-run-all": "4.1.5",
