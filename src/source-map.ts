@@ -1,13 +1,12 @@
 import resolve from './resolve';
-import { encode, decode } from 'sourcemap-codec';
 
 import type {
-  SourceMapV3,
   DecodedSourceMap,
   EncodedSourceMap,
   InvalidMapping,
   Mapping,
   SourceMapSegment,
+  Needle,
 } from './types';
 
 const INVALID_MAPPING: InvalidMapping = Object.freeze({
@@ -16,8 +15,6 @@ const INVALID_MAPPING: InvalidMapping = Object.freeze({
   column: null,
   name: null,
 });
-
-type Needle = { line: number; column: number };
 
 export abstract class SourceMap {
   private declare _map: DecodedSourceMap | EncodedSourceMap;
@@ -30,41 +27,8 @@ export abstract class SourceMap {
     this._map = map;
   }
 
-  get version(): SourceMapV3['version'] {
-    return this._map.version;
-  }
-
-  get file(): SourceMapV3['file'] {
-    return this._map.file;
-  }
-
-  get names(): SourceMapV3['names'] {
-    return this._map.names;
-  }
-
-  get sourceRoot(): SourceMapV3['sourceRoot'] {
-    return this._map.sourceRoot;
-  }
-
-  get sources(): SourceMapV3['sources'] {
-    return this._map.sources;
-  }
-
-  get sourcesContent(): SourceMapV3['sourcesContent'] {
-    return this._map.sourcesContent;
-  }
-
-  get encodedMappings(): EncodedSourceMap['mappings'] {
-    const { mappings } = this._map;
-    if (typeof mappings === 'string') return mappings;
-    return encode(mappings);
-  }
-
-  get decodedMappings(): DecodedSourceMap['mappings'] {
-    const { mappings } = this._map;
-    if (!(typeof mappings === 'string')) return mappings;
-    return decode(mappings);
-  }
+  abstract encodedMappings(): EncodedSourceMap['mappings'];
+  abstract decodedMappings(): DecodedSourceMap['mappings'];
 
   abstract traceSegment(this: SourceMap, line: number, column: number): SourceMapSegment | null;
 

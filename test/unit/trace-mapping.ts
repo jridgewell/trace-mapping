@@ -1,4 +1,3 @@
-// import remapping from '../../src/remapping';
 import { encode } from 'sourcemap-codec';
 
 import { test, describe } from '../setup';

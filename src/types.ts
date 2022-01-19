@@ -41,3 +41,5 @@ export type InvalidMapping = {
 };
 
 export type SourceMapInput = string | EncodedSourceMap | DecodedSourceMap;
+
+export type Needle = { line: number; column: number };

@@ -1,7 +1,9 @@
+import { encode } from 'sourcemap-codec';
+
 import { SourceMap } from './source-map';
 import binarySearch from './binary-search';
 
-import type { SourceMapSegment, DecodedSourceMap } from './types';
+import type { SourceMapSegment, EncodedSourceMap, DecodedSourceMap } from './types';
 
 export class DecodedSourceMapImpl extends SourceMap {
   private declare _mappings: SourceMapSegment[][];
@@ -10,6 +12,14 @@ export class DecodedSourceMapImpl extends SourceMap {
     const mappings = sortMappings(map.mappings, owned);
     super({ ...map, mappings });
     this._mappings = mappings;
+  }
+
+  encodedMappings(): EncodedSourceMap['mappings'] {
+    return encode(this._mappings);
+  }
+
+  decodedMappings(): DecodedSourceMap['mappings'] {
+    return this._mappings;
   }
 
   traceSegment(line: number, column: number): SourceMapSegment | null {
