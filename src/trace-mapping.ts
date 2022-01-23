@@ -1,3 +1,5 @@
+import resolve from './resolve';
+import stripFilename from './strip-filename';
 import { DecodedSourceMapImpl } from './decoded-map';
 import { EncodedSourceMapImpl } from './encoded-map';
 
@@ -13,6 +15,13 @@ import type {
 } from './types';
 
 export type { SourceMapSegment, SourceMapInput, DecodedSourceMap, EncodedSourceMap } from './types';
+
+const INVALID_MAPPING: InvalidMapping = Object.freeze({
+  source: null,
+  line: null,
+  column: null,
+  name: null,
+});
 
 export class TraceMap {
   declare version: SourceMapV3['version'];
@@ -54,8 +63,28 @@ export class TraceMap {
     return this._impl.traceSegment(line, column);
   }
 
-  originalPositionFor(needle: Needle): Mapping | InvalidMapping {
-    return this._impl.originalPositionFor(needle);
+  originalPositionFor({ line, column }: Needle): Mapping | InvalidMapping {
+    if (line < 1) throw new Error('`line` must be greater than 0 (lines start at line 1)');
+    if (column < 0) {
+      throw new Error('`column` must be greater than or equal to 0 (columns start at column 0)');
+    }
+
+    const segment = this.traceSegment(line - 1, column);
+    if (segment == null) return INVALID_MAPPING;
+    if (segment.length == 1) return INVALID_MAPPING;
+
+    const { names, sources } = this;
+    return {
+      source: this.resolve(String(sources[segment[1]]), ''),
+      line: segment[2] + 1,
+      column: segment[3],
+      name: segment.length === 5 ? names[segment[4]] : null,
+    };
+  }
+
+  resolve(source: string, mapUrl?: string): string {
+    const { sourceRoot } = this;
+    return resolve(source, resolve(sourceRoot || '', stripFilename(mapUrl)));
   }
 }
 
