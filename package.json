@@ -42,7 +42,7 @@
     "test:lint": "run-s -n test:lint:*",
     "test:lint:prettier": "prettier --check '{src,test}/**/*.ts'",
     "test:lint:ts": "eslint '{src,test}/**/*.ts'",
-    "test:only": "ava",
+    "test:only": "c8 ava",
     "test:watch": "ava --watch"
   },
   "devDependencies": {
@@ -51,6 +51,7 @@
     "@typescript-eslint/eslint-plugin": "5.10.0",
     "@typescript-eslint/parser": "5.10.0",
     "ava": "4.0.1",
+    "c8": "7.11.0",
     "esbuild": "0.14.11",
     "esbuild-node-loader": "0.6.4",
     "eslint": "8.7.0",
