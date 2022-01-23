@@ -7,5 +7,5 @@ export default {
     '--loader=esbuild-node-loader',
     '--experimental-specifier-resolution=node',
   ],
-  files: ['test/unit/**'],
+  files: ['test/**/*.test.ts'],
 };

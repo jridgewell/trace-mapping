@@ -1,9 +1,9 @@
 import { encode } from 'sourcemap-codec';
 
-import { test, describe } from '../setup';
-import TraceMap from '../../src/trace-mapping';
+import { test, describe } from './setup';
+import TraceMap from '../src/trace-mapping';
 
-import type { SourceMapInput, EncodedSourceMap, DecodedSourceMap } from '../../src/trace-mapping';
+import type { SourceMapInput, EncodedSourceMap, DecodedSourceMap } from '../src/trace-mapping';
 
 describe('TraceMap', () => {
   const decodedMap: DecodedSourceMap = {

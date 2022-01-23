@@ -1,5 +1,5 @@
-import resolve from '../../src/resolve';
-import { test, describe } from '../setup';
+import resolve from '../src/resolve';
+import { test, describe } from './setup';
 
 describe('resolve', () => {
   test('resolves input relative to base', (t) => {

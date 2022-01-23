@@ -1,5 +1,5 @@
-import binarySearch from '../../src/binary-search';
-import { test, describe } from '../setup';
+import binarySearch from '../src/binary-search';
+import { test, describe } from './setup';
 
 describe('binary search', () => {
   function comparator(item: number, needle: number): number {
