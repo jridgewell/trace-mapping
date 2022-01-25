@@ -1,7 +1,7 @@
 /**
  * Removes the filename from a path.
  */
-export default function stripFilename(path: string | undefined): string {
+export default function stripFilename(path: string | undefined | null): string {
   if (!path) return '';
   const index = path.lastIndexOf('/');
   return path.slice(0, index + 1);

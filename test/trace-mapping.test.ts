@@ -45,6 +45,22 @@ describe('TraceMap', () => {
     ...decodedMap,
     mappings: encode(decodedMap.mappings),
   };
+  function replaceField(
+    map: SourceMapInput,
+    field: keyof (DecodedSourceMap | EncodedSourceMap),
+    value: any,
+  ): SourceMapInput {
+    if (typeof map !== 'string') {
+      return {
+        ...map,
+        [field]: value,
+      };
+    }
+
+    map = JSON.parse(map);
+    (map as any)[field] = value;
+    return JSON.stringify(map);
+  }
 
   function testSuite(map: SourceMapInput) {
     return () => {
@@ -87,6 +103,34 @@ describe('TraceMap', () => {
         test('sourcesContent', (t) => {
           const tracer = new TraceMap(map);
           t.deepEqual(tracer.sourcesContent, decodedMap.sourcesContent);
+        });
+
+        describe('resolvedSources', () => {
+          test('unresolved without sourceRoot', (t) => {
+            const tracer = new TraceMap(replaceField(map, 'sourceRoot', undefined));
+            t.deepEqual(tracer.resolvedSources, ['input.js']);
+          });
+
+          test('relative to mapUrl', (t) => {
+            const tracer = new TraceMap(
+              replaceField(map, 'sourceRoot', undefined),
+              'foo/script.js.map',
+            );
+            t.deepEqual(tracer.resolvedSources, ['foo/input.js']);
+          });
+
+          test('relative to sourceRoot', (t) => {
+            const tracer = new TraceMap(replaceField(map, 'sourceRoot', 'foo'));
+            t.deepEqual(tracer.resolvedSources, ['foo/input.js']);
+          });
+
+          test('relative to mapUrl then sourceRoot', (t) => {
+            const tracer = new TraceMap(
+              replaceField(map, 'sourceRoot', 'bar'),
+              'foo/script.js.map',
+            );
+            t.deepEqual(tracer.resolvedSources, ['foo/bar/input.js']);
+          });
         });
       });
 

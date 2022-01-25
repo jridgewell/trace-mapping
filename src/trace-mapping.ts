@@ -31,18 +31,23 @@ export class TraceMap {
   declare sources: SourceMapV3['sources'];
   declare sourcesContent: SourceMapV3['sourcesContent'];
 
+  declare resolvedSources: SourceMapV3['sources'];
   private declare _impl: DecodedSourceMapImpl | EncodedSourceMapImpl;
 
-  constructor(map: SourceMapInput) {
+  constructor(map: SourceMapInput, mapUrl?: string | null) {
     const isString = typeof map === 'string';
     const parsed = isString ? (JSON.parse(map) as Exclude<SourceMapInput, string>) : map;
 
-    this.version = parsed.version;
-    this.file = parsed.file;
-    this.names = parsed.names;
-    this.sourceRoot = parsed.sourceRoot;
-    this.sources = parsed.sources;
-    this.sourcesContent = parsed.sourcesContent;
+    const { version, file, names, sourceRoot, sources, sourcesContent } = parsed;
+    this.version = version;
+    this.file = file;
+    this.names = names;
+    this.sourceRoot = sourceRoot;
+    this.sources = sources;
+    this.sourcesContent = sourcesContent;
+
+    const from = resolve(sourceRoot || '', stripFilename(mapUrl));
+    this.resolvedSources = sources.map((s) => resolve(s || '', from));
 
     if (typeof parsed.mappings === 'string') {
       this._impl = new EncodedSourceMapImpl(parsed as EncodedSourceMap);
@@ -73,18 +78,13 @@ export class TraceMap {
     if (segment == null) return INVALID_MAPPING;
     if (segment.length == 1) return INVALID_MAPPING;
 
-    const { names, sources } = this;
+    const { names, resolvedSources } = this;
     return {
-      source: this.resolve(String(sources[segment[1]]), ''),
+      source: resolvedSources[segment[1]],
       line: segment[2] + 1,
       column: segment[3],
       name: segment.length === 5 ? names[segment[4]] : null,
     };
-  }
-
-  resolve(source: string, mapUrl?: string): string {
-    const { sourceRoot } = this;
-    return resolve(source, resolve(sourceRoot || '', stripFilename(mapUrl)));
   }
 }
 
