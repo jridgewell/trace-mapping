@@ -10,7 +10,7 @@ export class DecodedSourceMapImpl extends SourceMap {
 
   constructor(map: DecodedSourceMap, owned: boolean) {
     const mappings = sortMappings(map.mappings, owned);
-    super(Object.assign({}, map, mappings));
+    super({ ...map, mappings });
     this._mappings = mappings;
   }
 
