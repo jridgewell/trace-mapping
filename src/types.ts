@@ -43,3 +43,10 @@ export type InvalidMapping = {
 export type SourceMapInput = string | EncodedSourceMap | DecodedSourceMap;
 
 export type Needle = { line: number; column: number };
+
+export abstract class SourceMap {
+  abstract encodedMappings(): EncodedSourceMap['mappings'];
+  abstract decodedMappings(): DecodedSourceMap['mappings'];
+
+  abstract traceSegment(this: SourceMap, line: number, column: number): SourceMapSegment | null;
+}

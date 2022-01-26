@@ -2,8 +2,7 @@ import { encode } from 'sourcemap-codec';
 
 import { memoizedBinarySearch } from './binary-search';
 
-import type { SourceMap } from './source-map';
-import type { SourceMapSegment, EncodedSourceMap, DecodedSourceMap } from './types';
+import type { SourceMap, SourceMapSegment, EncodedSourceMap, DecodedSourceMap } from './types';
 
 const ITEM_LENGTH = 1;
 
@@ -54,17 +53,18 @@ export class DecodedSourceMapImpl implements SourceMap {
 }
 
 function sortMappings(mappings: SourceMapSegment[][], owned: boolean): SourceMapSegment[][] {
-  const unsortedIndex = firstUnsortedSegmentLine(mappings);
+  const unsortedIndex = nextUnsortedSegmentLine(mappings, 0);
   if (unsortedIndex === mappings.length) return mappings;
+
   if (!owned) mappings = mappings.slice();
-  for (let i = unsortedIndex; i < mappings.length; i++) {
+  for (let i = unsortedIndex; i < mappings.length; i = nextUnsortedSegmentLine(mappings, i + 1)) {
     mappings[i] = sortSegments(mappings[i], owned);
   }
   return mappings;
 }
 
-function firstUnsortedSegmentLine(mappings: SourceMapSegment[][]): number {
-  for (let i = 0; i < mappings.length; i++) {
+function nextUnsortedSegmentLine(mappings: SourceMapSegment[][], start: number): number {
+  for (let i = start; i < mappings.length; i++) {
     if (!isSorted(mappings[i])) return i;
   }
   return mappings.length;
@@ -80,7 +80,6 @@ function isSorted(line: SourceMapSegment[]): boolean {
 }
 
 function sortSegments(line: SourceMapSegment[], owned: boolean): SourceMapSegment[] {
-  if (isSorted(line)) return line;
   if (!owned) line = line.slice();
   return line.sort(sortComparator);
 }
