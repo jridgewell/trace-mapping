@@ -29,15 +29,17 @@ export class EncodedSourceMapImpl implements SourceMap {
     let lineIndicesIndex = 1;
     let lineIndex = lineIndices[lineIndicesIndex];
 
-    for (let i = 0; i < mappings.length; i += ITEM_LENGTH) {
-      while (i === lineIndex) {
+    for (let i = 0; i < mappings.length; ) {
+      while (i < lineIndex) {
+        line.push(segmentify(mappings, i));
+        i += ITEM_LENGTH;
+      }
+      do {
         lineIndex = lineIndices[++lineIndicesIndex];
         decoded.push(line);
         line = [];
-      }
-      line.push(segmentify(mappings, i));
+      } while (i === lineIndex);
     }
-    decoded.push(line);
     return decoded;
   }
 
