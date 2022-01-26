@@ -140,11 +140,11 @@ function maybeSort(state: Uint32Array, start: number, end: number) {
   // This isn't a fast algorithm, but I believe it's exceedingly rare for a mapping to be unsorted.
   const segments = [];
   for (let i = start; i < end; i += ITEM_LENGTH) {
-    segments.push(state.slice(start, start + ITEM_LENGTH));
+    segments.push(state.slice(i, i + ITEM_LENGTH));
   }
   segments.sort(sortComparator);
-  for (let i = 0; i < segments.length; i++) {
-    state.set(segments[i], start + i * ITEM_LENGTH);
+  for (let i = start, j = 0; i < end; i += ITEM_LENGTH, j++) {
+    state.set(segments[j], i);
   }
 }
 

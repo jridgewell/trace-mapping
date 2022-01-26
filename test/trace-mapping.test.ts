@@ -3,6 +3,7 @@ import { encode } from 'sourcemap-codec';
 import { test, describe } from './setup';
 import TraceMap from '../src/trace-mapping';
 
+import type { ExecutionContext } from 'ava';
 import type { SourceMapInput, EncodedSourceMap, DecodedSourceMap } from '../src/trace-mapping';
 
 describe('TraceMap', () => {
@@ -186,4 +187,27 @@ describe('TraceMap', () => {
   describe('json decoded source map', testSuite(JSON.stringify(decodedMap)));
   describe('encoded source map', testSuite(encodedMap));
   describe('json encoded source map', testSuite(JSON.stringify(encodedMap)));
+
+  describe('unordered mappings', () => {
+    const mappings = decodedMap.mappings.map((line) => {
+      return line.slice().reverse();
+    });
+    const reversedDecoded: DecodedSourceMap = {
+      ...decodedMap,
+      mappings,
+    };
+    const reversedEncoded: EncodedSourceMap = {
+      ...encodedMap,
+      mappings: encode(mappings),
+    };
+    const macro = test.macro((t: ExecutionContext<unknown>, map: SourceMapInput) => {
+      const tracer = new TraceMap(map);
+      t.deepEqual(tracer.decodedMappings(), decodedMap.mappings);
+    });
+
+    test('decoded source map', macro, reversedDecoded);
+    test('json decoded source map', macro, JSON.stringify(reversedDecoded));
+    test('encoded source map', macro, reversedEncoded);
+    test('json encoded source map', macro, JSON.stringify(reversedEncoded));
+  });
 });
