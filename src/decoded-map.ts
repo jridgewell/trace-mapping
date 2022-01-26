@@ -35,7 +35,7 @@ export class DecodedSourceMapImpl implements SourceMap {
 
     const segments = mappings[line];
 
-    let index = memoizedBinarySearch(
+    const index = memoizedBinarySearch(
       segments,
       column,
       searchComparator,
@@ -48,12 +48,7 @@ export class DecodedSourceMapImpl implements SourceMap {
     );
 
     // we come before any mapped segment
-    if (index === -1) return null;
-
-    // If we can't find a segment that lines up to this column, we use the
-    // segment before.
-    if (index < 0) index = ~index - ITEM_LENGTH;
-
+    if (index < 0) return null;
     return segments[index];
   }
 }

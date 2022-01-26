@@ -31,7 +31,6 @@ export function binarySearch<T, S>(
   high: number,
   len: number,
 ): number {
-  low = Math.max(low, 0);
   low /= len;
   high /= len;
 
@@ -51,10 +50,15 @@ export function binarySearch<T, S>(
     }
   }
 
-  return ~(low * len);
+  return (low - 1) * len;
 }
 
-type SearchState = { _lastLine: number; _lastColumn: number; _lastIndex: number };
+type SearchState = {
+  _lastLine: number;
+  _lastColumn: number;
+  _lastIndex: number;
+};
+
 export function memoizedBinarySearch<T, S>(
   haystack: ArrayLike<T>,
   needle: S,
@@ -73,7 +77,7 @@ export function memoizedBinarySearch<T, S>(
     }
 
     if (column >= lastColumn) {
-      low = lastIndex;
+      low = Math.max(lastIndex, 0);
     } else {
       high = lastIndex;
     }
