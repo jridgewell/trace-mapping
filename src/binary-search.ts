@@ -23,20 +23,25 @@
  * assert.deepEqual(array, [1, 2, 3]);
  * ```
  */
-export default function binarySearch<T, S>(
+export function binarySearch<T, S>(
   haystack: ArrayLike<T>,
   needle: S,
   comparator: (item: T, needle: S) => number,
   low: number,
   high: number,
+  len: number,
 ): number {
   low = Math.max(low, 0);
+  low /= len;
+  high /= len;
+
   while (low <= high) {
     const mid = low + ((high - low) >> 1);
-    const cmp = comparator(haystack[mid], needle);
+    const index = mid * len;
+    const cmp = comparator(haystack[index], needle);
 
     if (cmp === 0) {
-      return mid;
+      return index;
     }
 
     if (cmp < 0) {
@@ -46,5 +51,35 @@ export default function binarySearch<T, S>(
     }
   }
 
-  return ~low;
+  return ~(low * len);
+}
+
+type SearchState = { _lastLine: number; _lastColumn: number; _lastIndex: number };
+export function memoizedBinarySearch<T, S>(
+  haystack: ArrayLike<T>,
+  needle: S,
+  comparator: (item: T, needle: S) => number,
+  low: number,
+  high: number,
+  len: number,
+  state: SearchState,
+  line: number,
+  column: number,
+): number {
+  const { _lastLine: lastLine, _lastColumn: lastColumn, _lastIndex: lastIndex } = state;
+  if (line === lastLine) {
+    if (column === lastColumn) {
+      return lastIndex;
+    }
+
+    if (column >= lastColumn) {
+      low = lastIndex;
+    } else {
+      high = lastIndex;
+    }
+  }
+  state._lastLine = line;
+  state._lastColumn = column;
+
+  return (state._lastIndex = binarySearch(haystack, needle, comparator, low, high, len));
 }

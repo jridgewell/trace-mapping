@@ -1,17 +1,21 @@
 import { encode } from 'sourcemap-codec';
 
-import { SourceMap } from './source-map';
-import binarySearch from './binary-search';
+import { memoizedBinarySearch } from './binary-search';
 
+import type { SourceMap } from './source-map';
 import type { SourceMapSegment, EncodedSourceMap, DecodedSourceMap } from './types';
 
-export class DecodedSourceMapImpl extends SourceMap {
+const ITEM_LENGTH = 1;
+
+export class DecodedSourceMapImpl implements SourceMap {
   private declare _mappings: SourceMapSegment[][];
 
+  _lastIndex = 0;
+  _lastLine = 0;
+  _lastColumn = 0;
+
   constructor(map: DecodedSourceMap, owned: boolean) {
-    const mappings = sortMappings(map.mappings, owned);
-    super({ ...map, mappings });
-    this._mappings = mappings;
+    this._mappings = sortMappings(map.mappings, owned);
   }
 
   encodedMappings(): EncodedSourceMap['mappings'] {
@@ -31,37 +35,24 @@ export class DecodedSourceMapImpl extends SourceMap {
 
     const segments = mappings[line];
 
-    if (segments.length === 0) return null;
+    let index = memoizedBinarySearch(
+      segments,
+      column,
+      searchComparator,
+      0,
+      segments.length - ITEM_LENGTH,
+      ITEM_LENGTH,
+      this,
+      line,
+      column,
+    );
 
-    let low = 0;
-    let high = segments.length - 1;
-    const { _lastLine: lastLine, _lastColumn: lastColumn, _lastIndex: lastIndex } = this;
-    if (line === lastLine) {
-      if (column === lastColumn) {
-        return segments[lastIndex];
-      }
-
-      if (column >= lastColumn) {
-        low = lastIndex;
-      } else {
-        high = lastIndex;
-      }
-    }
-    this._lastLine = line;
-    this._lastColumn = column;
-
-    let index = binarySearch(segments, column, searchComparator, low, high);
-
-    if (index === -1) {
-      // we come before any mapped segment
-      this._lastIndex = index;
-      return null;
-    }
+    // we come before any mapped segment
+    if (index === -1) return null;
 
     // If we can't find a segment that lines up to this column, we use the
     // segment before.
-    if (index < 0) index = ~index - 1;
-    this._lastIndex = index;
+    if (index < 0) index = ~index - ITEM_LENGTH;
 
     return segments[index];
   }
@@ -79,25 +70,30 @@ function sortMappings(mappings: SourceMapSegment[][], owned: boolean): SourceMap
 
 function firstUnsortedSegmentLine(mappings: SourceMapSegment[][]): number {
   for (let i = 0; i < mappings.length; i++) {
-    const segments = mappings[i];
-    for (let j = 1; j < segments.length; j++) {
-      if (segments[j][0] < segments[j - 1][0]) {
-        return i;
-      }
-    }
+    if (!isSorted(mappings[i])) return i;
   }
   return mappings.length;
 }
 
-function sortSegments(segments: SourceMapSegment[], owned: boolean): SourceMapSegment[] {
-  if (!owned) segments = segments.slice();
-  return segments.sort(sortComparator);
+function isSorted(line: SourceMapSegment[]): boolean {
+  for (let j = 1; j < line.length; j++) {
+    if (line[j][0] < line[j - 1][0]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function sortSegments(line: SourceMapSegment[], owned: boolean): SourceMapSegment[] {
+  if (isSorted(line)) return line;
+  if (!owned) line = line.slice();
+  return line.sort(sortComparator);
 }
 
 function sortComparator(a: SourceMapSegment, b: SourceMapSegment): number {
   return a[0] - b[0];
 }
 
-function searchComparator(segment: SourceMapSegment, column: number): number {
-  return segment[0] - column;
+function searchComparator(segment: SourceMapSegment, needle: number): number {
+  return segment[0] - needle;
 }

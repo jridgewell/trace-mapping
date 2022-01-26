@@ -12,18 +12,25 @@ function describe(label: string, fn: () => void): void {
   }
 }
 
+function getLabel(label: string): string {
+  context.push(label);
+  label = context.join(' - ');
+  context.pop();
+  return label;
+}
+
 // Copying type from node_modules/ava/types/test-fn.d.ts
 const test = function test<Args extends unknown[]>(
   label: string,
   fn: Implementation<Args>,
-  ...args: unknown[]
+  ...args: Args
 ): void {
-  context.push(label);
-  label = context.join(' - ');
-  context.pop();
-  ava(label, fn as any, ...args);
+  ava(getLabel(label), fn, ...args);
 };
 
 test.macro = ava.macro;
+test.only = <Args extends unknown[]>(label: string, fn: Implementation<Args>, ...args: Args) => {
+  ava.only(getLabel(label), fn, ...args);
+};
 
 export { test, describe, describe as context };
