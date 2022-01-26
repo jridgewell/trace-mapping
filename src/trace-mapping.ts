@@ -56,18 +56,33 @@ export class TraceMap {
     }
   }
 
+  /**
+   * Returns the encoded (VLQ string) form of the SourceMap's mappings field.
+   */
   encodedMappings(): EncodedSourceMap['mappings'] {
     return this._impl.encodedMappings();
   }
 
+  /**
+   * Returns the decoded (array of lines of segments) form of the SourceMap's mappings field.
+   */
   decodedMappings(): DecodedSourceMap['mappings'] {
     return this._impl.decodedMappings();
   }
 
+  /**
+   * A low-level API to find the segment associated with a generated line/column (think, from a
+   * stack trace). Line and column here are 0-based, unlike `originalPositionFor`.
+   */
   traceSegment(line: number, column: number): SourceMapSegment | null {
     return this._impl.traceSegment(line, column);
   }
 
+  /**
+   * A higher-level API to find the source/line/column associated with a generated line/column
+   * (think, from a stack trace). Line is 1-based, but column is 0-based, due to legacy behavior in
+   * `source-map` library.
+   */
   originalPositionFor({ line, column }: Needle): Mapping | InvalidMapping {
     if (line < 1) throw new Error('`line` must be greater than 0 (lines start at line 1)');
     if (column < 0) {

@@ -1,5 +1,5 @@
 /**
- * Removes the filename from a path.
+ * Removes everything after the last "/", but leaves the slash.
  */
 export default function stripFilename(path: string | undefined | null): string {
   if (!path) return '';

@@ -29,6 +29,8 @@ export class EncodedSourceMapImpl implements SourceMap {
     let lineIndicesIndex = 1;
     let lineIndex = lineIndices[lineIndicesIndex];
 
+    // The mappings TypedArray needs to be split on line boundaries to generate the proper decoded
+    // mappings array.
     for (let i = 0; i < mappings.length; ) {
       while (i < lineIndex) {
         line.push(segmentify(mappings, i));
@@ -69,19 +71,17 @@ export class EncodedSourceMapImpl implements SourceMap {
 }
 
 function segmentify(mappings: Uint32Array, i: number): SourceMapSegment {
+  // If the second index (sourcesIndex) is 0, then the VLQ segment didn't specify 2-5 values.
   if (mappings[i + 1] === 0) return [mappings[i]];
 
+  // If the fifth index (namesIndex) is 0, then the VLQ segment didn't specify 5th value.
+  // The sourcesIndex 1 higher than specified, so we need to decrement it.
   if (mappings[i + 4] === 0) {
-    return [mappings[i], mappings[i + 1] - 1, mappings[i + 2] - 1, mappings[i + 3] - 1];
+    return [mappings[i], mappings[i + 1] - 1, mappings[i + 2], mappings[i + 3]];
   }
 
-  return [
-    mappings[i],
-    mappings[i + 1] - 1,
-    mappings[i + 2] - 1,
-    mappings[i + 3] - 1,
-    mappings[i + 4] - 1,
-  ];
+  // The sourcesIndex and namesIndex are both 1 higher than specified, so we need to decrement them.
+  return [mappings[i], mappings[i + 1] - 1, mappings[i + 2], mappings[i + 3], mappings[i + 4] - 1];
 }
 
 function searchComparator(column: number, needle: number): number {

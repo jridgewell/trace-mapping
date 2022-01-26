@@ -8,18 +8,20 @@
  * any positive number if the `item` is too large (and we must search before
  * it).
  *
- * If no match is found, a negated index of where to insert the `needle` is
- * returned. This negated index is guaranteed to be less than 0. To insert an
- * item, negate it (again) and splice:
+ * The `len` param allows you to treat contiguous blocks of memory as a single item. Eg, a 5-length
+ * tuple (with values at indices 0-4) would only test index 0.
+ *
+ * If no match is found, then the left-index (the index associated with the item that comes just
+ * before the desired index) is returned. To maintain proper sort order, a splice would happen at
+ * the next index:
  *
  * ```js
  * const array = [1, 3];
  * const needle = 2;
  * const index = binarySearch(array, needle, (item, needle) => item - needle);
  *
- * assert.equal(index, -2);
- * assert.equal(~index, 1);
- * array.splice(~index, 0, needle);
+ * assert.equal(index, 0);
+ * array.splice(index + 1, 0, needle);
  * assert.deepEqual(array, [1, 2, 3]);
  * ```
  */
@@ -59,6 +61,10 @@ type SearchState = {
   _lastIndex: number;
 };
 
+/**
+ * This overly complicated beast is just to record the last tested line/column and the resulting
+ * index, allowing us to skip a few tests if mappings are monotonically increasing.
+ */
 export function memoizedBinarySearch<T, S>(
   haystack: ArrayLike<T>,
   needle: S,
