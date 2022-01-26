@@ -49,6 +49,7 @@
     "@typescript-eslint/eslint-plugin": "5.10.0",
     "@typescript-eslint/parser": "5.10.0",
     "ava": "4.0.1",
+    "benchmark": "2.1.4",
     "c8": "7.11.0",
     "esbuild": "0.14.11",
     "esbuild-node-loader": "0.6.4",
