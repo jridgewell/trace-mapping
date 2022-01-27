@@ -4,7 +4,8 @@ import { readFileSync } from 'fs';
 import Benchmark from 'benchmark';
 import { decode } from 'sourcemap-codec';
 import TraceMap from './dist/trace-mapping.mjs';
-import { SourceMapConsumer } from 'source-map-js';
+import { SourceMapConsumer as SourceMapConsumerJs } from 'source-map-js';
+import { SourceMapConsumer as SourceMapConsumer061 } from 'source-map';
 
 const map = JSON.parse(readFileSync(`dist/trace-mapping.umd.js.map`));
 
@@ -13,23 +14,26 @@ const encodedMapDataJson = JSON.stringify(map);
 const decodedMapData = { ...map, mappings: decode(map.mappings) };
 const decodedMapDataJson = JSON.stringify(decodedMapData);
 
-console.log(process.version);
+console.log(`node ${process.version}\n`);
 
 new Benchmark.Suite()
-  .add('Encoded Map', () => {
-    new TraceMap(encodedMapData).originalPositionFor({ line: 1, column: 0 });
-  })
-  .add('Encoded JSON Map', () => {
+  .add('trace-mapping: encoded JSON input', () => {
     new TraceMap(encodedMapDataJson).originalPositionFor({ line: 1, column: 0 });
   })
-  .add('Decoded Map', () => {
-    new TraceMap(decodedMapData).originalPositionFor({ line: 1, column: 0 });
-  })
-  .add('Decoded JSON Map', () => {
+  .add('trace-mapping: decoded JSON input', () => {
     new TraceMap(decodedMapDataJson).originalPositionFor({ line: 1, column: 0 });
   })
-  .add('source-map-js', () => {
-    new SourceMapConsumer(map).originalPositionFor({ line: 1, column: 0 });
+  .add('trace-mapping: encoded Object input', () => {
+    new TraceMap(encodedMapData).originalPositionFor({ line: 1, column: 0 });
+  })
+  .add('trace-mapping: decoded Object input', () => {
+    new TraceMap(decodedMapData).originalPositionFor({ line: 1, column: 0 });
+  })
+  .add('source-map-js: decoded Object input', () => {
+    new SourceMapConsumerJs(map).originalPositionFor({ line: 1, column: 0 });
+  })
+  .add('source-map:    decoded Object input', () => {
+    new SourceMapConsumer061(map).originalPositionFor({ line: 1, column: 0 });
   })
   // add listeners
   .on('error', ({error}) => console.error(error))
@@ -45,12 +49,13 @@ console.log('');
 
 const encoded = new TraceMap(encodedMapData);
 const decoded = new TraceMap(decodedMapData);
-const smc = new SourceMapConsumer(map);
+const smcjs = new SourceMapConsumerJs(map);
+const smc061 = new SourceMapConsumer061(map);
 
 const lines = decoded.decodedMappings();
 
 new Benchmark.Suite()
-  .add('Encoded originalPositionFor', () => {
+  .add('trace-mapping: Encoded originalPositionFor', () => {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       for (let j = 0; j < line.length; j++) {
@@ -60,7 +65,7 @@ new Benchmark.Suite()
       }
     }
   })
-  .add('Decoded originalPositionFor', () => {
+  .add('trace-mapping: Decoded originalPositionFor', () => {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       for (let j = 0; j < line.length; j++) {
@@ -70,13 +75,23 @@ new Benchmark.Suite()
       }
     }
   })
-  .add('source-map-js originalPositionFor', () => {
+  .add('source-map-js: originalPositionFor', () => {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       for (let j = 0; j < line.length; j++) {
         const index = Math.floor(Math.random() * line.length);
         const column = line[index][0];
-        smc.originalPositionFor({ line: i + 1, column });
+        smcjs.originalPositionFor({ line: i + 1, column });
+      }
+    }
+  })
+  .add('source-map:    originalPositionFor', () => {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      for (let j = 0; j < line.length; j++) {
+        const index = Math.floor(Math.random() * line.length);
+        const column = line[index][0];
+        smc061.originalPositionFor({ line: i + 1, column });
       }
     }
   })
