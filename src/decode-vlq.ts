@@ -16,6 +16,8 @@ export function decode(encoded: string, lines: number[]): Uint32Array {
   let sourceColumn = 0;
   let namesIndex = 1;
 
+  let lineSorted = true;
+
   // count tracks the number of segments we have stored.
   let count = 0;
   // lastLineStart tracks the `count` of the segment that started the current line, so that we may
@@ -37,7 +39,8 @@ export function decode(encoded: string, lines: number[]): Uint32Array {
       // Semicolons separates lines.
       case 59: // ';'
         lines.push(count);
-        maybeSort(decoded, lastLineStart, count);
+        if (!lineSorted) easySort(decoded, lastLineStart, count);
+        lineSorted = true;
         lastLineStart = count;
         // generatedColumn is reset when the next line starts, per the spec.
         generatedColumn = 0;
@@ -51,6 +54,7 @@ export function decode(encoded: string, lines: number[]): Uint32Array {
 
         // Segments are guaranteed to have at least the generatedColumn VLQ.
         pos = decodeInteger(encoded, pos, decoded, count);
+        if (lineSorted) lineSorted = decoded[count] < 0;
         generatedColumn = decoded[count] += generatedColumn;
         count++;
 
@@ -87,7 +91,7 @@ export function decode(encoded: string, lines: number[]): Uint32Array {
 
   // Cap the lines, so that we can always look at index and index+1 for the start and end indices.
   lines.push(count);
-  maybeSort(decoded, lastLineStart, count);
+  if (!lineSorted) easySort(decoded, lastLineStart, count);
 
   return decoded.subarray(0, count);
 }
@@ -134,9 +138,7 @@ function decodeInteger(encoded: string, pos: number, state: Uint32Array, index: 
   return pos;
 }
 
-function maybeSort(state: Uint32Array, start: number, end: number) {
-  if (isSorted(state, start, end)) return;
-
+function easySort(state: Uint32Array, start: number, end: number) {
   // This isn't a fast algorithm, but I believe it's exceedingly rare for a mapping to be unsorted.
   const segments = [];
   for (let i = start; i < end; i += ITEM_LENGTH) {
@@ -146,13 +148,6 @@ function maybeSort(state: Uint32Array, start: number, end: number) {
   for (let i = start, j = 0; i < end; i += ITEM_LENGTH, j++) {
     state.set(segments[j], i);
   }
-}
-
-function isSorted(state: Uint32Array, start: number, end: number): boolean {
-  for (let i = start + ITEM_LENGTH; i < end; i += ITEM_LENGTH) {
-    if (state[i] < state[i - ITEM_LENGTH]) return false;
-  }
-  return true;
 }
 
 function sortComparator(a: Uint32Array, b: Uint32Array): number {

@@ -17,22 +17,22 @@ const decodedMapDataJson = JSON.stringify(decodedMapData);
 console.log(`node ${process.version}\n`);
 
 new Benchmark.Suite()
-  .add('trace-mapping: encoded JSON input', () => {
-    new TraceMap(encodedMapDataJson).originalPositionFor({ line: 1, column: 0 });
-  })
   .add('trace-mapping: decoded JSON input', () => {
     new TraceMap(decodedMapDataJson).originalPositionFor({ line: 1, column: 0 });
   })
-  .add('trace-mapping: encoded Object input', () => {
-    new TraceMap(encodedMapData).originalPositionFor({ line: 1, column: 0 });
+  .add('trace-mapping: encoded JSON input', () => {
+    new TraceMap(encodedMapDataJson).originalPositionFor({ line: 1, column: 0 });
   })
   .add('trace-mapping: decoded Object input', () => {
     new TraceMap(decodedMapData).originalPositionFor({ line: 1, column: 0 });
   })
-  .add('source-map-js: decoded Object input', () => {
+  .add('trace-mapping: encoded Object input', () => {
+    new TraceMap(encodedMapData).originalPositionFor({ line: 1, column: 0 });
+  })
+  .add('source-map-js: encoded Object input', () => {
     new SourceMapConsumerJs(map).originalPositionFor({ line: 1, column: 0 });
   })
-  .add('source-map:    decoded Object input', () => {
+  .add('source-map:    encoded Object input', () => {
     new SourceMapConsumer061(map).originalPositionFor({ line: 1, column: 0 });
   })
   // add listeners
@@ -55,7 +55,7 @@ const smc061 = new SourceMapConsumer061(map);
 const lines = decoded.decodedMappings();
 
 new Benchmark.Suite()
-  .add('trace-mapping: Encoded originalPositionFor', () => {
+  .add('trace-mapping: encoded originalPositionFor', () => {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       for (let j = 0; j < line.length; j++) {
@@ -65,7 +65,7 @@ new Benchmark.Suite()
       }
     }
   })
-  .add('trace-mapping: Decoded originalPositionFor', () => {
+  .add('trace-mapping: decoded originalPositionFor', () => {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       for (let j = 0; j < line.length; j++) {
@@ -75,7 +75,7 @@ new Benchmark.Suite()
       }
     }
   })
-  .add('source-map-js: originalPositionFor', () => {
+  .add('source-map-js: encoded originalPositionFor', () => {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       for (let j = 0; j < line.length; j++) {
@@ -85,7 +85,7 @@ new Benchmark.Suite()
       }
     }
   })
-  .add('source-map:    originalPositionFor', () => {
+  .add('source-map:    encoded originalPositionFor', () => {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       for (let j = 0; j < line.length; j++) {
