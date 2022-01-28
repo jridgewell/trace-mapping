@@ -1,7 +1,13 @@
 import { memoizedBinarySearch } from './binary-search';
 import { ITEM_LENGTH, decode } from './decode-vlq';
 
-import type { SourceMap, SourceMapSegment, DecodedSourceMap, EncodedSourceMap } from './types';
+import type {
+  SourceMap,
+  SourceMapSegment,
+  DecodedSourceMap,
+  EncodedSourceMap,
+  EachSegmentFn,
+} from './types';
 
 export class EncodedSourceMapImpl implements SourceMap {
   _lastIndex = 0;
@@ -22,27 +28,44 @@ export class EncodedSourceMapImpl implements SourceMap {
   }
 
   decodedMappings(): DecodedSourceMap['mappings'] {
+    let lastGenLine = 0;
+    let current: SourceMapSegment[] = [];
+    const mappings: DecodedSourceMap['mappings'] = [];
+
+    this.eachSegment((genLine, genCol, source, line, col, name) => {
+      while (lastGenLine < genLine) {
+        mappings.push(current);
+        current = [];
+        lastGenLine++;
+      }
+      current.push(segmentify(genCol, source, line, col, name));
+    });
+    mappings.push(current);
+    return mappings;
+  }
+
+  eachSegment(fn: EachSegmentFn) {
     const { _mappings: mappings, _lineIndices: lineIndices } = this;
-    const decoded: SourceMapSegment[][] = [];
-    let line: SourceMapSegment[] = [];
 
-    let lineIndicesIndex = 1;
-    let lineIndex = lineIndices[lineIndicesIndex];
-
-    // The mappings TypedArray needs to be split on line boundaries to generate the proper decoded
-    // mappings array.
+    let generatedLine = 0;
+    let lineIndex = lineIndices[generatedLine + 1];
     for (let i = 0; i < mappings.length; ) {
       while (i < lineIndex) {
-        line.push(segmentify(mappings, i));
+        fn(
+          generatedLine,
+          mappings[i + 0],
+          mappings[i + 1] - 1,
+          mappings[i + 2] - 1,
+          mappings[i + 3] - 1,
+          mappings[i + 4] - 1,
+        );
         i += ITEM_LENGTH;
       }
       do {
-        lineIndex = lineIndices[++lineIndicesIndex];
-        decoded.push(line);
-        line = [];
+        generatedLine++;
+        lineIndex = lineIndices[generatedLine + 1];
       } while (i === lineIndex);
     }
-    return decoded;
   }
 
   traceSegment(line: number, column: number): SourceMapSegment | null {
@@ -66,22 +89,30 @@ export class EncodedSourceMapImpl implements SourceMap {
 
     // we come before any mapped segment
     if (index < 0) return null;
-    return segmentify(mappings, index);
+    return segmentify(
+      mappings[index + 0],
+      mappings[index + 1] - 1,
+      mappings[index + 2] - 1,
+      mappings[index + 3] - 1,
+      mappings[index + 4] - 1,
+    );
   }
 }
 
-function segmentify(mappings: Uint32Array, i: number): SourceMapSegment {
-  // If the second index (sourcesIndex) is 0, then the VLQ segment didn't specify 2-5 values.
-  if (mappings[i + 1] === 0) return [mappings[i]];
+function segmentify(
+  genCol: number,
+  source: number,
+  line: number,
+  col: number,
+  name: number,
+): SourceMapSegment {
+  // If the sourcesIndex is -1, then the VLQ segment didn't specify 2-5 values.
+  if (source === -1) return [genCol];
 
-  // If the fifth index (namesIndex) is 0, then the VLQ segment didn't specify 5th value.
-  // The sourcesIndex 1 higher than specified, so we need to decrement it.
-  if (mappings[i + 4] === 0) {
-    return [mappings[i], mappings[i + 1] - 1, mappings[i + 2], mappings[i + 3]];
-  }
+  // If the namesIndex is -1, then the VLQ segment didn't specify 5th value.
+  if (name === -1) return [genCol, source, line, col];
 
-  // The sourcesIndex and namesIndex are both 1 higher than specified, so we need to decrement them.
-  return [mappings[i], mappings[i + 1] - 1, mappings[i + 2], mappings[i + 3], mappings[i + 4] - 1];
+  return [genCol, source, line, col, name];
 }
 
 function searchComparator(column: number, needle: number): number {

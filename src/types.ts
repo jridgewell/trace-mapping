@@ -44,9 +44,19 @@ export type SourceMapInput = string | EncodedSourceMap | DecodedSourceMap;
 
 export type Needle = { line: number; column: number };
 
+export type EachSegmentFn = (
+  generatedLine: number,
+  generatedColumn: number,
+  sourcesIndex: number,
+  line: number,
+  column: number,
+  namesIndex: number,
+) => void;
+
 export abstract class SourceMap {
   abstract encodedMappings(): EncodedSourceMap['mappings'];
   abstract decodedMappings(): DecodedSourceMap['mappings'];
+  abstract eachSegment(fn: EachSegmentFn): void;
 
   abstract traceSegment(this: SourceMap, line: number, column: number): SourceMapSegment | null;
 }

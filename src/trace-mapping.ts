@@ -12,9 +12,16 @@ import type {
   SourceMapSegment,
   SourceMapInput,
   Needle,
+  EachSegmentFn,
 } from './types';
 
-export type { SourceMapSegment, SourceMapInput, DecodedSourceMap, EncodedSourceMap } from './types';
+export type {
+  SourceMapSegment,
+  SourceMapInput,
+  DecodedSourceMap,
+  EncodedSourceMap,
+  EachSegmentFn,
+} from './types';
 
 const INVALID_MAPPING: InvalidMapping = Object.freeze({
   source: null,
@@ -68,6 +75,14 @@ export class TraceMap {
    */
   decodedMappings(): DecodedSourceMap['mappings'] {
     return this._impl.decodedMappings();
+  }
+
+  /**
+   * Iterates each mapping segment of the sourcemap. Passes -1 for any values that do not exist in
+   * the SourceMapSegment. Both generatedLine and generatedColumn are 0-based.
+   */
+  eachSegment(fn: EachSegmentFn): void {
+    return this._impl.eachSegment(fn);
   }
 
   /**

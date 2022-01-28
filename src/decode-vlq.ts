@@ -12,8 +12,8 @@ export function decode(encoded: string, lines: number[]): Uint32Array {
   // manually set any missing VLQ numbers), so these start at 1. Public APIs will decrement the
   // values so they are correct before returning to consumers.
   let sourcesIndex = 1;
-  let sourceLine = 0;
-  let sourceColumn = 0;
+  let sourceLine = 1;
+  let sourceColumn = 1;
   let namesIndex = 1;
 
   let lineSorted = true;

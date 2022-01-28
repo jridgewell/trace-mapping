@@ -1,3 +1,5 @@
+/// <reference lib="esnext" />
+
 import { encode } from 'sourcemap-codec';
 
 import { test, describe } from './setup';
@@ -178,6 +180,31 @@ describe('TraceMap', () => {
 
         t.throws(() => {
           tracer.originalPositionFor({ line: 1, column: -1 });
+        });
+      });
+
+      test('eachSegment', (t) => {
+        const trace = new TraceMap(map);
+        const expecteds = decodedMap.mappings.flatMap((line, genLine) => {
+          return line.map((segment) => {
+            const [genCol, source, line, col, name] = segment;
+            return {
+              genLine,
+              genCol,
+              source: source ?? -1,
+              line: line ?? -1,
+              col: col ?? -1,
+              name: name ?? -1,
+            };
+          });
+        });
+        t.plan(expecteds.length);
+
+        let index = 0;
+        trace.eachSegment((genLine, genCol, source, line, col, name) => {
+          const expected = expecteds[index];
+          t.deepEqual({ genLine, genCol, source, line, col, name }, expected, `${index}`);
+          index++;
         });
       });
     };
