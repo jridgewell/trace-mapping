@@ -30,13 +30,13 @@ new Benchmark.Suite()
     new TraceMap(encodedMapData).originalPositionFor({ line: 1, column: 0 });
   })
   .add('source-map-js: encoded Object input', () => {
-    new SourceMapConsumerJs(map).originalPositionFor({ line: 1, column: 0 });
+    new SourceMapConsumerJs(encodedMapData).originalPositionFor({ line: 1, column: 0 });
   })
   .add('source-map:    encoded Object input', () => {
-    new SourceMapConsumer061(map).originalPositionFor({ line: 1, column: 0 });
+    new SourceMapConsumer061(encodedMapData).originalPositionFor({ line: 1, column: 0 });
   })
   // add listeners
-  .on('error', ({error}) => console.error(error))
+  .on('error', ({ error }) => console.error(error))
   .on('cycle', (event) => {
     console.log(String(event.target));
   })
@@ -47,24 +47,14 @@ new Benchmark.Suite()
 
 console.log('');
 
-const encoded = new TraceMap(encodedMapData);
 const decoded = new TraceMap(decodedMapData);
-const smcjs = new SourceMapConsumerJs(map);
-const smc061 = new SourceMapConsumer061(map);
+const encoded = new TraceMap(encodedMapData);
+const smcjs = new SourceMapConsumerJs(encodedMapData);
+const smc061 = new SourceMapConsumer061(encodedMapData);
 
 const lines = decoded.decodedMappings();
 
 new Benchmark.Suite()
-  .add('trace-mapping: encoded originalPositionFor', () => {
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      for (let j = 0; j < line.length; j++) {
-        const index = Math.floor(Math.random() * line.length);
-        const column = line[index][0];
-        encoded.originalPositionFor({ line: i + 1, column });
-      }
-    }
-  })
   .add('trace-mapping: decoded originalPositionFor', () => {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
@@ -72,6 +62,16 @@ new Benchmark.Suite()
         const index = Math.floor(Math.random() * line.length);
         const column = line[index][0];
         decoded.originalPositionFor({ line: i + 1, column });
+      }
+    }
+  })
+  .add('trace-mapping: encoded originalPositionFor', () => {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      for (let j = 0; j < line.length; j++) {
+        const index = Math.floor(Math.random() * line.length);
+        const column = line[index][0];
+        encoded.originalPositionFor({ line: i + 1, column });
       }
     }
   })
@@ -96,7 +96,7 @@ new Benchmark.Suite()
     }
   })
   // add listeners
-  .on('error', ({error}) => console.error(error))
+  .on('error', ({ error }) => console.error(error))
   .on('cycle', (event) => {
     console.log(String(event.target));
   })

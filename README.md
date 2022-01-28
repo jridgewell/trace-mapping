@@ -66,8 +66,8 @@ source-map-js: encoded Object input x 3,610 ops/sec ±0.24% (97 runs sampled)
 source-map:    encoded Object input x 1,467 ops/sec ±0.22% (97 runs sampled)
 Fastest is trace-mapping: decoded Object input
 
-trace-mapping: encoded originalPositionFor x 7,704 ops/sec ±0.19% (101 runs sampled)
 trace-mapping: decoded originalPositionFor x 7,588 ops/sec ±0.09% (101 runs sampled)
+trace-mapping: encoded originalPositionFor x 7,704 ops/sec ±0.19% (101 runs sampled)
 source-map-js: encoded originalPositionFor x 1,657 ops/sec ±0.18% (100 runs sampled)
 source-map:    encoded originalPositionFor x 927 ops/sec ±0.28% (99 runs sampled)
 Fastest is trace-mapping: encoded originalPositionFor
