@@ -12,7 +12,7 @@ import type {
   SourceMapSegment,
   SourceMapInput,
   Needle,
-  EachSegmentFn,
+  MapSegmentFn,
 } from './types';
 
 export type {
@@ -20,7 +20,7 @@ export type {
   SourceMapInput,
   DecodedSourceMap,
   EncodedSourceMap,
-  EachSegmentFn,
+  MapSegmentFn,
 } from './types';
 
 const INVALID_MAPPING: InvalidMapping = Object.freeze({
@@ -78,11 +78,11 @@ export class TraceMap {
   }
 
   /**
-   * Iterates each mapping segment of the sourcemap. Passes -1 for any values that do not exist in
-   * the SourceMapSegment. Both generatedLine and generatedColumn are 0-based.
+   * Similar to Array.p.map, maps each segment into a new  segment. Passes -1 for any values that do
+   * not exist in the SourceMapSegment. Both generatedLine and generatedColumn are 0-based.
    */
-  eachSegment(fn: EachSegmentFn): void {
-    return this._impl.eachSegment(fn);
+  map<T>(fn: MapSegmentFn<T>): NonNullable<T>[][] {
+    return this._impl.map(fn);
   }
 
   /**

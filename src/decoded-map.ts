@@ -7,7 +7,7 @@ import type {
   SourceMapSegment,
   EncodedSourceMap,
   DecodedSourceMap,
-  EachSegmentFn,
+  MapSegmentFn,
 } from './types';
 
 const ITEM_LENGTH = 1;
@@ -31,19 +31,29 @@ export class DecodedSourceMapImpl implements SourceMap {
     return this._mappings;
   }
 
-  eachSegment(fn: EachSegmentFn) {
+  map<T>(fn: MapSegmentFn<T>): NonNullable<T>[][] {
+    const mapOut: NonNullable<T>[][] = [];
     const mappings = this._mappings;
+
     for (let i = 0; i < mappings.length; i++) {
       const line = mappings[i];
-      for (let j = 0; j < line.length; j++) {
-        const segment = line[j];
-        const { length } = segment;
+      const lineOut: NonNullable<T>[] = [];
+      mapOut.push(lineOut);
 
-        if (length === 4) fn(i, segment[0], segment[1], segment[2], segment[3], -1);
-        else if (length === 5) fn(i, segment[0], segment[1], segment[2], segment[3], segment[4]);
-        else fn(i, segment[0], -1, -1, -1, -1);
+      for (let j = 0; j < line.length; j++) {
+        const seg = line[j];
+        const { length } = seg;
+
+        let segOut: T;
+        if (length === 4) segOut = fn(i, seg[0], seg[1], seg[2], seg[3], -1);
+        else if (length === 5) segOut = fn(i, seg[0], seg[1], seg[2], seg[3], seg[4]);
+        else segOut = fn(i, seg[0], -1, -1, -1, -1);
+
+        if (segOut != null) lineOut.push(segOut as NonNullable<T>);
       }
     }
+
+    return mapOut;
   }
 
   traceSegment(line: number, column: number): SourceMapSegment | null {

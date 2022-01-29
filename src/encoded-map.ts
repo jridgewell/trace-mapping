@@ -6,7 +6,7 @@ import type {
   SourceMapSegment,
   DecodedSourceMap,
   EncodedSourceMap,
-  EachSegmentFn,
+  MapSegmentFn,
 } from './types';
 
 export class EncodedSourceMapImpl implements SourceMap {
@@ -28,30 +28,19 @@ export class EncodedSourceMapImpl implements SourceMap {
   }
 
   decodedMappings(): DecodedSourceMap['mappings'] {
-    let lastGenLine = 0;
-    let current: SourceMapSegment[] = [];
-    const mappings: DecodedSourceMap['mappings'] = [];
-
-    this.eachSegment((genLine, genCol, source, line, col, name) => {
-      while (lastGenLine < genLine) {
-        mappings.push(current);
-        current = [];
-        lastGenLine++;
-      }
-      current.push(segmentify(genCol, source, line, col, name));
-    });
-    mappings.push(current);
-    return mappings;
+    return this.map(segmentify);
   }
 
-  eachSegment(fn: EachSegmentFn) {
+  map<T>(fn: MapSegmentFn<T>): NonNullable<T>[][] {
     const { _mappings: mappings, _lineIndices: lineIndices } = this;
 
+    const mapOut: NonNullable<T>[][] = [];
+    let lineOut: NonNullable<T>[] = [];
     let generatedLine = 0;
     let lineIndex = lineIndices[generatedLine + 1];
     for (let i = 0; i < mappings.length; ) {
       while (i < lineIndex) {
-        fn(
+        const segOut = fn(
           generatedLine,
           mappings[i + 0],
           mappings[i + 1] - 1,
@@ -59,13 +48,19 @@ export class EncodedSourceMapImpl implements SourceMap {
           mappings[i + 3] - 1,
           mappings[i + 4] - 1,
         );
+        if (segOut != null) lineOut.push(segOut as NonNullable<T>);
         i += ITEM_LENGTH;
       }
+
       do {
+        mapOut.push(lineOut);
+        lineOut = [];
         generatedLine++;
         lineIndex = lineIndices[generatedLine + 1];
       } while (i === lineIndex);
     }
+
+    return mapOut;
   }
 
   traceSegment(line: number, column: number): SourceMapSegment | null {
@@ -90,6 +85,7 @@ export class EncodedSourceMapImpl implements SourceMap {
     // we come before any mapped segment
     if (index < 0) return null;
     return segmentify(
+      line,
       mappings[index + 0],
       mappings[index + 1] - 1,
       mappings[index + 2] - 1,
@@ -100,6 +96,7 @@ export class EncodedSourceMapImpl implements SourceMap {
 }
 
 function segmentify(
+  _genLine: number,
   genCol: number,
   source: number,
   line: number,

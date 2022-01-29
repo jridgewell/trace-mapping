@@ -183,7 +183,7 @@ describe('TraceMap', () => {
         });
       });
 
-      test('eachSegment', (t) => {
+      test('map', (t) => {
         const trace = new TraceMap(map);
         const expecteds = decodedMap.mappings.flatMap((line, genLine) => {
           return line.map((segment) => {
@@ -198,14 +198,24 @@ describe('TraceMap', () => {
             };
           });
         });
-        t.plan(expecteds.length);
+        const expectedOutput = decodedMap.mappings.map((line) => {
+          return line.reduce((out, seg) => {
+            if (seg.length === 5) out.push({ name: seg[4] });
+            return out;
+          }, [] as { name: number }[]);
+        });
+        t.plan(expecteds.length + 1);
 
         let index = 0;
-        trace.eachSegment((genLine, genCol, source, line, col, name) => {
+        const output = trace.map((genLine, genCol, source, line, col, name) => {
           const expected = expecteds[index];
           t.deepEqual({ genLine, genCol, source, line, col, name }, expected, `${index}`);
           index++;
+
+          if (name > -1) return { name };
         });
+
+        t.deepEqual(output, expectedOutput);
       });
     };
   }
