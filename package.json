@@ -36,7 +36,7 @@
     "prebuild": "rm -rf dist",
     "prepublishOnly": "npm run preversion",
     "preversion": "run-s test build",
-    "test": "run-s -n test:lint 'test:only -- --no-cache'",
+    "test": "run-s -n test:lint test:only",
     "test:debug": "ava debug",
     "test:lint": "run-s -n test:lint:*",
     "test:lint:prettier": "prettier --check '{src,test}/**/*.ts'",
