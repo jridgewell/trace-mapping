@@ -58,19 +58,19 @@ constructed instance.
 ```
 node v16.13.2
 
-trace-mapping: decoded JSON input x 4,224 ops/sec ±0.23% (98 runs sampled)
-trace-mapping: encoded JSON input x 4,803 ops/sec ±0.38% (99 runs sampled)
-trace-mapping: decoded Object input x 105,471 ops/sec ±0.10% (100 runs sampled)
-trace-mapping: encoded Object input x 4,913 ops/sec ±0.36% (100 runs sampled)
-source-map-js: encoded Object input x 3,610 ops/sec ±0.24% (97 runs sampled)
-source-map:    encoded Object input x 1,467 ops/sec ±0.22% (97 runs sampled)
+trace-mapping: decoded JSON input x 3,673 ops/sec ±0.52% (99 runs sampled)
+trace-mapping: encoded JSON input x 13,043 ops/sec ±0.92% (94 runs sampled)
+trace-mapping: decoded Object input x 98,660 ops/sec ±0.30% (98 runs sampled)
+trace-mapping: encoded Object input x 14,255 ops/sec ±0.90% (93 runs sampled)
+source-map-js: encoded Object input x 3,119 ops/sec ±0.18% (99 runs sampled)
+source-map:    encoded Object input x 1,227 ops/sec ±0.87% (96 runs sampled)
 Fastest is trace-mapping: decoded Object input
 
-trace-mapping: decoded originalPositionFor x 7,588 ops/sec ±0.09% (101 runs sampled)
-trace-mapping: encoded originalPositionFor x 7,704 ops/sec ±0.19% (101 runs sampled)
-source-map-js: encoded originalPositionFor x 1,657 ops/sec ±0.18% (100 runs sampled)
-source-map:    encoded originalPositionFor x 927 ops/sec ±0.28% (99 runs sampled)
-Fastest is trace-mapping: encoded originalPositionFor
+trace-mapping: decoded originalPositionFor x 7,905 ops/sec ±0.68% (101 runs sampled)
+trace-mapping: encoded originalPositionFor x 5,622 ops/sec ±0.12% (101 runs sampled)
+source-map-js: encoded originalPositionFor x 1,419 ops/sec ±0.65% (97 runs sampled)
+source-map:    encoded originalPositionFor x 791 ops/sec ±0.76% (97 runs sampled)
+Fastest is trace-mapping: decoded originalPositionFor
 ```
 
 [source-map]: https://www.npmjs.com/package/source-map

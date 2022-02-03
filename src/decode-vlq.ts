@@ -16,6 +16,7 @@ export function decode(encoded: string, lines: number[]): Uint32Array {
   let sourceColumn = 1;
   let namesIndex = 1;
 
+  let lastGenColumn = 0;
   let lineSorted = true;
 
   // count tracks the number of segments we have stored.
@@ -53,9 +54,10 @@ export function decode(encoded: string, lines: number[]): Uint32Array {
         decoded = reserve(decoded, count, ITEM_LENGTH);
 
         // Segments are guaranteed to have at least the generatedColumn VLQ.
+        decoded[count] = lastGenColumn = generatedColumn;
         pos = decodeInteger(encoded, pos, decoded, count);
-        if (lineSorted) lineSorted = decoded[count] < 0;
-        generatedColumn = decoded[count] += generatedColumn;
+        generatedColumn = decoded[count];
+        lineSorted &&= generatedColumn >= lastGenColumn;
         count++;
 
         if (!hasMoreMappings(encoded, pos)) {
@@ -65,16 +67,19 @@ export function decode(encoded: string, lines: number[]): Uint32Array {
 
         // If there are more VLQ, then we're guaranteed to have sourcesIndex, sourceLine, and
         // sourceColumn.
+        decoded[count] = sourcesIndex;
         pos = decodeInteger(encoded, pos, decoded, count);
-        sourcesIndex = decoded[count] += sourcesIndex;
+        sourcesIndex = decoded[count];
         count++;
 
+        decoded[count] = sourceLine;
         pos = decodeInteger(encoded, pos, decoded, count);
-        sourceLine = decoded[count] += sourceLine;
+        sourceLine = decoded[count];
         count++;
 
+        decoded[count] = sourceColumn;
         pos = decodeInteger(encoded, pos, decoded, count);
-        sourceColumn = decoded[count] += sourceColumn;
+        sourceColumn = decoded[count];
         count++;
 
         if (!hasMoreMappings(encoded, pos)) {
@@ -83,8 +88,9 @@ export function decode(encoded: string, lines: number[]): Uint32Array {
         }
 
         // Finally, namesIndex.
+        decoded[count] = namesIndex;
         pos = decodeInteger(encoded, pos, decoded, count);
-        namesIndex = decoded[count] += namesIndex;
+        namesIndex = decoded[count];
         count++;
     }
   }
@@ -134,7 +140,7 @@ function decodeInteger(encoded: string, pos: number, state: Uint32Array, index: 
   // `-1 | -0x80000000` is still `-1`.
   if (shouldNegate) value = -0x80000000 | -value;
 
-  state[index] = value;
+  state[index] += value;
   return pos;
 }
 
