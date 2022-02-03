@@ -70,12 +70,14 @@ export class EncodedSourceMapImpl implements SourceMap {
     // mapping (like a "//# sourceMappingURL=") at the end of the child file.
     if (line >= lineIndices.length - 1) return null;
 
+    const low = lineIndices[line];
+    const high = lineIndices[line + 1] - 1;
     const index = memoizedBinarySearch(
       mappings,
       column,
       searchComparator,
-      lineIndices[line],
-      lineIndices[line + 1] - 1,
+      low,
+      high,
       ITEM_LENGTH,
       this,
       line,
@@ -83,7 +85,7 @@ export class EncodedSourceMapImpl implements SourceMap {
     );
 
     // we come before any mapped segment
-    if (index < 0) return null;
+    if (index < low) return null;
     return segmentify(
       line,
       mappings[index + 0],

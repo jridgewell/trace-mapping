@@ -25,7 +25,7 @@ describe('TraceMap', () => {
         [18, 0, 0, 33],
       ],
       [
-        [0, 0, 1, 4],
+        [4, 0, 1, 4],
         [8, 0, 1, 10],
         [12, 0, 1, 14, 2],
         [17, 0, 1, 10],
@@ -140,6 +140,10 @@ describe('TraceMap', () => {
       test('traceSegment', (t) => {
         const { mappings } = decodedMap;
         const tracer = new TraceMap(map);
+
+        // This comes before any segment on line 2, but importantly there are segments on line 1. If
+        // binary searchign returns the last segment of line 1, we've failed.
+        t.is(tracer.traceSegment(1, 0), null);
 
         for (let line = 0; line < mappings.length; line++) {
           const segmentLine = mappings[line];
