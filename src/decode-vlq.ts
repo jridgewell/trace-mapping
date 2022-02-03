@@ -19,9 +19,8 @@ export function decode(encoded: string, lines: number[]): Uint32Array {
   let lastGenColumn = 0;
   let lineSorted = true;
 
-  // count tracks the number of segments we have stored.
-  let count = 0;
-  // lastLineStart tracks the `count` of the segment that started the current line, so that we may
+  let index = 0;
+  // lastLineStart tracks the index of the segment that started the current line, so that we may
   // sort the line after it's complete.
   let lastLineStart = 0;
   let decoded = new Uint32Array(1000);
@@ -39,10 +38,10 @@ export function decode(encoded: string, lines: number[]): Uint32Array {
 
       // Semicolons separates lines.
       case 59: // ';'
-        lines.push(count);
-        if (!lineSorted) easySort(decoded, lastLineStart, count);
+        lines.push(index);
+        if (!lineSorted) easySort(decoded, lastLineStart, index);
         lineSorted = true;
-        lastLineStart = count;
+        lastLineStart = index;
         // generatedColumn is reset when the next line starts, per the spec.
         generatedColumn = 0;
         pos++;
@@ -51,55 +50,51 @@ export function decode(encoded: string, lines: number[]): Uint32Array {
       default:
         // Ensure that we have at least 5 items left in the decoded buffer, so we can push this
         // segment on.
-        decoded = reserve(decoded, count, ITEM_LENGTH);
+        decoded = reserve(decoded, index, ITEM_LENGTH);
 
         // Segments are guaranteed to have at least the generatedColumn VLQ.
-        decoded[count] = lastGenColumn = generatedColumn;
-        pos = decodeInteger(encoded, pos, decoded, count);
-        generatedColumn = decoded[count];
+        lastGenColumn = generatedColumn;
+        pos = decodeInteger(encoded, pos, decoded, index, generatedColumn);
+        generatedColumn = decoded[index];
         lineSorted &&= generatedColumn >= lastGenColumn;
-        count++;
+        index++;
 
         if (!hasMoreMappings(encoded, pos)) {
-          count += 4;
+          index += 4;
           continue;
         }
 
         // If there are more VLQ, then we're guaranteed to have sourcesIndex, sourceLine, and
         // sourceColumn.
-        decoded[count] = sourcesIndex;
-        pos = decodeInteger(encoded, pos, decoded, count);
-        sourcesIndex = decoded[count];
-        count++;
+        pos = decodeInteger(encoded, pos, decoded, index, sourcesIndex);
+        sourcesIndex = decoded[index];
+        index++;
 
-        decoded[count] = sourceLine;
-        pos = decodeInteger(encoded, pos, decoded, count);
-        sourceLine = decoded[count];
-        count++;
+        pos = decodeInteger(encoded, pos, decoded, index, sourceLine);
+        sourceLine = decoded[index];
+        index++;
 
-        decoded[count] = sourceColumn;
-        pos = decodeInteger(encoded, pos, decoded, count);
-        sourceColumn = decoded[count];
-        count++;
+        pos = decodeInteger(encoded, pos, decoded, index, sourceColumn);
+        sourceColumn = decoded[index];
+        index++;
 
         if (!hasMoreMappings(encoded, pos)) {
-          count += 1;
+          index += 1;
           continue;
         }
 
         // Finally, namesIndex.
-        decoded[count] = namesIndex;
-        pos = decodeInteger(encoded, pos, decoded, count);
-        namesIndex = decoded[count];
-        count++;
+        pos = decodeInteger(encoded, pos, decoded, index, namesIndex);
+        namesIndex = decoded[index];
+        index++;
     }
   }
 
   // Cap the lines, so that we can always look at index and index+1 for the start and end indices.
-  lines.push(count);
-  if (!lineSorted) easySort(decoded, lastLineStart, count);
+  lines.push(index);
+  if (!lineSorted) easySort(decoded, lastLineStart, index);
 
-  return decoded.subarray(0, count);
+  return decoded.subarray(0, index);
 }
 
 function reserve(buf: Uint32Array, pos: number, count: number): Uint32Array {
@@ -116,7 +111,13 @@ function hasMoreMappings(encoded: string, pos: number): boolean {
   return c !== 44 /* ',' */ && c !== 59 /* ';' */;
 }
 
-function decodeInteger(encoded: string, pos: number, state: Uint32Array, index: number): number {
+function decodeInteger(
+  encoded: string,
+  pos: number,
+  state: Uint32Array,
+  index: number,
+  relative: number,
+): number {
   let value = 0;
   let shift = 0;
   let integer = 0;
@@ -140,7 +141,7 @@ function decodeInteger(encoded: string, pos: number, state: Uint32Array, index: 
   // `-1 | -0x80000000` is still `-1`.
   if (shouldNegate) value = -0x80000000 | -value;
 
-  state[index] += value;
+  state[index] = relative + value;
   return pos;
 }
 
