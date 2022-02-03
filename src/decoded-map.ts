@@ -15,9 +15,9 @@ const ITEM_LENGTH = 1;
 export class DecodedSourceMapImpl implements SourceMap {
   private declare _mappings: SourceMapSegment[][];
 
-  _lastIndex = 0;
-  _lastLine = 0;
-  _lastColumn = 0;
+  _lastIndex = -ITEM_LENGTH;
+  _lastLine = -1;
+  _lastColumn = -1;
 
   constructor(map: DecodedSourceMap, owned: boolean) {
     this._mappings = maybeSort(map.mappings, owned);

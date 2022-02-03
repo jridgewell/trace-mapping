@@ -1,6 +1,6 @@
 /// <reference lib="esnext" />
 
-import { encode } from 'sourcemap-codec';
+import { encode, decode } from 'sourcemap-codec';
 
 import { test, describe } from './setup';
 import TraceMap from '../src/trace-mapping';
@@ -246,5 +246,28 @@ describe('TraceMap', () => {
     test('json decoded source map', macro, JSON.stringify(reversedDecoded));
     test('encoded source map', macro, reversedEncoded);
     test('json encoded source map', macro, JSON.stringify(reversedEncoded));
+  });
+
+  describe('empty mappings with lines', () => {
+    const decoded: DecodedSourceMap = {
+      ...decodedMap,
+      mappings: decode(';;;;;;;;;;;;;;;;'),
+    };
+    const encoded: EncodedSourceMap = {
+      ...encodedMap,
+      mappings: ';;;;;;;;;;;;;;;;',
+    };
+
+    const macro = test.macro((t: ExecutionContext<unknown>, map: SourceMapInput) => {
+      const tracer = new TraceMap(map);
+      for (let i = 0; i < decoded.mappings.length; i++) {
+        t.is(tracer.traceSegment(i, 0), null, `{ line: ${i} }`);
+      }
+    });
+
+    test('decoded source map', macro, decoded);
+    test('json decoded source map', macro, JSON.stringify(decoded));
+    test('encoded source map', macro, encoded);
+    test('json encoded source map', macro, JSON.stringify(encoded));
   });
 });

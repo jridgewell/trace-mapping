@@ -10,9 +10,9 @@ import type {
 } from './types';
 
 export class EncodedSourceMapImpl implements SourceMap {
-  _lastIndex = 0;
-  _lastLine = 0;
-  _lastColumn = 0;
+  _lastIndex = -ITEM_LENGTH;
+  _lastLine = -1;
+  _lastColumn = -1;
 
   private _lineIndices: number[] = [];
   private declare _encoded: string;
