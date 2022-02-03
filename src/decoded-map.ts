@@ -1,6 +1,6 @@
 import { encode } from 'sourcemap-codec';
 
-import { memoizedBinarySearch } from './binary-search';
+import { memoizedState, memoizedBinarySearch } from './binary-search';
 
 import type {
   SourceMap,
@@ -12,10 +12,7 @@ import type {
 
 export class DecodedSourceMapImpl implements SourceMap {
   private declare _mappings: SourceMapSegment[][];
-
-  _lastIndex = -1;
-  _lastLine = -1;
-  _lastColumn = -1;
+  private _binarySearchMemo = memoizedState();
 
   constructor(map: DecodedSourceMap, owned: boolean) {
     this._mappings = maybeSort(map.mappings, owned);
@@ -69,7 +66,7 @@ export class DecodedSourceMapImpl implements SourceMap {
       searchComparator,
       0,
       segments.length - 1,
-      this,
+      this._binarySearchMemo,
       line,
       column,
     );

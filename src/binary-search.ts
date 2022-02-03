@@ -48,11 +48,19 @@ export function binarySearch<T, S>(
   return low - 1;
 }
 
-type SearchState = {
+type MemoState = {
   _lastLine: number;
   _lastColumn: number;
   _lastIndex: number;
 };
+
+export function memoizedState(): MemoState {
+  return {
+    _lastLine: -1,
+    _lastColumn: -1,
+    _lastIndex: -1,
+  };
+}
 
 /**
  * This overly complicated beast is just to record the last tested line/column and the resulting
@@ -64,7 +72,7 @@ export function memoizedBinarySearch<T, S>(
   comparator: (item: T, needle: S) => number,
   low: number,
   high: number,
-  state: SearchState,
+  state: MemoState,
   line: number,
   column: number,
 ): number {

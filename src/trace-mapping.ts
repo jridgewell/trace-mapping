@@ -40,7 +40,7 @@ export class TraceMap {
   declare sourcesContent: SourceMapV3['sourcesContent'];
 
   declare resolvedSources: SourceMapV3['sources'];
-  private declare _impl: DecodedSourceMapImpl;
+  declare private _impl: DecodedSourceMapImpl;
 
   constructor(map: SourceMapInput, mapUrl?: string | null) {
     const isString = typeof map === 'string';
