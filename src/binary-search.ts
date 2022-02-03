@@ -8,9 +8,6 @@
  * any positive number if the `item` is too large (and we must search before
  * it).
  *
- * The `len` param allows you to treat contiguous blocks of memory as a single item. Eg, a 5-length
- * tuple (with values at indices 0-4) would only test index 0.
- *
  * If no match is found, then the left-index (the index associated with the item that comes just
  * before the desired index) is returned. To maintain proper sort order, a splice would happen at
  * the next index:
@@ -31,14 +28,10 @@ export function binarySearch<T, S>(
   comparator: (item: T, needle: S) => number,
   low: number,
   high: number,
-  len: number,
 ): number {
-  low /= len;
-  high /= len;
-
   while (low <= high) {
     const mid = low + ((high - low) >> 1);
-    const index = mid * len;
+    const index = mid;
     const cmp = comparator(haystack[index], needle);
 
     if (cmp === 0) {
@@ -52,7 +45,7 @@ export function binarySearch<T, S>(
     }
   }
 
-  return (low - 1) * len;
+  return low - 1;
 }
 
 type SearchState = {
@@ -71,7 +64,6 @@ export function memoizedBinarySearch<T, S>(
   comparator: (item: T, needle: S) => number,
   low: number,
   high: number,
-  len: number,
   state: SearchState,
   line: number,
   column: number,
@@ -91,5 +83,5 @@ export function memoizedBinarySearch<T, S>(
   state._lastLine = line;
   state._lastColumn = column;
 
-  return (state._lastIndex = binarySearch(haystack, needle, comparator, low, high, len));
+  return (state._lastIndex = binarySearch(haystack, needle, comparator, low, high));
 }

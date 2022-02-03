@@ -1,7 +1,8 @@
+import { decode } from 'sourcemap-codec';
+
 import resolve from './resolve';
 import stripFilename from './strip-filename';
 import { DecodedSourceMapImpl } from './decoded-map';
-import { EncodedSourceMapImpl } from './encoded-map';
 
 import type {
   SourceMapV3,
@@ -39,7 +40,7 @@ export class TraceMap {
   declare sourcesContent: SourceMapV3['sourcesContent'];
 
   declare resolvedSources: SourceMapV3['sources'];
-  private declare _impl: DecodedSourceMapImpl | EncodedSourceMapImpl;
+  private declare _impl: DecodedSourceMapImpl;
 
   constructor(map: SourceMapInput, mapUrl?: string | null) {
     const isString = typeof map === 'string';
@@ -57,7 +58,11 @@ export class TraceMap {
     this.resolvedSources = sources.map((s) => resolve(s || '', from));
 
     if (typeof parsed.mappings === 'string') {
-      this._impl = new EncodedSourceMapImpl(parsed as EncodedSourceMap);
+      const decoded = {
+        ...parsed,
+        mappings: decode(parsed.mappings),
+      };
+      this._impl = new DecodedSourceMapImpl(decoded, true);
     } else {
       this._impl = new DecodedSourceMapImpl(parsed as DecodedSourceMap, isString);
     }

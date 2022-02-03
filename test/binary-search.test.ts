@@ -6,387 +6,375 @@ describe('binary search', () => {
     return item - needle;
   }
 
-  function suite(len: number) {
-    function push(array: number[], x: number) {
-      array.push(x);
-      for (let j = 1; j < len; j++) array.push(-1);
-    }
-
-    return () => {
-      test('returns index of match', (t) => {
-        const array: number[] = [];
-
-        push(array, 0);
-        t.is(binarySearch(array, 0, comparator, 0, array.length - 1, len), len * 0);
-
-        push(array, 1);
-        t.is(binarySearch(array, 0, comparator, 0, array.length - 1, len), len * 0);
-        t.is(binarySearch(array, 1, comparator, 0, array.length - 1, len), len * 1);
-
-        push(array, 2);
-        t.is(binarySearch(array, 0, comparator, 0, array.length - 1, len), len * 0);
-        t.is(binarySearch(array, 1, comparator, 0, array.length - 1, len), len * 1);
-        t.is(binarySearch(array, 2, comparator, 0, array.length - 1, len), len * 2);
-
-        push(array, 3);
-        t.is(binarySearch(array, 0, comparator, 0, array.length - 1, len), len * 0);
-        t.is(binarySearch(array, 1, comparator, 0, array.length - 1, len), len * 1);
-        t.is(binarySearch(array, 2, comparator, 0, array.length - 1, len), len * 2);
-        t.is(binarySearch(array, 3, comparator, 0, array.length - 1, len), len * 3);
-
-        push(array, 4);
-        t.is(binarySearch(array, 0, comparator, 0, array.length - 1, len), len * 0);
-        t.is(binarySearch(array, 1, comparator, 0, array.length - 1, len), len * 1);
-        t.is(binarySearch(array, 2, comparator, 0, array.length - 1, len), len * 2);
-        t.is(binarySearch(array, 3, comparator, 0, array.length - 1, len), len * 3);
-        t.is(binarySearch(array, 4, comparator, 0, array.length - 1, len), len * 4);
-
-        push(array, 5);
-        t.is(binarySearch(array, 0, comparator, 0, array.length - 1, len), len * 0);
-        t.is(binarySearch(array, 1, comparator, 0, array.length - 1, len), len * 1);
-        t.is(binarySearch(array, 2, comparator, 0, array.length - 1, len), len * 2);
-        t.is(binarySearch(array, 3, comparator, 0, array.length - 1, len), len * 3);
-        t.is(binarySearch(array, 4, comparator, 0, array.length - 1, len), len * 4);
-        t.is(binarySearch(array, 5, comparator, 0, array.length - 1, len), len * 5);
-      });
-
-      test('for non-match returns index for value lower than needle', (t) => {
-        // Test middles, which have a number left and right of index.
-        const array: number[] = [];
-
-        push(array, 0);
-        t.is(binarySearch(array, -1, comparator, 0, array.length - 1, len), -len);
-        t.is(binarySearch(array, 1, comparator, 0, array.length - 1, len), len * 0);
-
-        push(array, 2);
-        t.is(binarySearch(array, -1, comparator, 0, array.length - 1, len), -len);
-        t.is(binarySearch(array, 1, comparator, 0, array.length - 1, len), len * 0);
-        t.is(binarySearch(array, 3, comparator, 0, array.length - 1, len), len * 1);
-
-        push(array, 4);
-        t.is(binarySearch(array, -1, comparator, 0, array.length - 1, len), -len);
-        t.is(binarySearch(array, 1, comparator, 0, array.length - 1, len), len * 0);
-        t.is(binarySearch(array, 3, comparator, 0, array.length - 1, len), len * 1);
-        t.is(binarySearch(array, 5, comparator, 0, array.length - 1, len), len * 2);
-
-        push(array, 6);
-        t.is(binarySearch(array, -1, comparator, 0, array.length - 1, len), -len);
-        t.is(binarySearch(array, 1, comparator, 0, array.length - 1, len), len * 0);
-        t.is(binarySearch(array, 3, comparator, 0, array.length - 1, len), len * 1);
-        t.is(binarySearch(array, 5, comparator, 0, array.length - 1, len), len * 2);
-        t.is(binarySearch(array, 7, comparator, 0, array.length - 1, len), len * 3);
-
-        push(array, 8);
-        t.is(binarySearch(array, -1, comparator, 0, array.length - 1, len), -len);
-        t.is(binarySearch(array, 1, comparator, 0, array.length - 1, len), len * 0);
-        t.is(binarySearch(array, 3, comparator, 0, array.length - 1, len), len * 1);
-        t.is(binarySearch(array, 5, comparator, 0, array.length - 1, len), len * 2);
-        t.is(binarySearch(array, 7, comparator, 0, array.length - 1, len), len * 3);
-        t.is(binarySearch(array, 9, comparator, 0, array.length - 1, len), len * 4);
-
-        push(array, 10);
-        t.is(binarySearch(array, -1, comparator, 0, array.length - 1, len), -len);
-        t.is(binarySearch(array, 1, comparator, 0, array.length - 1, len), len * 0);
-        t.is(binarySearch(array, 3, comparator, 0, array.length - 1, len), len * 1);
-        t.is(binarySearch(array, 5, comparator, 0, array.length - 1, len), len * 2);
-        t.is(binarySearch(array, 7, comparator, 0, array.length - 1, len), len * 3);
-        t.is(binarySearch(array, 9, comparator, 0, array.length - 1, len), len * 4);
-        t.is(binarySearch(array, 11, comparator, 0, array.length - 1, len), len * 5);
-      });
-
-      test('needle is lower than all elements returns -len', (t) => {
-        const array: number[] = [];
-        const needle = -1;
-
-        push(array, 0);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), -len);
-
-        push(array, 1);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), -len);
-
-        push(array, 2);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), -len);
-
-        push(array, 3);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), -len);
+  test('returns index of match', (t) => {
+    const array: number[] = [];
+
+    array.push(0);
+    t.is(binarySearch(array, 0, comparator, 0, array.length - 1), 0);
+
+    array.push(1);
+    t.is(binarySearch(array, 0, comparator, 0, array.length - 1), 0);
+    t.is(binarySearch(array, 1, comparator, 0, array.length - 1), 1);
+
+    array.push(2);
+    t.is(binarySearch(array, 0, comparator, 0, array.length - 1), 0);
+    t.is(binarySearch(array, 1, comparator, 0, array.length - 1), 1);
+    t.is(binarySearch(array, 2, comparator, 0, array.length - 1), 2);
+
+    array.push(3);
+    t.is(binarySearch(array, 0, comparator, 0, array.length - 1), 0);
+    t.is(binarySearch(array, 1, comparator, 0, array.length - 1), 1);
+    t.is(binarySearch(array, 2, comparator, 0, array.length - 1), 2);
+    t.is(binarySearch(array, 3, comparator, 0, array.length - 1), 3);
+
+    array.push(4);
+    t.is(binarySearch(array, 0, comparator, 0, array.length - 1), 0);
+    t.is(binarySearch(array, 1, comparator, 0, array.length - 1), 1);
+    t.is(binarySearch(array, 2, comparator, 0, array.length - 1), 2);
+    t.is(binarySearch(array, 3, comparator, 0, array.length - 1), 3);
+    t.is(binarySearch(array, 4, comparator, 0, array.length - 1), 4);
+
+    array.push(5);
+    t.is(binarySearch(array, 0, comparator, 0, array.length - 1), 0);
+    t.is(binarySearch(array, 1, comparator, 0, array.length - 1), 1);
+    t.is(binarySearch(array, 2, comparator, 0, array.length - 1), 2);
+    t.is(binarySearch(array, 3, comparator, 0, array.length - 1), 3);
+    t.is(binarySearch(array, 4, comparator, 0, array.length - 1), 4);
+    t.is(binarySearch(array, 5, comparator, 0, array.length - 1), 5);
+  });
+
+  test('for non-match returns index for value lower than needle', (t) => {
+    // Test middles, which have a number left and right of index.
+    const array: number[] = [];
+
+    array.push(0);
+    t.is(binarySearch(array, -1, comparator, 0, array.length - 1), -1);
+    t.is(binarySearch(array, 1, comparator, 0, array.length - 1), 0);
+
+    array.push(2);
+    t.is(binarySearch(array, -1, comparator, 0, array.length - 1), -1);
+    t.is(binarySearch(array, 1, comparator, 0, array.length - 1), 0);
+    t.is(binarySearch(array, 3, comparator, 0, array.length - 1), 1);
+
+    array.push(4);
+    t.is(binarySearch(array, -1, comparator, 0, array.length - 1), -1);
+    t.is(binarySearch(array, 1, comparator, 0, array.length - 1), 0);
+    t.is(binarySearch(array, 3, comparator, 0, array.length - 1), 1);
+    t.is(binarySearch(array, 5, comparator, 0, array.length - 1), 2);
+
+    array.push(6);
+    t.is(binarySearch(array, -1, comparator, 0, array.length - 1), -1);
+    t.is(binarySearch(array, 1, comparator, 0, array.length - 1), 0);
+    t.is(binarySearch(array, 3, comparator, 0, array.length - 1), 1);
+    t.is(binarySearch(array, 5, comparator, 0, array.length - 1), 2);
+    t.is(binarySearch(array, 7, comparator, 0, array.length - 1), 3);
+
+    array.push(8);
+    t.is(binarySearch(array, -1, comparator, 0, array.length - 1), -1);
+    t.is(binarySearch(array, 1, comparator, 0, array.length - 1), 0);
+    t.is(binarySearch(array, 3, comparator, 0, array.length - 1), 1);
+    t.is(binarySearch(array, 5, comparator, 0, array.length - 1), 2);
+    t.is(binarySearch(array, 7, comparator, 0, array.length - 1), 3);
+    t.is(binarySearch(array, 9, comparator, 0, array.length - 1), 4);
+
+    array.push(10);
+    t.is(binarySearch(array, -1, comparator, 0, array.length - 1), -1);
+    t.is(binarySearch(array, 1, comparator, 0, array.length - 1), 0);
+    t.is(binarySearch(array, 3, comparator, 0, array.length - 1), 1);
+    t.is(binarySearch(array, 5, comparator, 0, array.length - 1), 2);
+    t.is(binarySearch(array, 7, comparator, 0, array.length - 1), 3);
+    t.is(binarySearch(array, 9, comparator, 0, array.length - 1), 4);
+    t.is(binarySearch(array, 11, comparator, 0, array.length - 1), 5);
+  });
+
+  test('needle is lower than all elements returns -1', (t) => {
+    const array: number[] = [];
+    const needle = -1;
+
+    array.push(0);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), -1);
+
+    array.push(1);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), -1);
+
+    array.push(2);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), -1);
+
+    array.push(3);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), -1);
+
+    array.push(4);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), -1);
+
+    array.push(5);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), -1);
+  });
 
-        push(array, 4);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), -len);
+  test('needle is higher than all elements returns last index', (t) => {
+    const array: number[] = [];
+    const needle = 2 ** 16;
 
-        push(array, 5);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), -len);
-      });
+    array.push(0);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), array.length - 1);
 
-      test('needle is higher than all elements returns last index', (t) => {
-        const array: number[] = [];
-        const needle = 2 ** 16;
-
-        push(array, 0);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), array.length - len);
-
-        push(array, 1);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), array.length - len);
-
-        push(array, 2);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), array.length - len);
-
-        push(array, 3);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), array.length - len);
-
-        push(array, 4);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), array.length - len);
-
-        push(array, 5);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), array.length - len);
-      });
-
-      test('empty array returns -len', (t) => {
-        const array: number[] = [];
-
-        t.is(binarySearch(array, -1, comparator, 0, array.length - 1, len), -len);
-        t.is(binarySearch(array, 0, comparator, 0, array.length - 1, len), -len);
-        t.is(binarySearch(array, 1, comparator, 0, array.length - 1, len), -len);
-      });
-
-      test('multiple items in array returns any match', (t) => {
-        const array: number[] = [];
-        const needle = 1;
-
-        push(array, needle);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), len * 0);
-
-        push(array, needle);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), len * 0);
-
-        push(array, needle);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), len * 1);
-
-        push(array, needle);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), len * 1);
-
-        push(array, needle);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), len * 2);
-
-        push(array, needle);
-        t.is(binarySearch(array, needle, comparator, 0, array.length - 1, len), len * 2);
-      });
-
-      describe('low', () => {
-        test('low equals needle index returns needle index', (t) => {
-          const array: number[] = [];
-
-          push(array, 0);
-          t.is(binarySearch(array, 0, comparator, len * 0, array.length - 1, len), len * 0);
-
-          push(array, 1);
-          t.is(binarySearch(array, 0, comparator, len * 0, array.length - 1, len), len * 0);
-          t.is(binarySearch(array, 1, comparator, len * 1, array.length - 1, len), len * 1);
-
-          push(array, 2);
-          t.is(binarySearch(array, 0, comparator, len * 0, array.length - 1, len), len * 0);
-          t.is(binarySearch(array, 1, comparator, len * 1, array.length - 1, len), len * 1);
-          t.is(binarySearch(array, 2, comparator, len * 2, array.length - 1, len), len * 2);
-
-          push(array, 3);
-          t.is(binarySearch(array, 0, comparator, len * 0, array.length - 1, len), len * 0);
-          t.is(binarySearch(array, 1, comparator, len * 1, array.length - 1, len), len * 1);
-          t.is(binarySearch(array, 2, comparator, len * 2, array.length - 1, len), len * 2);
-          t.is(binarySearch(array, 3, comparator, len * 3, array.length - 1, len), len * 3);
-
-          push(array, 4);
-          t.is(binarySearch(array, 0, comparator, len * 0, array.length - 1, len), len * 0);
-          t.is(binarySearch(array, 1, comparator, len * 1, array.length - 1, len), len * 1);
-          t.is(binarySearch(array, 2, comparator, len * 2, array.length - 1, len), len * 2);
-          t.is(binarySearch(array, 3, comparator, len * 3, array.length - 1, len), len * 3);
-          t.is(binarySearch(array, 4, comparator, len * 4, array.length - 1, len), len * 4);
-
-          push(array, 5);
-          t.is(binarySearch(array, 0, comparator, len * 0, array.length - 1, len), len * 0);
-          t.is(binarySearch(array, 1, comparator, len * 1, array.length - 1, len), len * 1);
-          t.is(binarySearch(array, 2, comparator, len * 2, array.length - 1, len), len * 2);
-          t.is(binarySearch(array, 3, comparator, len * 3, array.length - 1, len), len * 3);
-          t.is(binarySearch(array, 4, comparator, len * 4, array.length - 1, len), len * 4);
-          t.is(binarySearch(array, 5, comparator, len * 5, array.length - 1, len), len * 5);
-        });
-
-        test('low higher than needle index returns left of high', (t) => {
-          const array: number[] = [];
-
-          push(array, 0);
-
-          push(array, 1);
-          t.is(binarySearch(array, 0, comparator, len * 1, array.length - 1, len), len * 0);
-
-          push(array, 2);
-          t.is(binarySearch(array, 0, comparator, len * 1, array.length - 1, len), len * 0);
-          t.is(binarySearch(array, 0, comparator, len * 2, array.length - 1, len), len * 1);
-          t.is(binarySearch(array, 1, comparator, len * 2, array.length - 1, len), len * 1);
-
-          push(array, 3);
-          t.is(binarySearch(array, 0, comparator, len * 1, array.length - 1, len), len * 0);
-          t.is(binarySearch(array, 0, comparator, len * 2, array.length - 1, len), len * 1);
-          t.is(binarySearch(array, 0, comparator, len * 3, array.length - 1, len), len * 2);
-          t.is(binarySearch(array, 1, comparator, len * 2, array.length - 1, len), len * 1);
-          t.is(binarySearch(array, 1, comparator, len * 3, array.length - 1, len), len * 2);
-          t.is(binarySearch(array, 2, comparator, len * 3, array.length - 1, len), len * 2);
-
-          push(array, 4);
-          t.is(binarySearch(array, 0, comparator, len * 1, array.length - 1, len), len * 0);
-          t.is(binarySearch(array, 0, comparator, len * 2, array.length - 1, len), len * 1);
-          t.is(binarySearch(array, 0, comparator, len * 3, array.length - 1, len), len * 2);
-          t.is(binarySearch(array, 0, comparator, len * 4, array.length - 1, len), len * 3);
-          t.is(binarySearch(array, 1, comparator, len * 2, array.length - 1, len), len * 1);
-          t.is(binarySearch(array, 1, comparator, len * 3, array.length - 1, len), len * 2);
-          t.is(binarySearch(array, 1, comparator, len * 4, array.length - 1, len), len * 3);
-          t.is(binarySearch(array, 2, comparator, len * 3, array.length - 1, len), len * 2);
-          t.is(binarySearch(array, 2, comparator, len * 4, array.length - 1, len), len * 3);
-          t.is(binarySearch(array, 3, comparator, len * 4, array.length - 1, len), len * 3);
-        });
-
-        test('low lower than needle index returns needle index', (t) => {
-          const array: number[] = [];
-
-          push(array, 0);
-
-          push(array, 1);
-          t.is(binarySearch(array, 1, comparator, len * 0, array.length - 1, len), len * 1);
-
-          push(array, 2);
-          t.is(binarySearch(array, 1, comparator, len * 0, array.length - 1, len), len * 1);
-          t.is(binarySearch(array, 2, comparator, len * 0, array.length - 1, len), len * 2);
-          t.is(binarySearch(array, 2, comparator, len * 1, array.length - 1, len), len * 2);
-
-          push(array, 3);
-          t.is(binarySearch(array, 1, comparator, len * 0, array.length - 1, len), len * 1);
-          t.is(binarySearch(array, 2, comparator, len * 0, array.length - 1, len), len * 2);
-          t.is(binarySearch(array, 2, comparator, len * 1, array.length - 1, len), len * 2);
-          t.is(binarySearch(array, 3, comparator, len * 0, array.length - 1, len), len * 3);
-          t.is(binarySearch(array, 3, comparator, len * 1, array.length - 1, len), len * 3);
-          t.is(binarySearch(array, 3, comparator, len * 2, array.length - 1, len), len * 3);
-
-          push(array, 4);
-          t.is(binarySearch(array, 1, comparator, len * 0, array.length - 1, len), len * 1);
-          t.is(binarySearch(array, 2, comparator, len * 0, array.length - 1, len), len * 2);
-          t.is(binarySearch(array, 2, comparator, len * 1, array.length - 1, len), len * 2);
-          t.is(binarySearch(array, 3, comparator, len * 0, array.length - 1, len), len * 3);
-          t.is(binarySearch(array, 3, comparator, len * 1, array.length - 1, len), len * 3);
-          t.is(binarySearch(array, 3, comparator, len * 2, array.length - 1, len), len * 3);
-          t.is(binarySearch(array, 4, comparator, len * 0, array.length - 1, len), len * 4);
-          t.is(binarySearch(array, 4, comparator, len * 1, array.length - 1, len), len * 4);
-          t.is(binarySearch(array, 4, comparator, len * 2, array.length - 1, len), len * 4);
-          t.is(binarySearch(array, 4, comparator, len * 3, array.length - 1, len), len * 4);
-        });
-      });
-
-      describe('high', () => {
-        test('high equals needle index returns needle index', (t) => {
-          const array: number[] = [];
-
-          push(array, 0);
-          t.is(binarySearch(array, 0, comparator, 0, len * 0, len), len * 0);
-
-          push(array, 1);
-          t.is(binarySearch(array, 0, comparator, 0, len * 0, len), len * 0);
-          t.is(binarySearch(array, 1, comparator, 0, len * 1, len), len * 1);
-
-          push(array, 2);
-          t.is(binarySearch(array, 0, comparator, 0, len * 0, len), len * 0);
-          t.is(binarySearch(array, 1, comparator, 0, len * 1, len), len * 1);
-          t.is(binarySearch(array, 2, comparator, 0, len * 2, len), len * 2);
-
-          push(array, 3);
-          t.is(binarySearch(array, 0, comparator, 0, len * 0, len), len * 0);
-          t.is(binarySearch(array, 1, comparator, 0, len * 1, len), len * 1);
-          t.is(binarySearch(array, 2, comparator, 0, len * 2, len), len * 2);
-          t.is(binarySearch(array, 3, comparator, 0, len * 3, len), len * 3);
-
-          push(array, 4);
-          t.is(binarySearch(array, 0, comparator, 0, len * 0, len), len * 0);
-          t.is(binarySearch(array, 1, comparator, 0, len * 1, len), len * 1);
-          t.is(binarySearch(array, 2, comparator, 0, len * 2, len), len * 2);
-          t.is(binarySearch(array, 3, comparator, 0, len * 3, len), len * 3);
-          t.is(binarySearch(array, 4, comparator, 0, len * 4, len), len * 4);
-
-          push(array, 5);
-          t.is(binarySearch(array, 0, comparator, 0, len * 0, len), len * 0);
-          t.is(binarySearch(array, 1, comparator, 0, len * 1, len), len * 1);
-          t.is(binarySearch(array, 2, comparator, 0, len * 2, len), len * 2);
-          t.is(binarySearch(array, 3, comparator, 0, len * 3, len), len * 3);
-          t.is(binarySearch(array, 4, comparator, 0, len * 4, len), len * 4);
-          t.is(binarySearch(array, 5, comparator, 0, len * 5, len), len * 5);
-        });
-
-        test('high higher than needle index returns needle index', (t) => {
-          const array: number[] = [];
-
-          push(array, 0);
-
-          push(array, 1);
-          t.is(binarySearch(array, 0, comparator, 0, len * 1, len), len * 0);
-
-          push(array, 2);
-          t.is(binarySearch(array, 0, comparator, 0, len * 1, len), len * 0);
-          t.is(binarySearch(array, 0, comparator, 0, len * 2, len), len * 0);
-          t.is(binarySearch(array, 1, comparator, 0, len * 2, len), len * 1);
-
-          push(array, 3);
-          t.is(binarySearch(array, 0, comparator, 0, len * 1, len), len * 0);
-          t.is(binarySearch(array, 0, comparator, 0, len * 2, len), len * 0);
-          t.is(binarySearch(array, 0, comparator, 0, len * 3, len), len * 0);
-          t.is(binarySearch(array, 1, comparator, 0, len * 2, len), len * 1);
-          t.is(binarySearch(array, 1, comparator, 0, len * 3, len), len * 1);
-          t.is(binarySearch(array, 2, comparator, 0, len * 3, len), len * 2);
-
-          push(array, 4);
-          t.is(binarySearch(array, 0, comparator, 0, len * 1, len), len * 0);
-          t.is(binarySearch(array, 0, comparator, 0, len * 2, len), len * 0);
-          t.is(binarySearch(array, 0, comparator, 0, len * 3, len), len * 0);
-          t.is(binarySearch(array, 0, comparator, 0, len * 4, len), len * 0);
-          t.is(binarySearch(array, 1, comparator, 0, len * 2, len), len * 1);
-          t.is(binarySearch(array, 1, comparator, 0, len * 3, len), len * 1);
-          t.is(binarySearch(array, 1, comparator, 0, len * 4, len), len * 1);
-          t.is(binarySearch(array, 2, comparator, 0, len * 3, len), len * 2);
-          t.is(binarySearch(array, 2, comparator, 0, len * 4, len), len * 2);
-          t.is(binarySearch(array, 3, comparator, 0, len * 4, len), len * 3);
-        });
-
-        test('high lower than needle index returns high', (t) => {
-          const array: number[] = [];
-
-          push(array, 0);
-
-          push(array, 1);
-          t.is(binarySearch(array, 1, comparator, 0, len * 0, len), len * 0);
-
-          push(array, 2);
-          t.is(binarySearch(array, 1, comparator, 0, len * 0, len), len * 0);
-          t.is(binarySearch(array, 2, comparator, 0, len * 0, len), len * 0);
-          t.is(binarySearch(array, 2, comparator, 0, len * 1, len), len * 1);
-
-          push(array, 3);
-          t.is(binarySearch(array, 1, comparator, 0, len * 0, len), len * 0);
-          t.is(binarySearch(array, 2, comparator, 0, len * 0, len), len * 0);
-          t.is(binarySearch(array, 2, comparator, 0, len * 1, len), len * 1);
-          t.is(binarySearch(array, 3, comparator, 0, len * 0, len), len * 0);
-          t.is(binarySearch(array, 3, comparator, 0, len * 1, len), len * 1);
-          t.is(binarySearch(array, 3, comparator, 0, len * 2, len), len * 2);
-
-          push(array, 4);
-          t.is(binarySearch(array, 1, comparator, 0, len * 0, len), len * 0);
-          t.is(binarySearch(array, 2, comparator, 0, len * 0, len), len * 0);
-          t.is(binarySearch(array, 2, comparator, 0, len * 1, len), len * 1);
-          t.is(binarySearch(array, 3, comparator, 0, len * 0, len), len * 0);
-          t.is(binarySearch(array, 3, comparator, 0, len * 1, len), len * 1);
-          t.is(binarySearch(array, 3, comparator, 0, len * 2, len), len * 2);
-          t.is(binarySearch(array, 4, comparator, 0, len * 0, len), len * 0);
-          t.is(binarySearch(array, 4, comparator, 0, len * 1, len), len * 1);
-          t.is(binarySearch(array, 4, comparator, 0, len * 2, len), len * 2);
-          t.is(binarySearch(array, 4, comparator, 0, len * 3, len), len * 3);
-        });
-      });
-    };
-  }
-
-  describe('single grouping', suite(1));
-  describe('5-tuple grouping', suite(5));
+    array.push(1);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), array.length - 1);
+
+    array.push(2);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), array.length - 1);
+
+    array.push(3);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), array.length - 1);
+
+    array.push(4);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), array.length - 1);
+
+    array.push(5);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), array.length - 1);
+  });
+
+  test('empty array returns -1', (t) => {
+    const array: number[] = [];
+
+    t.is(binarySearch(array, -1, comparator, 0, array.length - 1), -1);
+    t.is(binarySearch(array, 0, comparator, 0, array.length - 1), -1);
+    t.is(binarySearch(array, 1, comparator, 0, array.length - 1), -1);
+  });
+
+  test('multiple items in array returns any match', (t) => {
+    const array: number[] = [];
+    const needle = 1;
+
+    array.push(needle);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), 0);
+
+    array.push(needle);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), 0);
+
+    array.push(needle);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), 1);
+
+    array.push(needle);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), 1);
+
+    array.push(needle);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), 2);
+
+    array.push(needle);
+    t.is(binarySearch(array, needle, comparator, 0, array.length - 1), 2);
+  });
+
+  describe('low', () => {
+    test('low equals needle index returns needle index', (t) => {
+      const array: number[] = [];
+
+      array.push(0);
+      t.is(binarySearch(array, 0, comparator, 0, array.length - 1), 0);
+
+      array.push(1);
+      t.is(binarySearch(array, 0, comparator, 0, array.length - 1), 0);
+      t.is(binarySearch(array, 1, comparator, 1, array.length - 1), 1);
+
+      array.push(2);
+      t.is(binarySearch(array, 0, comparator, 0, array.length - 1), 0);
+      t.is(binarySearch(array, 1, comparator, 1, array.length - 1), 1);
+      t.is(binarySearch(array, 2, comparator, 2, array.length - 1), 2);
+
+      array.push(3);
+      t.is(binarySearch(array, 0, comparator, 0, array.length - 1), 0);
+      t.is(binarySearch(array, 1, comparator, 1, array.length - 1), 1);
+      t.is(binarySearch(array, 2, comparator, 2, array.length - 1), 2);
+      t.is(binarySearch(array, 3, comparator, 3, array.length - 1), 3);
+
+      array.push(4);
+      t.is(binarySearch(array, 0, comparator, 0, array.length - 1), 0);
+      t.is(binarySearch(array, 1, comparator, 1, array.length - 1), 1);
+      t.is(binarySearch(array, 2, comparator, 2, array.length - 1), 2);
+      t.is(binarySearch(array, 3, comparator, 3, array.length - 1), 3);
+      t.is(binarySearch(array, 4, comparator, 4, array.length - 1), 4);
+
+      array.push(5);
+      t.is(binarySearch(array, 0, comparator, 0, array.length - 1), 0);
+      t.is(binarySearch(array, 1, comparator, 1, array.length - 1), 1);
+      t.is(binarySearch(array, 2, comparator, 2, array.length - 1), 2);
+      t.is(binarySearch(array, 3, comparator, 3, array.length - 1), 3);
+      t.is(binarySearch(array, 4, comparator, 4, array.length - 1), 4);
+      t.is(binarySearch(array, 5, comparator, 5, array.length - 1), 5);
+    });
+
+    test('low higher than needle index returns left of high', (t) => {
+      const array: number[] = [];
+
+      array.push(0);
+
+      array.push(1);
+      t.is(binarySearch(array, 0, comparator, 1, array.length - 1), 0);
+
+      array.push(2);
+      t.is(binarySearch(array, 0, comparator, 1, array.length - 1), 0);
+      t.is(binarySearch(array, 0, comparator, 2, array.length - 1), 1);
+      t.is(binarySearch(array, 1, comparator, 2, array.length - 1), 1);
+
+      array.push(3);
+      t.is(binarySearch(array, 0, comparator, 1, array.length - 1), 0);
+      t.is(binarySearch(array, 0, comparator, 2, array.length - 1), 1);
+      t.is(binarySearch(array, 0, comparator, 3, array.length - 1), 2);
+      t.is(binarySearch(array, 1, comparator, 2, array.length - 1), 1);
+      t.is(binarySearch(array, 1, comparator, 3, array.length - 1), 2);
+      t.is(binarySearch(array, 2, comparator, 3, array.length - 1), 2);
+
+      array.push(4);
+      t.is(binarySearch(array, 0, comparator, 1, array.length - 1), 0);
+      t.is(binarySearch(array, 0, comparator, 2, array.length - 1), 1);
+      t.is(binarySearch(array, 0, comparator, 3, array.length - 1), 2);
+      t.is(binarySearch(array, 0, comparator, 4, array.length - 1), 3);
+      t.is(binarySearch(array, 1, comparator, 2, array.length - 1), 1);
+      t.is(binarySearch(array, 1, comparator, 3, array.length - 1), 2);
+      t.is(binarySearch(array, 1, comparator, 4, array.length - 1), 3);
+      t.is(binarySearch(array, 2, comparator, 3, array.length - 1), 2);
+      t.is(binarySearch(array, 2, comparator, 4, array.length - 1), 3);
+      t.is(binarySearch(array, 3, comparator, 4, array.length - 1), 3);
+    });
+
+    test('low lower than needle index returns needle index', (t) => {
+      const array: number[] = [];
+
+      array.push(0);
+
+      array.push(1);
+      t.is(binarySearch(array, 1, comparator, 0, array.length - 1), 1);
+
+      array.push(2);
+      t.is(binarySearch(array, 1, comparator, 0, array.length - 1), 1);
+      t.is(binarySearch(array, 2, comparator, 0, array.length - 1), 2);
+      t.is(binarySearch(array, 2, comparator, 1, array.length - 1), 2);
+
+      array.push(3);
+      t.is(binarySearch(array, 1, comparator, 0, array.length - 1), 1);
+      t.is(binarySearch(array, 2, comparator, 0, array.length - 1), 2);
+      t.is(binarySearch(array, 2, comparator, 1, array.length - 1), 2);
+      t.is(binarySearch(array, 3, comparator, 0, array.length - 1), 3);
+      t.is(binarySearch(array, 3, comparator, 1, array.length - 1), 3);
+      t.is(binarySearch(array, 3, comparator, 2, array.length - 1), 3);
+
+      array.push(4);
+      t.is(binarySearch(array, 1, comparator, 0, array.length - 1), 1);
+      t.is(binarySearch(array, 2, comparator, 0, array.length - 1), 2);
+      t.is(binarySearch(array, 2, comparator, 1, array.length - 1), 2);
+      t.is(binarySearch(array, 3, comparator, 0, array.length - 1), 3);
+      t.is(binarySearch(array, 3, comparator, 1, array.length - 1), 3);
+      t.is(binarySearch(array, 3, comparator, 2, array.length - 1), 3);
+      t.is(binarySearch(array, 4, comparator, 0, array.length - 1), 4);
+      t.is(binarySearch(array, 4, comparator, 1, array.length - 1), 4);
+      t.is(binarySearch(array, 4, comparator, 2, array.length - 1), 4);
+      t.is(binarySearch(array, 4, comparator, 3, array.length - 1), 4);
+    });
+  });
+
+  describe('high', () => {
+    test('high equals needle index returns needle index', (t) => {
+      const array: number[] = [];
+
+      array.push(0);
+      t.is(binarySearch(array, 0, comparator, 0, 0), 0);
+
+      array.push(1);
+      t.is(binarySearch(array, 0, comparator, 0, 0), 0);
+      t.is(binarySearch(array, 1, comparator, 0, 1), 1);
+
+      array.push(2);
+      t.is(binarySearch(array, 0, comparator, 0, 0), 0);
+      t.is(binarySearch(array, 1, comparator, 0, 1), 1);
+      t.is(binarySearch(array, 2, comparator, 0, 2), 2);
+
+      array.push(3);
+      t.is(binarySearch(array, 0, comparator, 0, 0), 0);
+      t.is(binarySearch(array, 1, comparator, 0, 1), 1);
+      t.is(binarySearch(array, 2, comparator, 0, 2), 2);
+      t.is(binarySearch(array, 3, comparator, 0, 3), 3);
+
+      array.push(4);
+      t.is(binarySearch(array, 0, comparator, 0, 0), 0);
+      t.is(binarySearch(array, 1, comparator, 0, 1), 1);
+      t.is(binarySearch(array, 2, comparator, 0, 2), 2);
+      t.is(binarySearch(array, 3, comparator, 0, 3), 3);
+      t.is(binarySearch(array, 4, comparator, 0, 4), 4);
+
+      array.push(5);
+      t.is(binarySearch(array, 0, comparator, 0, 0), 0);
+      t.is(binarySearch(array, 1, comparator, 0, 1), 1);
+      t.is(binarySearch(array, 2, comparator, 0, 2), 2);
+      t.is(binarySearch(array, 3, comparator, 0, 3), 3);
+      t.is(binarySearch(array, 4, comparator, 0, 4), 4);
+      t.is(binarySearch(array, 5, comparator, 0, 5), 5);
+    });
+
+    test('high higher than needle index returns needle index', (t) => {
+      const array: number[] = [];
+
+      array.push(0);
+
+      array.push(1);
+      t.is(binarySearch(array, 0, comparator, 0, 1), 0);
+
+      array.push(2);
+      t.is(binarySearch(array, 0, comparator, 0, 1), 0);
+      t.is(binarySearch(array, 0, comparator, 0, 2), 0);
+      t.is(binarySearch(array, 1, comparator, 0, 2), 1);
+
+      array.push(3);
+      t.is(binarySearch(array, 0, comparator, 0, 1), 0);
+      t.is(binarySearch(array, 0, comparator, 0, 2), 0);
+      t.is(binarySearch(array, 0, comparator, 0, 3), 0);
+      t.is(binarySearch(array, 1, comparator, 0, 2), 1);
+      t.is(binarySearch(array, 1, comparator, 0, 3), 1);
+      t.is(binarySearch(array, 2, comparator, 0, 3), 2);
+
+      array.push(4);
+      t.is(binarySearch(array, 0, comparator, 0, 1), 0);
+      t.is(binarySearch(array, 0, comparator, 0, 2), 0);
+      t.is(binarySearch(array, 0, comparator, 0, 3), 0);
+      t.is(binarySearch(array, 0, comparator, 0, 4), 0);
+      t.is(binarySearch(array, 1, comparator, 0, 2), 1);
+      t.is(binarySearch(array, 1, comparator, 0, 3), 1);
+      t.is(binarySearch(array, 1, comparator, 0, 4), 1);
+      t.is(binarySearch(array, 2, comparator, 0, 3), 2);
+      t.is(binarySearch(array, 2, comparator, 0, 4), 2);
+      t.is(binarySearch(array, 3, comparator, 0, 4), 3);
+    });
+
+    test('high lower than needle index returns high', (t) => {
+      const array: number[] = [];
+
+      array.push(0);
+
+      array.push(1);
+      t.is(binarySearch(array, 1, comparator, 0, 0), 0);
+
+      array.push(2);
+      t.is(binarySearch(array, 1, comparator, 0, 0), 0);
+      t.is(binarySearch(array, 2, comparator, 0, 0), 0);
+      t.is(binarySearch(array, 2, comparator, 0, 1), 1);
+
+      array.push(3);
+      t.is(binarySearch(array, 1, comparator, 0, 0), 0);
+      t.is(binarySearch(array, 2, comparator, 0, 0), 0);
+      t.is(binarySearch(array, 2, comparator, 0, 1), 1);
+      t.is(binarySearch(array, 3, comparator, 0, 0), 0);
+      t.is(binarySearch(array, 3, comparator, 0, 1), 1);
+      t.is(binarySearch(array, 3, comparator, 0, 2), 2);
+
+      array.push(4);
+      t.is(binarySearch(array, 1, comparator, 0, 0), 0);
+      t.is(binarySearch(array, 2, comparator, 0, 0), 0);
+      t.is(binarySearch(array, 2, comparator, 0, 1), 1);
+      t.is(binarySearch(array, 3, comparator, 0, 0), 0);
+      t.is(binarySearch(array, 3, comparator, 0, 1), 1);
+      t.is(binarySearch(array, 3, comparator, 0, 2), 2);
+      t.is(binarySearch(array, 4, comparator, 0, 0), 0);
+      t.is(binarySearch(array, 4, comparator, 0, 1), 1);
+      t.is(binarySearch(array, 4, comparator, 0, 2), 2);
+      t.is(binarySearch(array, 4, comparator, 0, 3), 3);
+    });
+  });
 });

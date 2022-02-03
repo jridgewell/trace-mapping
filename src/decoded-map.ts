@@ -10,12 +10,10 @@ import type {
   MapSegmentFn,
 } from './types';
 
-const ITEM_LENGTH = 1;
-
 export class DecodedSourceMapImpl implements SourceMap {
   private declare _mappings: SourceMapSegment[][];
 
-  _lastIndex = -ITEM_LENGTH;
+  _lastIndex = -1;
   _lastLine = -1;
   _lastColumn = -1;
 
@@ -70,8 +68,7 @@ export class DecodedSourceMapImpl implements SourceMap {
       column,
       searchComparator,
       0,
-      segments.length - ITEM_LENGTH,
-      ITEM_LENGTH,
+      segments.length - 1,
       this,
       line,
       column,
