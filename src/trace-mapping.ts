@@ -1,8 +1,9 @@
-import { decode } from 'sourcemap-codec';
+import { encode, decode } from 'sourcemap-codec';
 
 import resolve from './resolve';
 import stripFilename from './strip-filename';
-import { DecodedSourceMapImpl } from './decoded-map';
+import maybeSort from './sort';
+import { memoizedState, memoizedBinarySearch } from './binary-search';
 
 import type {
   SourceMapV3,
@@ -14,6 +15,7 @@ import type {
   SourceMapInput,
   Needle,
   MapSegmentFn,
+  SourceMap,
 } from './types';
 
 export type {
@@ -22,6 +24,8 @@ export type {
   DecodedSourceMap,
   EncodedSourceMap,
   MapSegmentFn,
+  InvalidMapping,
+  Mapping,
 } from './types';
 
 const INVALID_MAPPING: InvalidMapping = Object.freeze({
@@ -31,7 +35,7 @@ const INVALID_MAPPING: InvalidMapping = Object.freeze({
   name: null,
 });
 
-export class TraceMap {
+export class TraceMap implements SourceMap {
   declare version: SourceMapV3['version'];
   declare file: SourceMapV3['file'];
   declare names: SourceMapV3['names'];
@@ -40,7 +44,10 @@ export class TraceMap {
   declare sourcesContent: SourceMapV3['sourcesContent'];
 
   declare resolvedSources: SourceMapV3['sources'];
-  declare private _impl: DecodedSourceMapImpl;
+  private declare _encoded: string | undefined;
+  private declare _decoded: SourceMapSegment[][];
+
+  private _binarySearchMemo = memoizedState();
 
   constructor(map: SourceMapInput, mapUrl?: string | null) {
     const isString = typeof map === 'string';
@@ -57,14 +64,13 @@ export class TraceMap {
     const from = resolve(sourceRoot || '', stripFilename(mapUrl));
     this.resolvedSources = sources.map((s) => resolve(s || '', from));
 
-    if (typeof parsed.mappings === 'string') {
-      const decoded = {
-        ...parsed,
-        mappings: decode(parsed.mappings),
-      };
-      this._impl = new DecodedSourceMapImpl(decoded, true);
+    const { mappings } = parsed;
+    if (typeof mappings === 'string') {
+      this._encoded = mappings;
+      this._decoded = maybeSort(decode(mappings), true);
     } else {
-      this._impl = new DecodedSourceMapImpl(parsed as DecodedSourceMap, isString);
+      this._encoded = undefined;
+      this._decoded = maybeSort(mappings, isString);
     }
   }
 
@@ -72,14 +78,14 @@ export class TraceMap {
    * Returns the encoded (VLQ string) form of the SourceMap's mappings field.
    */
   encodedMappings(): EncodedSourceMap['mappings'] {
-    return this._impl.encodedMappings();
+    return (this._encoded ??= encode(this._decoded));
   }
 
   /**
    * Returns the decoded (array of lines of segments) form of the SourceMap's mappings field.
    */
   decodedMappings(): DecodedSourceMap['mappings'] {
-    return this._impl.decodedMappings();
+    return this._decoded;
   }
 
   /**
@@ -87,7 +93,28 @@ export class TraceMap {
    * not exist in the SourceMapSegment. Both generatedLine and generatedColumn are 0-based.
    */
   map<T>(fn: MapSegmentFn<T>): NonNullable<T>[][] {
-    return this._impl.map(fn);
+    const mapOut: NonNullable<T>[][] = [];
+    const decoded = this._decoded;
+
+    for (let i = 0; i < decoded.length; i++) {
+      const line = decoded[i];
+      const lineOut: NonNullable<T>[] = [];
+      mapOut.push(lineOut);
+
+      for (let j = 0; j < line.length; j++) {
+        const seg = line[j];
+        const { length } = seg;
+
+        let segOut: T;
+        if (length === 4) segOut = fn(i, seg[0], seg[1], seg[2], seg[3], -1);
+        else if (length === 5) segOut = fn(i, seg[0], seg[1], seg[2], seg[3], seg[4]);
+        else segOut = fn(i, seg[0], -1, -1, -1, -1);
+
+        if (segOut != null) lineOut.push(segOut as NonNullable<T>);
+      }
+    }
+
+    return mapOut;
   }
 
   /**
@@ -95,7 +122,18 @@ export class TraceMap {
    * stack trace). Line and column here are 0-based, unlike `originalPositionFor`.
    */
   traceSegment(line: number, column: number): SourceMapSegment | null {
-    return this._impl.traceSegment(line, column);
+    const decoded = this._decoded;
+
+    // It's common for parent source maps to have pointers to lines that have no
+    // mapping (like a "//# sourceMappingURL=") at the end of the child file.
+    if (line >= decoded.length) return null;
+
+    const segments = decoded[line];
+    const index = memoizedBinarySearch(segments, column, this._binarySearchMemo, line, column);
+
+    // we come before any mapped segment
+    if (index < 0) return null;
+    return segments[index];
   }
 
   /**
