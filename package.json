@@ -27,6 +27,8 @@
   },
   "license": "MIT",
   "scripts": {
+    "benchmark": "run-s build:rollup benchmark:only",
+    "benchmark:only": "node benchmark/index.mjs",
     "build": "run-s -n build:*",
     "build:rollup": "rollup -c rollup.config.js",
     "build:ts": "tsc --project tsconfig.build.json",
