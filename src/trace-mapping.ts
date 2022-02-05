@@ -129,7 +129,7 @@ export class TraceMap implements SourceMap {
     if (line >= decoded.length) return null;
 
     const segments = decoded[line];
-    const index = memoizedBinarySearch(segments, column, this._binarySearchMemo, line, column);
+    const index = memoizedBinarySearch(segments, column, this._binarySearchMemo, line);
 
     // we come before any mapped segment
     if (index < 0) return null;

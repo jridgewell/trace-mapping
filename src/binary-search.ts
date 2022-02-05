@@ -1,9 +1,9 @@
 import type { SourceMapSegment } from './types';
 
 type MemoState = {
-  _lastLine: number;
-  _lastColumn: number;
-  _lastIndex: number;
+  lastKey: number;
+  lastNeedle: number;
+  lastIndex: number;
 };
 
 /**
@@ -11,13 +11,6 @@ type MemoState = {
  * If no match is found, then the left-index (the index associated with the item that comes just
  * before the desired index) is returned. To maintain proper sort order, a splice would happen at
  * the next index:
- *
- * The `comparator` callback receives both the `item` under comparison and the
- * needle we are searching for. It must return `0` if the `item` is a match,
- * any negative number if `item` is too small (and we must search after it), or
- * any positive number if the `item` is too large (and we must search before
- * it).
- *
  *
  * ```js
  * const array = [1, 3];
@@ -55,9 +48,9 @@ export function binarySearch(
 
 export function memoizedState(): MemoState {
   return {
-    _lastLine: -1,
-    _lastColumn: -1,
-    _lastIndex: -1,
+    lastKey: -1,
+    lastNeedle: -1,
+    lastIndex: -1,
   };
 }
 
@@ -69,26 +62,26 @@ export function memoizedBinarySearch(
   haystack: SourceMapSegment[],
   needle: number,
   state: MemoState,
-  line: number,
-  column: number,
+  key: number,
 ): number {
-  const { _lastLine: lastLine, _lastColumn: lastColumn, _lastIndex: lastIndex } = state;
+  const { lastKey, lastNeedle, lastIndex } = state;
 
   let low = 0;
   let high = haystack.length - 1;
-  if (line === lastLine) {
-    if (column === lastColumn) {
+  if (key === lastKey) {
+    if (needle === lastNeedle) {
       return lastIndex;
     }
 
-    if (column >= lastColumn) {
+    if (needle >= lastNeedle) {
+      // lastIndex may be -1 if the previous needle was not found.
       low = Math.max(lastIndex, 0);
     } else {
       high = lastIndex;
     }
   }
-  state._lastLine = line;
-  state._lastColumn = column;
+  state.lastKey = key;
+  state.lastNeedle = needle;
 
-  return (state._lastIndex = binarySearch(haystack, needle, low, high));
+  return (state.lastIndex = binarySearch(haystack, needle, low, high));
 }
