@@ -56,6 +56,12 @@ export let traceSegment: (map: TraceMap, line: number, column: number) => Source
  */
 export let originalPositionFor: (map: TraceMap, needle: Needle) => Mapping | InvalidMapping;
 
+/**
+ * A helper that skips sorting of the input map's mappings array, which can be expensive for larger
+ * maps.
+ */
+export let presortedDecodedMap: (map: DecodedSourceMap, mapUrl?: string) => TraceMap;
+
 export class TraceMap implements SourceMap {
   declare version: SourceMapV3['version'];
   declare file: SourceMapV3['file'];
@@ -82,8 +88,12 @@ export class TraceMap implements SourceMap {
     this.sources = sources;
     this.sourcesContent = sourcesContent;
 
-    const from = resolve(sourceRoot || '', stripFilename(mapUrl));
-    this.resolvedSources = sources.map((s) => resolve(s || '', from));
+    if (sourceRoot || mapUrl) {
+      const from = resolve(sourceRoot || '', stripFilename(mapUrl));
+      this.resolvedSources = sources.map((s) => resolve(s || '', from));
+    } else {
+      this.resolvedSources = sources;
+    }
 
     const { mappings } = parsed;
     if (typeof mappings === 'string') {
@@ -136,6 +146,14 @@ export class TraceMap implements SourceMap {
         column: segment[3],
         name: segment.length === 5 ? names[segment[4]] : null,
       };
+    };
+
+    presortedDecodedMap = (map, mapUrl) => {
+      const clone = Object.assign({}, map);
+      clone.mappings = [];
+      const tracer = new TraceMap(clone, mapUrl);
+      tracer._decoded = map.mappings;
+      return tracer;
     };
   }
 }

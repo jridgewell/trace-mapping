@@ -9,6 +9,7 @@ import {
   decodedMappings,
   traceSegment,
   originalPositionFor,
+  presortedDecodedMap,
 } from '../src/trace-mapping';
 
 import type { ExecutionContext } from 'ava';
@@ -244,5 +245,20 @@ describe('TraceMap', () => {
     test('json decoded source map', macro, JSON.stringify(decoded));
     test('encoded source map', macro, encoded);
     test('json encoded source map', macro, JSON.stringify(encoded));
+  });
+
+  describe('presortedDecodedMap', () => {
+    test('propagates decoded mappings without sorting', (t) => {
+      const mappings = decodedMap.mappings.map((line) => {
+        return line.slice().reverse();
+      });
+      const reversedDecoded: DecodedSourceMap = {
+        ...decodedMap,
+        mappings: mappings.map((line) => line.slice()),
+      };
+
+      const tracer = presortedDecodedMap(reversedDecoded);
+      t.deepEqual(decodedMappings(tracer), mappings);
+    });
   });
 });
