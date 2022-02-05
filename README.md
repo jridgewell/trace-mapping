@@ -17,8 +17,7 @@ npm install @jridgewell/trace-mapping
 ## Usage
 
 ```typescript
-import { TraceMap } from '@jridgewell/trace-mapping';
-// also exported as default.
+import { TraceMap, originalPositionFor } from '@jridgewell/trace-mapping';
 
 const tracer = new TraceMap({
   version: 3,
@@ -28,7 +27,7 @@ const tracer = new TraceMap({
 });
 
 // Lines start at line 1, columns at column 0.
-const traced = tracer.originalPositionFor({ line: 1, column: 5 });
+const traced = originalPositionFor(tracer, { line: 1, column: 5 });
 assert.deepEqual(traced, {
   source: 'input.js',
   line: 42,
@@ -42,7 +41,7 @@ We also provide a lower level API to get the actual segment that matches our lin
 
 ```typescript
 // line is 0-base.
-const traced = tracer.originalPositionFor(/* line */ 0, /* column */ 5);
+const traced = originalPositionFor(tracer, /* line */ 0, /* column */ 5);
 
 // Segments are [outputColumn, sourcesIndex, sourceLine, sourceColumn, namesIndex]
 // Again, line is 0-base and so is sourceLine
