@@ -14,7 +14,6 @@ import type {
   SourceMapSegment,
   SourceMapInput,
   Needle,
-  MapSegmentFn,
   SourceMap,
 } from './types';
 
@@ -23,7 +22,6 @@ export type {
   SourceMapInput,
   DecodedSourceMap,
   EncodedSourceMap,
-  MapSegmentFn,
   InvalidMapping,
   Mapping,
 } from './types';
@@ -34,6 +32,29 @@ const INVALID_MAPPING: InvalidMapping = Object.freeze({
   column: null,
   name: null,
 });
+
+/**
+ * Returns the encoded (VLQ string) form of the SourceMap's mappings field.
+ */
+export let encodedMappings: (map: TraceMap) => EncodedSourceMap['mappings'];
+
+/**
+ * Returns the decoded (array of lines of segments) form of the SourceMap's mappings field.
+ */
+export let decodedMappings: (map: TraceMap) => DecodedSourceMap['mappings'];
+
+/**
+ * A low-level API to find the segment associated with a generated line/column (think, from a
+ * stack trace). Line and column here are 0-based, unlike `originalPositionFor`.
+ */
+export let traceSegment: (map: TraceMap, line: number, column: number) => SourceMapSegment | null;
+
+/**
+ * A higher-level API to find the source/line/column associated with a generated line/column
+ * (think, from a stack trace). Line is 1-based, but column is 0-based, due to legacy behavior in
+ * `source-map` library.
+ */
+export let originalPositionFor: (map: TraceMap, needle: Needle) => Mapping | InvalidMapping;
 
 export class TraceMap implements SourceMap {
   declare version: SourceMapV3['version'];
@@ -74,91 +95,47 @@ export class TraceMap implements SourceMap {
     }
   }
 
-  /**
-   * Returns the encoded (VLQ string) form of the SourceMap's mappings field.
-   */
-  encodedMappings(): EncodedSourceMap['mappings'] {
-    return (this._encoded ??= encode(this._decoded));
-  }
+  static {
+    encodedMappings = (map) => {
+      return (map._encoded ??= encode(map._decoded));
+    };
 
-  /**
-   * Returns the decoded (array of lines of segments) form of the SourceMap's mappings field.
-   */
-  decodedMappings(): DecodedSourceMap['mappings'] {
-    return this._decoded;
-  }
+    decodedMappings = (map) => {
+      return map._decoded;
+    };
 
-  /**
-   * Similar to Array.p.map, maps each segment into a new  segment. Passes -1 for any values that do
-   * not exist in the SourceMapSegment. Both generatedLine and generatedColumn are 0-based.
-   */
-  map<T>(fn: MapSegmentFn<T>): NonNullable<T>[][] {
-    const mapOut: NonNullable<T>[][] = [];
-    const decoded = this._decoded;
+    traceSegment = (map, line, column) => {
+      const decoded = map._decoded;
 
-    for (let i = 0; i < decoded.length; i++) {
-      const line = decoded[i];
-      const lineOut: NonNullable<T>[] = [];
-      mapOut.push(lineOut);
+      // It's common for parent source maps to have pointers to lines that have no
+      // mapping (like a "//# sourceMappingURL=") at the end of the child file.
+      if (line >= decoded.length) return null;
 
-      for (let j = 0; j < line.length; j++) {
-        const seg = line[j];
-        const { length } = seg;
+      const segments = decoded[line];
+      const index = memoizedBinarySearch(segments, column, map._binarySearchMemo, line);
 
-        let segOut: T;
-        if (length === 4) segOut = fn(i, seg[0], seg[1], seg[2], seg[3], -1);
-        else if (length === 5) segOut = fn(i, seg[0], seg[1], seg[2], seg[3], seg[4]);
-        else segOut = fn(i, seg[0], -1, -1, -1, -1);
+      // we come before any mapped segment
+      if (index < 0) return null;
+      return segments[index];
+    };
 
-        if (segOut != null) lineOut.push(segOut as NonNullable<T>);
+    originalPositionFor = (map, { line, column }) => {
+      if (line < 1) throw new Error('`line` must be greater than 0 (lines start at line 1)');
+      if (column < 0) {
+        throw new Error('`column` must be greater than or equal to 0 (columns start at column 0)');
       }
-    }
 
-    return mapOut;
-  }
+      const segment = traceSegment(map, line - 1, column);
+      if (segment == null) return INVALID_MAPPING;
+      if (segment.length == 1) return INVALID_MAPPING;
 
-  /**
-   * A low-level API to find the segment associated with a generated line/column (think, from a
-   * stack trace). Line and column here are 0-based, unlike `originalPositionFor`.
-   */
-  traceSegment(line: number, column: number): SourceMapSegment | null {
-    const decoded = this._decoded;
-
-    // It's common for parent source maps to have pointers to lines that have no
-    // mapping (like a "//# sourceMappingURL=") at the end of the child file.
-    if (line >= decoded.length) return null;
-
-    const segments = decoded[line];
-    const index = memoizedBinarySearch(segments, column, this._binarySearchMemo, line);
-
-    // we come before any mapped segment
-    if (index < 0) return null;
-    return segments[index];
-  }
-
-  /**
-   * A higher-level API to find the source/line/column associated with a generated line/column
-   * (think, from a stack trace). Line is 1-based, but column is 0-based, due to legacy behavior in
-   * `source-map` library.
-   */
-  originalPositionFor({ line, column }: Needle): Mapping | InvalidMapping {
-    if (line < 1) throw new Error('`line` must be greater than 0 (lines start at line 1)');
-    if (column < 0) {
-      throw new Error('`column` must be greater than or equal to 0 (columns start at column 0)');
-    }
-
-    const segment = this.traceSegment(line - 1, column);
-    if (segment == null) return INVALID_MAPPING;
-    if (segment.length == 1) return INVALID_MAPPING;
-
-    const { names, resolvedSources } = this;
-    return {
-      source: resolvedSources[segment[1]],
-      line: segment[2] + 1,
-      column: segment[3],
-      name: segment.length === 5 ? names[segment[4]] : null,
+      const { names, resolvedSources } = map;
+      return {
+        source: resolvedSources[segment[1]],
+        line: segment[2] + 1,
+        column: segment[3],
+        name: segment.length === 5 ? names[segment[4]] : null,
+      };
     };
   }
 }
-
-export { TraceMap as default };

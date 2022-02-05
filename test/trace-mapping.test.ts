@@ -3,7 +3,13 @@
 import { encode, decode } from '@jridgewell/sourcemap-codec';
 
 import { test, describe } from './setup';
-import TraceMap from '../src/trace-mapping';
+import {
+  TraceMap,
+  encodedMappings,
+  decodedMappings,
+  traceSegment,
+  originalPositionFor,
+} from '../src/trace-mapping';
 
 import type { ExecutionContext } from 'ava';
 import type { SourceMapInput, EncodedSourceMap, DecodedSourceMap } from '../src/trace-mapping';
@@ -95,12 +101,12 @@ describe('TraceMap', () => {
 
         test('encodedMappings', (t) => {
           const tracer = new TraceMap(map);
-          t.is(tracer.encodedMappings(), encodedMap.mappings);
+          t.is(encodedMappings(tracer), encodedMap.mappings);
         });
 
         test('decodedMappings', (t) => {
           const tracer = new TraceMap(map);
-          t.deepEqual(tracer.decodedMappings(), decodedMap.mappings);
+          t.deepEqual(decodedMappings(tracer), decodedMap.mappings);
         });
 
         test('sourcesContent', (t) => {
@@ -143,7 +149,7 @@ describe('TraceMap', () => {
 
         // This comes before any segment on line 2, but importantly there are segments on line 1. If
         // binary searchign returns the last segment of line 1, we've failed.
-        t.is(tracer.traceSegment(1, 0), null);
+        t.is(traceSegment(tracer, 1, 0), null);
 
         for (let line = 0; line < mappings.length; line++) {
           const segmentLine = mappings[line];
@@ -154,7 +160,7 @@ describe('TraceMap', () => {
             const nextColumn = next?.[0] ?? segment[0] + 2;
 
             for (let column = segment[0]; column < nextColumn; column++) {
-              const traced = tracer.traceSegment(line, column);
+              const traced = traceSegment(tracer, line, column);
               t.deepEqual(traced, segment, `{ line: ${line}, column: ${column} }`);
             }
           }
@@ -164,14 +170,14 @@ describe('TraceMap', () => {
       test('originalPositionFor', (t) => {
         const tracer = new TraceMap(map);
 
-        t.deepEqual(tracer.originalPositionFor({ line: 2, column: 13 }), {
+        t.deepEqual(originalPositionFor(tracer, { line: 2, column: 13 }), {
           source: 'https://astexplorer.net/input.js',
           line: 2,
           column: 14,
           name: 'Error',
         });
 
-        t.deepEqual(tracer.originalPositionFor({ line: 100, column: 13 }), {
+        t.deepEqual(originalPositionFor(tracer, { line: 100, column: 13 }), {
           source: null,
           line: null,
           column: null,
@@ -179,47 +185,12 @@ describe('TraceMap', () => {
         });
 
         t.throws(() => {
-          tracer.originalPositionFor({ line: 0, column: 13 });
+          originalPositionFor(tracer, { line: 0, column: 13 });
         });
 
         t.throws(() => {
-          tracer.originalPositionFor({ line: 1, column: -1 });
+          originalPositionFor(tracer, { line: 1, column: -1 });
         });
-      });
-
-      test('map', (t) => {
-        const trace = new TraceMap(map);
-        const expecteds = decodedMap.mappings.flatMap((line, genLine) => {
-          return line.map((segment) => {
-            const [genCol, source, line, col, name] = segment;
-            return {
-              genLine,
-              genCol,
-              source: source ?? -1,
-              line: line ?? -1,
-              col: col ?? -1,
-              name: name ?? -1,
-            };
-          });
-        });
-        const expectedOutput = decodedMap.mappings.map((line) => {
-          return line.reduce((out, seg) => {
-            if (seg.length === 5) out.push({ name: seg[4] });
-            return out;
-          }, [] as { name: number }[]);
-        });
-        t.plan(expecteds.length + 1);
-
-        let index = 0;
-        const output = trace.map((genLine, genCol, source, line, col, name) => {
-          const expected = expecteds[index];
-          t.deepEqual({ genLine, genCol, source, line, col, name }, expected, `${index}`);
-          index++;
-
-          if (name > -1) return { name };
-        });
-
-        t.deepEqual(output, expectedOutput);
       });
     };
   }
@@ -243,7 +214,7 @@ describe('TraceMap', () => {
     };
     const macro = test.macro((t: ExecutionContext<unknown>, map: SourceMapInput) => {
       const tracer = new TraceMap(map);
-      t.deepEqual(tracer.decodedMappings(), decodedMap.mappings);
+      t.deepEqual(decodedMappings(tracer), decodedMap.mappings);
     });
 
     test('decoded source map', macro, reversedDecoded);
@@ -265,7 +236,7 @@ describe('TraceMap', () => {
     const macro = test.macro((t: ExecutionContext<unknown>, map: SourceMapInput) => {
       const tracer = new TraceMap(map);
       for (let i = 0; i < decoded.mappings.length; i++) {
-        t.is(tracer.traceSegment(i, 0), null, `{ line: ${i} }`);
+        t.is(traceSegment(tracer, i, 0), null, `{ line: ${i} }`);
       }
     });
 

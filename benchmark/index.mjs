@@ -4,8 +4,8 @@ import { readdirSync, readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join, relative } from 'path';
 import Benchmark from 'benchmark';
-import { decode } from 'sourcemap-codec';
-import TraceMap from '../dist/trace-mapping.mjs';
+import { decode } from '@jridgewell/sourcemap-codec';
+import { TraceMap, decodedMappings, originalPositionFor } from '../dist/trace-mapping.mjs';
 import { SourceMapConsumer as SourceMapConsumerJs } from 'source-map-js';
 import { SourceMapConsumer as SourceMapConsumer061 } from 'source-map';
 
@@ -20,16 +20,16 @@ export function bench(file) {
 
   new Benchmark.Suite()
     .add('trace-mapping: decoded JSON input', () => {
-      new TraceMap(decodedMapDataJson).originalPositionFor({ line: 1, column: 0 });
+      originalPositionFor(new TraceMap(decodedMapDataJson), { line: 1, column: 0 });
     })
     .add('trace-mapping: encoded JSON input', () => {
-      new TraceMap(encodedMapDataJson).originalPositionFor({ line: 1, column: 0 });
+      originalPositionFor(new TraceMap(encodedMapDataJson), { line: 1, column: 0 });
     })
     .add('trace-mapping: decoded Object input', () => {
-      new TraceMap(decodedMapData).originalPositionFor({ line: 1, column: 0 });
+      originalPositionFor(new TraceMap(decodedMapData), { line: 1, column: 0 });
     })
     .add('trace-mapping: encoded Object input', () => {
-      new TraceMap(encodedMapData).originalPositionFor({ line: 1, column: 0 });
+      originalPositionFor(new TraceMap(encodedMapData), { line: 1, column: 0 });
     })
     .add('source-map-js: encoded Object input', () => {
       new SourceMapConsumerJs(encodedMapData).originalPositionFor({ line: 1, column: 0 });
@@ -54,7 +54,7 @@ export function bench(file) {
   const smcjs = new SourceMapConsumerJs(encodedMapData);
   const smc061 = new SourceMapConsumer061(encodedMapData);
 
-  const lines = decoded.decodedMappings();
+  const lines = decodedMappings(decoded);
 
   new Benchmark.Suite()
     .add('trace-mapping: decoded originalPositionFor', () => {
@@ -63,7 +63,7 @@ export function bench(file) {
       if (line.length === 0) return;
       const j = Math.floor(Math.random() * line.length);
       const column = line[j][0];
-      decoded.originalPositionFor({ line: i + 1, column });
+      originalPositionFor(decoded, { line: i + 1, column });
     })
     .add('trace-mapping: encoded originalPositionFor', () => {
       const i = Math.floor(Math.random() * lines.length);
@@ -71,7 +71,7 @@ export function bench(file) {
       if (line.length === 0) return;
       const j = Math.floor(Math.random() * line.length);
       const column = line[j][0];
-      encoded.originalPositionFor({ line: i + 1, column });
+      originalPositionFor(encoded, { line: i + 1, column });
     })
     .add('source-map-js: encoded originalPositionFor', () => {
       const i = Math.floor(Math.random() * lines.length);
