@@ -66,6 +66,6 @@
   },
   "dependencies": {
     "@jridgewell/resolve-uri": "^3.0.3",
-    "@jridgewell/sourcemap-codec": "^1.4.9"
+    "@jridgewell/sourcemap-codec": "^1.4.10"
   }
 }

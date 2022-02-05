@@ -98,7 +98,7 @@ export class TraceMap implements SourceMap {
     const { mappings } = parsed;
     if (typeof mappings === 'string') {
       this._encoded = mappings;
-      this._decoded = maybeSort(decode(mappings), true);
+      this._decoded = decode(mappings);
     } else {
       this._encoded = undefined;
       this._decoded = maybeSort(mappings, isString);
