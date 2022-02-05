@@ -20,10 +20,13 @@ function configure(esm) {
           exports: 'named',
           globals: {
             '@jridgewell/resolve-uri': 'resolveURI',
-            'sourcemap-codec': 'sourcemapCodec',
+            '@jridgewell/sourcemap-codec': 'sourcemapCodec',
           },
         },
-    plugins: [typescript({ tsconfig: './tsconfig.build.json' })],
+    plugins: [typescript({
+      tsconfig: './tsconfig.build.json',
+      tslib: './throw-when-needed',
+    })],
     watch: {
       include: 'src/**',
     },

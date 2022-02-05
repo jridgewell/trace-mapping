@@ -1,4 +1,4 @@
-import { encode, decode } from 'sourcemap-codec';
+import { encode, decode } from '@jridgewell/sourcemap-codec';
 
 import resolve from './resolve';
 import stripFilename from './strip-filename';

@@ -1,6 +1,6 @@
 /// <reference lib="esnext" />
 
-import { encode, decode } from 'sourcemap-codec';
+import { encode, decode } from '@jridgewell/sourcemap-codec';
 
 import { test, describe } from './setup';
 import TraceMap from '../src/trace-mapping';
