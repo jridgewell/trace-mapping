@@ -177,7 +177,7 @@ export class TraceMap implements SourceMap {
           let name = null;
           if (seg.length !== 1) {
             source = resolvedSources[seg[1]];
-            originalLine = seg[2];
+            originalLine = seg[2] + 1;
             originalColumn = seg[3];
           }
           if (seg.length === 5) name = names[seg[4]];

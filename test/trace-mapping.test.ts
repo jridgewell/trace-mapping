@@ -260,7 +260,7 @@ describe('TraceMap', () => {
           generatedLine: i + 1,
           generatedColumn: seg[0],
           source: seg.length === 1 ? null : `https://astexplorer.net/${decodedMap.sources[seg[1]]}`,
-          originalLine: seg.length === 1 ? null : seg[2],
+          originalLine: seg.length === 1 ? null : seg[2] + 1,
           originalColumn: seg.length === 1 ? null : seg[3],
           name: seg.length === 5 ? decodedMap.names[seg[4]] : null,
         } as any;
