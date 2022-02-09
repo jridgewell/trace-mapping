@@ -10,10 +10,16 @@ import {
   traceSegment,
   originalPositionFor,
   presortedDecodedMap,
+  eachMapping,
 } from '../src/trace-mapping';
 
 import type { ExecutionContext } from 'ava';
-import type { SourceMapInput, EncodedSourceMap, DecodedSourceMap } from '../src/trace-mapping';
+import type {
+  SourceMapInput,
+  EncodedSourceMap,
+  DecodedSourceMap,
+  EachMapping,
+} from '../src/trace-mapping';
 
 describe('TraceMap', () => {
   const decodedMap: DecodedSourceMap = {
@@ -245,6 +251,36 @@ describe('TraceMap', () => {
     test('json decoded source map', macro, JSON.stringify(decoded));
     test('encoded source map', macro, encoded);
     test('json encoded source map', macro, JSON.stringify(encoded));
+  });
+
+  describe('eachMapping', () => {
+    const mappings = decodedMap.mappings.flatMap((line, i) => {
+      return line.map((seg): EachMapping => {
+        return {
+          generatedLine: i + 1,
+          generatedColumn: seg[0],
+          source: seg.length === 1 ? null : `https://astexplorer.net/${decodedMap.sources[seg[1]]}`,
+          originalLine: seg.length === 1 ? null : seg[2],
+          originalColumn: seg.length === 1 ? null : seg[3],
+          name: seg.length === 5 ? decodedMap.names[seg[4]] : null,
+        } as any;
+      });
+    });
+
+    const macro = test.macro((t: ExecutionContext<unknown>, map: SourceMapInput) => {
+      t.plan(mappings.length);
+
+      const tracer = new TraceMap(map);
+      let i = 0;
+      eachMapping(tracer, (mapping) => {
+        t.deepEqual(mapping, mappings[i++]);
+      });
+    });
+
+    test('decoded source map', macro, decodedMap);
+    test('json decoded source map', macro, JSON.stringify(decodedMap));
+    test('encoded source map', macro, encodedMap);
+    test('json encoded source map', macro, JSON.stringify(encodedMap));
   });
 
   describe('presortedDecodedMap', () => {

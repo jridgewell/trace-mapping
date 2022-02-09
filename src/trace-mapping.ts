@@ -10,11 +10,12 @@ import type {
   DecodedSourceMap,
   EncodedSourceMap,
   InvalidMapping,
-  Mapping,
+  OriginalMapping,
   SourceMapSegment,
   SourceMapInput,
   Needle,
   SourceMap,
+  EachMapping,
 } from './types';
 
 export type {
@@ -23,7 +24,9 @@ export type {
   DecodedSourceMap,
   EncodedSourceMap,
   InvalidMapping,
-  Mapping,
+  OriginalMapping as Mapping,
+  OriginalMapping,
+  EachMapping,
 } from './types';
 
 const INVALID_MAPPING: InvalidMapping = Object.freeze({
@@ -41,20 +44,29 @@ export let encodedMappings: (map: TraceMap) => EncodedSourceMap['mappings'];
 /**
  * Returns the decoded (array of lines of segments) form of the SourceMap's mappings field.
  */
-export let decodedMappings: (map: TraceMap) => DecodedSourceMap['mappings'];
+export let decodedMappings: (map: TraceMap) => Readonly<DecodedSourceMap['mappings']>;
 
 /**
  * A low-level API to find the segment associated with a generated line/column (think, from a
  * stack trace). Line and column here are 0-based, unlike `originalPositionFor`.
  */
-export let traceSegment: (map: TraceMap, line: number, column: number) => SourceMapSegment | null;
+export let traceSegment: (
+  map: TraceMap,
+  line: number,
+  column: number,
+) => Readonly<SourceMapSegment> | null;
 
 /**
  * A higher-level API to find the source/line/column associated with a generated line/column
  * (think, from a stack trace). Line is 1-based, but column is 0-based, due to legacy behavior in
  * `source-map` library.
  */
-export let originalPositionFor: (map: TraceMap, needle: Needle) => Mapping | InvalidMapping;
+export let originalPositionFor: (map: TraceMap, needle: Needle) => OriginalMapping | InvalidMapping;
+
+/**
+ * Iterates each mapping in generated position order.
+ */
+export let eachMapping: (map: TraceMap, cb: (mapping: EachMapping) => void) => void;
 
 /**
  * A helper that skips sorting of the input map's mappings array, which can be expensive for larger
@@ -70,7 +82,7 @@ export class TraceMap implements SourceMap {
   declare sources: SourceMapV3['sources'];
   declare sourcesContent: SourceMapV3['sourcesContent'];
 
-  declare resolvedSources: SourceMapV3['sources'];
+  declare resolvedSources: string[];
   private declare _encoded: string | undefined;
   private declare _decoded: SourceMapSegment[][];
 
@@ -92,7 +104,7 @@ export class TraceMap implements SourceMap {
       const from = resolve(sourceRoot || '', stripFilename(mapUrl));
       this.resolvedSources = sources.map((s) => resolve(s || '', from));
     } else {
-      this.resolvedSources = sources;
+      this.resolvedSources = sources.map((s) => s || '');
     }
 
     const { mappings } = parsed;
@@ -146,6 +158,40 @@ export class TraceMap implements SourceMap {
         column: segment[3],
         name: segment.length === 5 ? names[segment[4]] : null,
       };
+    };
+
+    eachMapping = (map, cb) => {
+      const decoded = map._decoded;
+      const { names, resolvedSources } = map;
+
+      for (let i = 0; i < decoded.length; i++) {
+        const line = decoded[i];
+        for (let j = 0; j < line.length; j++) {
+          const seg = line[j];
+
+          const generatedLine = i + 1;
+          const generatedColumn = seg[0];
+          let source = null;
+          let originalLine = null;
+          let originalColumn = null;
+          let name = null;
+          if (seg.length !== 1) {
+            source = resolvedSources[seg[1]];
+            originalLine = seg[2];
+            originalColumn = seg[3];
+          }
+          if (seg.length === 5) name = names[seg[4]];
+
+          cb({
+            generatedLine,
+            generatedColumn,
+            source,
+            originalLine,
+            originalColumn,
+            name,
+          } as EachMapping);
+        }
+      }
     };
 
     presortedDecodedMap = (map, mapUrl) => {

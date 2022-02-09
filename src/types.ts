@@ -26,7 +26,7 @@ export interface DecodedSourceMap extends SourceMapV3 {
   mappings: SourceMapSegment[][];
 }
 
-export type Mapping = {
+export type OriginalMapping = {
   source: string | null;
   line: number;
   column: number;
@@ -43,6 +43,24 @@ export type InvalidMapping = {
 export type SourceMapInput = string | EncodedSourceMap | DecodedSourceMap;
 
 export type Needle = { line: number; column: number };
+
+export type EachMapping =
+  | {
+      generatedLine: number;
+      generatedColumn: number;
+      source: null;
+      originalLine: null;
+      originalColumn: null;
+      name: null;
+    }
+  | {
+      generatedLine: number;
+      generatedColumn: number;
+      source: string | null;
+      originalLine: number;
+      originalColumn: number;
+      name: string | null;
+    };
 
 export abstract class SourceMap {
   declare version: SourceMapV3['version'];
