@@ -27,7 +27,8 @@
   },
   "license": "MIT",
   "scripts": {
-    "benchmark": "run-s build:rollup benchmark:only",
+    "benchmark": "run-s build:rollup benchmark:*",
+    "benchmark:install": "cd benchmark && npm install",
     "benchmark:only": "node benchmark/index.mjs",
     "build": "run-s -n build:*",
     "build:rollup": "rollup -c rollup.config.js",
@@ -60,8 +61,6 @@
     "npm-run-all": "4.1.5",
     "prettier": "2.5.1",
     "rollup": "2.64.0",
-    "source-map": "0.6.1",
-    "source-map-js": "1.0.2",
     "typescript": "4.5.4"
   },
   "dependencies": {

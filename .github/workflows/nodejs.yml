@@ -4,24 +4,33 @@ on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
+        latest-node-version: [16.x]
         node-version: [12.x, 14.x, 16.x]
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: npm install and test
-      run: |
-        npm install -g npm@latest
-        npm install
-        npm test
-        npm run build
-      env:
-        CI: true
+      - uses: actions/checkout@v1
+      - name: Build with Node.js ${{ matrix.latest-node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.latest-node-version }}
+      - name: Build with latest
+        run: |
+          npm install
+          npm run build
+      - name: Switch to Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Test node
+        run: |
+          npm run test:only
+      - name: Benchmark
+        run: |
+          npm run benchmark:install
+          npm run benchmark:only
+        env:
+          CI: true
