@@ -40,7 +40,7 @@ We also provide a lower level API to get the actual segment that matches our lin
 `originalPositionFor`, `traceSegment` uses a 0-base for `line`:
 
 ```typescript
-import { originalPositionFor } from '@jridgewell/trace-mapping';
+import { traceSegment } from '@jridgewell/trace-mapping';
 
 // line is 0-base.
 const traced = traceSegment(tracer, /* line */ 0, /* column */ 5);
