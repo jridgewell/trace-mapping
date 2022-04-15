@@ -32,5 +32,12 @@ test.macro = ava.macro;
 test.only = <Args extends unknown[]>(label: string, fn: Implementation<Args>, ...args: Args) => {
   ava.only(getLabel(label), fn, ...args);
 };
+test.skip = function skip<Args extends unknown[]>(
+  label: string,
+  fn: Implementation<Args>,
+  ...args: Args
+): void {
+  ava.skip(getLabel(label), fn, ...args);
+};
 
 export { test, describe, describe as context };

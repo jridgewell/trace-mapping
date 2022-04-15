@@ -1,10 +1,13 @@
-import type { SourceMapSegment } from './types';
+import type { SourceMapSegment, ReverseSegment } from './sourcemap-segment';
+import { COLUMN } from './sourcemap-segment';
 
-type MemoState = {
+export type MemoState = {
   lastKey: number;
   lastNeedle: number;
   lastIndex: number;
 };
+
+export let found = false;
 
 /**
  * A binary search implementation that returns the index if a match is found.
@@ -23,16 +26,17 @@ type MemoState = {
  * ```
  */
 export function binarySearch(
-  haystack: SourceMapSegment[],
+  haystack: SourceMapSegment[] | ReverseSegment[],
   needle: number,
   low: number,
   high: number,
 ): number {
   while (low <= high) {
     const mid = low + ((high - low) >> 1);
-    const cmp = haystack[mid][0] - needle;
+    const cmp = haystack[mid][COLUMN] - needle;
 
     if (cmp === 0) {
+      found = true;
       return mid;
     }
 
@@ -43,7 +47,30 @@ export function binarySearch(
     }
   }
 
+  found = false;
   return low - 1;
+}
+
+export function upperBound(
+  haystack: SourceMapSegment[] | ReverseSegment[],
+  needle: number,
+  index: number,
+): number {
+  for (let i = index + 1; i < haystack.length; i++, index++) {
+    if (haystack[i][COLUMN] !== needle) break;
+  }
+  return index;
+}
+
+export function lowerBound(
+  haystack: SourceMapSegment[] | ReverseSegment[],
+  needle: number,
+  index: number,
+): number {
+  for (let i = index - 1; i >= 0; i--, index--) {
+    if (haystack[i][COLUMN] !== needle) break;
+  }
+  return index;
 }
 
 export function memoizedState(): MemoState {
@@ -59,7 +86,7 @@ export function memoizedState(): MemoState {
  * index, allowing us to skip a few tests if mappings are monotonically increasing.
  */
 export function memoizedBinarySearch(
-  haystack: SourceMapSegment[],
+  haystack: SourceMapSegment[] | ReverseSegment[],
   needle: number,
   state: MemoState,
   key: number,
@@ -75,7 +102,7 @@ export function memoizedBinarySearch(
 
     if (needle >= lastNeedle) {
       // lastIndex may be -1 if the previous needle was not found.
-      low = Math.max(lastIndex, 0);
+      low = lastIndex === -1 ? 0 : lastIndex;
     } else {
       high = lastIndex;
     }
