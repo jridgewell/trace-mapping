@@ -6,7 +6,7 @@
 original location in the source file through a source map.
 
 You may already be familiar with the [`source-map`][source-map] package's `SourceMapConsumer`. This
-provides the same `originalPositionFor` API, without requires WASM.
+provides the same `originalPositionFor` and `generatedPositionFor` API, without requires WASM.
 
 ## Installation
 
@@ -17,7 +17,7 @@ npm install @jridgewell/trace-mapping
 ## Usage
 
 ```typescript
-import { TraceMap, originalPositionFor } from '@jridgewell/trace-mapping';
+import { TraceMap, originalPositionFor, generatedPositionFor } from '@jridgewell/trace-mapping';
 
 const tracer = new TraceMap({
   version: 3,
@@ -33,6 +33,12 @@ assert.deepEqual(traced, {
   line: 42,
   column: 4,
   name: 'foo',
+});
+
+const generated = generatedPositionFor(tracer, { source: 'input.js', line: 42, column: 4 });
+assert.deepEqual(generated, {
+  line: 1,
+  column: 5,
 });
 ```
 

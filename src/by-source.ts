@@ -40,7 +40,7 @@ export default function buildBySources(
         memoizedBinarySearch(originalLine, sourceColumn, memo, sourceLine),
       );
 
-      insert(originalLine, index + 1, [sourceColumn, i, seg[COLUMN]]);
+      insert(originalLine, (memo.lastIndex = index + 1), [sourceColumn, i, seg[COLUMN]]);
     }
   }
 

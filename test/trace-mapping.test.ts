@@ -223,6 +223,11 @@ describe('TraceMap', () => {
       test('generatedPositionFor', (t) => {
         const tracer = new TraceMap(map);
 
+        t.deepEqual(generatedPositionFor(tracer, { source: 'input.js', line: 4, column: 3 }), {
+          line: 5,
+          column: 3,
+        });
+
         t.deepEqual(generatedPositionFor(tracer, { source: 'input.js', line: 1, column: 0 }), {
           line: 1,
           column: 0,
