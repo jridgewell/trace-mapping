@@ -4,7 +4,13 @@ import resolve from './resolve';
 import stripFilename from './strip-filename';
 import maybeSort from './sort';
 import buildBySources from './by-source';
-import { memoizedState, memoizedBinarySearch } from './binary-search';
+import {
+  memoizedState,
+  memoizedBinarySearch,
+  upperBound,
+  lowerBound,
+  found as bsFound,
+} from './binary-search';
 import {
   SOURCES_INDEX,
   SOURCE_LINE,
@@ -14,7 +20,7 @@ import {
   REV_GENERATED_COLUMN,
 } from './sourcemap-segment';
 
-import type { SourceMapSegment } from './sourcemap-segment';
+import type { SourceMapSegment, ReverseSegment } from './sourcemap-segment';
 import type {
   SourceMapV3,
   DecodedSourceMap,
@@ -172,26 +178,15 @@ export class TraceMap implements SourceMap {
     };
 
     traceSegment = (map, line, column) => {
-      const decoded = map._decoded;
-
-      // It's common for parent source maps to have pointers to lines that have no
-      // mapping (like a "//# sourceMappingURL=") at the end of the child file.
-      if (line >= decoded.length) return null;
-
-      const segments = decoded[line];
-      const index = memoizedBinarySearch(segments, column, map._decodedMemo, line);
-
-      // we come before any mapped segment
-      if (index < 0) return null;
-      return segments[index];
+      return traceOriginalSegment(map, line, column, GREATEST_LOWER_BOUND);
     };
 
-    originalPositionFor = (map, { line, column }) => {
+    originalPositionFor = (map, { line, column, bias }) => {
       line--;
       if (line < 0) throw new Error(LINE_GTR_ZERO);
       if (column < 0) throw new Error(COL_GTR_EQ_ZERO);
 
-      const segment = traceSegment(map, line, column);
+      const segment = traceOriginalSegment(map, line, column, bias || LEAST_UPPER_BOUND);
 
       if (segment == null) return INVALID_ORIGINAL_MAPPING;
       if (segment.length == 1) return INVALID_ORIGINAL_MAPPING;
@@ -205,7 +200,7 @@ export class TraceMap implements SourceMap {
       };
     };
 
-    generatedPositionFor = (map, { source, line, column }) => {
+    generatedPositionFor = (map, { source, line, column, bias }) => {
       line--;
       if (line < 0) throw new Error(LINE_GTR_ZERO);
       if (column < 0) throw new Error(COL_GTR_EQ_ZERO);
@@ -225,10 +220,15 @@ export class TraceMap implements SourceMap {
 
       if (segments == null) return INVALID_GENERATED_MAPPING;
 
-      const index = memoizedBinarySearch(segments, column, memos[sourceIndex], line);
-      if (index < 0) return INVALID_GENERATED_MAPPING;
+      const segment = traceSegmentInternal(
+        segments,
+        memos[sourceIndex],
+        line,
+        column,
+        bias || GREATEST_LOWER_BOUND,
+      );
 
-      const segment = segments[index];
+      if (segment == null) return INVALID_GENERATED_MAPPING;
       return {
         line: segment[REV_GENERATED_LINE] + 1,
         column: segment[REV_GENERATED_COLUMN],
@@ -275,5 +275,50 @@ export class TraceMap implements SourceMap {
       tracer._decoded = map.mappings;
       return tracer;
     };
+
+    function traceOriginalSegment(
+      map: TraceMap,
+      line: number,
+      column: number,
+      bias: typeof LEAST_UPPER_BOUND | typeof GREATEST_LOWER_BOUND,
+    ): Readonly<SourceMapSegment> | null {
+      const decoded = map._decoded;
+
+      // It's common for parent source maps to have pointers to lines that have no
+      // mapping (like a "//# sourceMappingURL=") at the end of the child file.
+      if (line >= decoded.length) return null;
+
+      return traceSegmentInternal(decoded[line], map._decodedMemo, line, column, bias);
+    }
+
+    function traceSegmentInternal(
+      segments: SourceMapSegment[],
+      memo: MemoState,
+      line: number,
+      column: number,
+      bias: typeof LEAST_UPPER_BOUND | typeof GREATEST_LOWER_BOUND,
+    ): Readonly<SourceMapSegment> | null;
+    function traceSegmentInternal(
+      segments: ReverseSegment[],
+      memo: MemoState,
+      line: number,
+      column: number,
+      bias: typeof LEAST_UPPER_BOUND | typeof GREATEST_LOWER_BOUND,
+    ): Readonly<ReverseSegment> | null;
+    function traceSegmentInternal(
+      segments: SourceMapSegment[] | ReverseSegment[],
+      memo: MemoState,
+      line: number,
+      column: number,
+      bias: typeof LEAST_UPPER_BOUND | typeof GREATEST_LOWER_BOUND,
+    ): Readonly<SourceMapSegment | ReverseSegment> | null {
+      let index = memoizedBinarySearch(segments, column, memo, line);
+      if (bsFound) {
+        index = (bias === LEAST_UPPER_BOUND ? upperBound : lowerBound)(segments, column, index);
+      } else if (bias === LEAST_UPPER_BOUND) index++;
+
+      if (index < 0 || index == segments.length) return null;
+      return segments[index];
+    }
   }
 }

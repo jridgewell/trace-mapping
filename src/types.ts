@@ -42,8 +42,8 @@ export type InvalidGeneratedMapping = {
 
 export type SourceMapInput = string | EncodedSourceMap | DecodedSourceMap;
 
-export type Needle = { line: number; column: number };
-export type SourceNeedle = { source: string; line: number; column: number };
+export type Needle = { line: number; column: number; bias?: 1 | -1 };
+export type SourceNeedle = { source: string; line: number; column: number; bias?: 1 | -1 };
 
 export type EachMapping =
   | {

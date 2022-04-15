@@ -1,5 +1,5 @@
 import { COLUMN, SOURCES_INDEX, SOURCE_LINE, SOURCE_COLUMN } from './sourcemap-segment';
-import { memoizedBinarySearch, found as bsFound } from './binary-search';
+import { memoizedBinarySearch, upperBound } from './binary-search';
 
 import type { ReverseSegment, SourceMapSegment } from './sourcemap-segment';
 import type { MemoState } from './binary-search';
@@ -30,8 +30,17 @@ export default function buildBySources(
       const originalLine = (originalSource[sourceLine] ||= []);
       const memo = memos[sourceIndex];
 
-      const index = memoizedBinarySearch(originalLine, sourceColumn, memo, sourceLine);
-      if (!bsFound) insert(originalLine, index + 1, [sourceColumn, i, seg[COLUMN]]);
+      // The binary search either found a match, or it found the left-index just before where the
+      // segment should go. Either way, we want to insert after that. And there may be multiple
+      // generated segments associated with an original location, so there may need to move several
+      // indexes before we find where we need to insert.
+      const index = upperBound(
+        originalLine,
+        sourceColumn,
+        memoizedBinarySearch(originalLine, sourceColumn, memo, sourceLine),
+      );
+
+      insert(originalLine, index + 1, [sourceColumn, i, seg[COLUMN]]);
     }
   }
 
