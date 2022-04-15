@@ -1,3 +1,5 @@
+import type { SourceMapSegment } from './sourcemap-segment';
+
 export interface SourceMapV3 {
   file?: string | null;
   names: string[];
@@ -6,17 +8,6 @@ export interface SourceMapV3 {
   sourcesContent?: (string | null)[];
   version: 3;
 }
-
-type Column = number;
-type SourcesIndex = number;
-type SourceLine = number;
-type SourceColumn = number;
-type NamesIndex = number;
-
-export type SourceMapSegment =
-  | [Column]
-  | [Column, SourcesIndex, SourceLine, SourceColumn]
-  | [Column, SourcesIndex, SourceLine, SourceColumn, NamesIndex];
 
 export interface EncodedSourceMap extends SourceMapV3 {
   mappings: string;
@@ -33,16 +24,26 @@ export type OriginalMapping = {
   name: string | null;
 };
 
-export type InvalidMapping = {
+export type InvalidOriginalMapping = {
   source: null;
   line: null;
   column: null;
   name: null;
 };
 
+export type GeneratedMapping = {
+  line: number;
+  column: number;
+};
+export type InvalidGeneratedMapping = {
+  line: null;
+  column: null;
+};
+
 export type SourceMapInput = string | EncodedSourceMap | DecodedSourceMap;
 
 export type Needle = { line: number; column: number };
+export type SourceNeedle = { source: string; line: number; column: number; bias?: 1 | -1 };
 
 export type EachMapping =
   | {

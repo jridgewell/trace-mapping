@@ -9,6 +9,7 @@ import {
   decodedMappings,
   traceSegment,
   originalPositionFor,
+  generatedPositionFor,
   presortedDecodedMap,
   eachMapping,
 } from '../src/trace-mapping';
@@ -197,6 +198,25 @@ describe('TraceMap', () => {
 
         t.throws(() => {
           originalPositionFor(tracer, { line: 1, column: -1 });
+        });
+      });
+
+      test.only('generatedPositionFor', (t) => {
+        const tracer = new TraceMap(map);
+
+        t.deepEqual(generatedPositionFor(tracer, { source: 'input.js', line: 1, column: 0 }), {
+          line: 1,
+          column: 0,
+        });
+
+        t.deepEqual(generatedPositionFor(tracer, { source: 'input.js', line: 1, column: 33 }), {
+          line: 1,
+          column: 18,
+        });
+
+        t.deepEqual(generatedPositionFor(tracer, { source: 'input.js', line: 4, column: 0 }), {
+          line: 5,
+          column: 0,
         });
       });
     };

@@ -1,4 +1,6 @@
-import type { SourceMapSegment } from './types';
+import { COLUMN } from './sourcemap-segment';
+
+import type { SourceMapSegment } from './sourcemap-segment';
 
 export default function maybeSort(
   mappings: SourceMapSegment[][],
@@ -26,7 +28,7 @@ function nextUnsortedSegmentLine(mappings: SourceMapSegment[][], start: number):
 
 function isSorted(line: SourceMapSegment[]): boolean {
   for (let j = 1; j < line.length; j++) {
-    if (line[j][0] < line[j - 1][0]) {
+    if (line[j][COLUMN] < line[j - 1][COLUMN]) {
       return false;
     }
   }
@@ -39,5 +41,5 @@ function sortSegments(line: SourceMapSegment[], owned: boolean): SourceMapSegmen
 }
 
 function sortComparator(a: SourceMapSegment, b: SourceMapSegment): number {
-  return a[0] - b[0];
+  return a[COLUMN] - b[COLUMN];
 }
