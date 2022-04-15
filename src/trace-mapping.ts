@@ -186,7 +186,7 @@ export class TraceMap implements SourceMap {
       if (line < 0) throw new Error(LINE_GTR_ZERO);
       if (column < 0) throw new Error(COL_GTR_EQ_ZERO);
 
-      const segment = traceOriginalSegment(map, line, column, bias || LEAST_UPPER_BOUND);
+      const segment = traceOriginalSegment(map, line, column, bias || GREATEST_LOWER_BOUND);
 
       if (segment == null) return INVALID_ORIGINAL_MAPPING;
       if (segment.length == 1) return INVALID_ORIGINAL_MAPPING;

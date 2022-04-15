@@ -12,6 +12,8 @@ import {
   generatedPositionFor,
   presortedDecodedMap,
   eachMapping,
+  GREATEST_LOWER_BOUND,
+  LEAST_UPPER_BOUND,
 } from '../src/trace-mapping';
 
 import type { ExecutionContext } from 'ava';
@@ -185,6 +187,23 @@ describe('TraceMap', () => {
           name: 'Error',
         });
 
+        t.deepEqual(
+          originalPositionFor(tracer, { line: 2, column: 13, bias: GREATEST_LOWER_BOUND }),
+          {
+            source: 'https://astexplorer.net/input.js',
+            line: 2,
+            column: 14,
+            name: 'Error',
+          },
+        );
+
+        t.deepEqual(originalPositionFor(tracer, { line: 2, column: 13, bias: LEAST_UPPER_BOUND }), {
+          source: 'https://astexplorer.net/input.js',
+          line: 2,
+          column: 10,
+          name: null,
+        });
+
         t.deepEqual(originalPositionFor(tracer, { line: 100, column: 13 }), {
           source: null,
           line: null,
@@ -201,7 +220,7 @@ describe('TraceMap', () => {
         });
       });
 
-      test.only('generatedPositionFor', (t) => {
+      test('generatedPositionFor', (t) => {
         const tracer = new TraceMap(map);
 
         t.deepEqual(generatedPositionFor(tracer, { source: 'input.js', line: 1, column: 0 }), {
@@ -213,6 +232,37 @@ describe('TraceMap', () => {
           line: 1,
           column: 18,
         });
+
+        t.deepEqual(generatedPositionFor(tracer, { source: 'input.js', line: 1, column: 14 }), {
+          line: 1,
+          column: 13,
+        });
+
+        t.deepEqual(
+          generatedPositionFor(tracer, {
+            source: 'input.js',
+            line: 1,
+            column: 14,
+            bias: GREATEST_LOWER_BOUND,
+          }),
+          {
+            line: 1,
+            column: 13,
+          },
+        );
+
+        t.deepEqual(
+          generatedPositionFor(tracer, {
+            source: 'input.js',
+            line: 1,
+            column: 14,
+            bias: LEAST_UPPER_BOUND,
+          }),
+          {
+            line: 1,
+            column: 18,
+          },
+        );
 
         t.deepEqual(generatedPositionFor(tracer, { source: 'input.js', line: 4, column: 0 }), {
           line: 5,
