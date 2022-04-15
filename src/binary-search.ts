@@ -51,28 +51,6 @@ export function binarySearch(
   return low - 1;
 }
 
-export function upperBound(
-  haystack: SourceMapSegment[] | GeneratedSegment[],
-  needle: number,
-  index: number,
-): number {
-  for (let i = index + 1; i < haystack.length; i++, index++) {
-    if (haystack[i][COLUMN] !== needle) break;
-  }
-  return index;
-}
-
-export function lowerBound(
-  haystack: SourceMapSegment[] | GeneratedSegment[],
-  needle: number,
-  index: number,
-): number {
-  for (let i = index - 1; i >= 0; i--, index--) {
-    if (haystack[i][COLUMN] !== needle) break;
-  }
-  return index;
-}
-
 export function memoizedState(): MemoState {
   return {
     lastKey: -1,

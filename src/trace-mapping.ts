@@ -4,13 +4,7 @@ import resolve from './resolve';
 import stripFilename from './strip-filename';
 import maybeSort from './sort';
 import buildBySources from './by-source';
-import {
-  found as bsFound,
-  upperBound,
-  lowerBound,
-  memoizedState,
-  memoizedBinarySearch,
-} from './binary-search';
+import { memoizedState, memoizedBinarySearch } from './binary-search';
 import {
   SOURCES_INDEX,
   SOURCE_LINE,
@@ -134,7 +128,7 @@ export class TraceMap implements SourceMap {
   private declare _encoded: string | undefined;
 
   private declare _decoded: SourceMapSegment[][];
-  private _decodedSM = memoizedState();
+  private _decodedMemo = memoizedState();
 
   private _bySources: Source[] | undefined = undefined;
   private _bySourceMemos: MemoState[] | undefined = undefined;
@@ -185,7 +179,7 @@ export class TraceMap implements SourceMap {
       if (line >= decoded.length) return null;
 
       const segments = decoded[line];
-      const index = memoizedBinarySearch(segments, column, map._decodedSM, line);
+      const index = memoizedBinarySearch(segments, column, map._decodedMemo, line);
 
       // we come before any mapped segment
       if (index < 0) return null;
@@ -211,7 +205,7 @@ export class TraceMap implements SourceMap {
       };
     };
 
-    generatedPositionFor = (map, { source, line, column, bias }) => {
+    generatedPositionFor = (map, { source, line, column }) => {
       line--;
       if (line < 0) throw new Error(LINE_GTR_ZERO);
       if (column < 0) throw new Error(COL_GTR_EQ_ZERO);
@@ -228,12 +222,7 @@ export class TraceMap implements SourceMap {
 
       if (segments == null) return INVALID_GENERATED_MAPPING;
 
-      let index = memoizedBinarySearch(segments, column, memos[sourceIndex], line);
-
-      if (bsFound) {
-        index = (bias === LEAST_UPPER_BOUND ? upperBound : lowerBound)(segments, column, index);
-      }
-
+      const index = memoizedBinarySearch(segments, column, memos[sourceIndex], line);
       if (index < 0) return INVALID_GENERATED_MAPPING;
 
       const segment = segments[index];
