@@ -1,7 +1,8 @@
 import { COLUMN, SOURCES_INDEX, SOURCE_LINE, SOURCE_COLUMN } from './sourcemap-segment';
-import { memoizedBinarySearch, memoizedState, found as bsFound } from './binary-search';
+import { memoizedBinarySearch, found as bsFound } from './binary-search';
 
 import type { ReverseSegment, SourceMapSegment } from './sourcemap-segment';
+import type { MemoState } from './binary-search';
 
 export type Source = {
   __proto__: null;
@@ -11,33 +12,25 @@ export type Source = {
 // Rebuilds the original source files, with mappings that are ordered by source line/column instead
 // of generated line/column.
 export default function buildBySources(
-  sourceFiles: (string | null)[],
   decoded: SourceMapSegment[][],
+  memos: MemoState[],
 ): Source[] {
-  const sources: Source[] = sourceFiles.map(buildNullArray);
+  const sources: Source[] = memos.map(buildNullArray);
 
-  let lastLine: ReverseSegment[] = [];
-  const memo = memoizedState();
   for (let i = 0; i < decoded.length; i++) {
     const line = decoded[i];
     for (let j = 0; j < line.length; j++) {
       const seg = line[j];
       if (seg.length === 1) continue;
 
+      const sourceIndex = seg[SOURCES_INDEX];
+      const sourceLine = seg[SOURCE_LINE];
       const sourceColumn = seg[SOURCE_COLUMN];
-      const originalSource = sources[seg[SOURCES_INDEX]];
-      const originalLine = (originalSource[seg[SOURCE_LINE]] ||= []);
+      const originalSource = sources[sourceIndex];
+      const originalLine = (originalSource[sourceLine] ||= []);
+      const memo = memos[sourceIndex];
 
-      // We really need two keys, the source index and the source line. But since that would cause a
-      // slowdown for the basic usecase, we instead directly manipulate the lastKey. By making it
-      // -1, and providing 0 as the key during memoized searches, we ensure that when the index/line
-      // changes, we will bust the cache and perform a real search.
-      if (lastLine !== originalLine) {
-        lastLine = originalLine;
-        memo.lastKey = -1;
-      }
-
-      const index = memoizedBinarySearch(originalLine, sourceColumn, memo, 0);
+      const index = memoizedBinarySearch(originalLine, sourceColumn, memo, sourceLine);
       if (!bsFound) insert(originalLine, index + 1, [sourceColumn, i, seg[COLUMN]]);
     }
   }

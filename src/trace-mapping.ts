@@ -215,8 +215,11 @@ export class TraceMap implements SourceMap {
       if (sourceIndex === -1) sourceIndex = resolvedSources.indexOf(source);
       if (sourceIndex === -1) return INVALID_GENERATED_MAPPING;
 
-      const generated = (map._bySources ||= buildBySources(sources, map._decoded));
-      const memos = (map._bySourceMemos ||= sources.map(memoizedState));
+      const generated = (map._bySources ||= buildBySources(
+        map._decoded,
+        (map._bySourceMemos = sources.map(memoizedState)),
+      ));
+      const memos = map._bySourceMemos!;
 
       const segments = generated[sourceIndex][line];
 
