@@ -2,11 +2,9 @@
 
 > Trace the original position through a source map
 
-`trace-mapping` allows you to take the line and column of an output file and trace it to the
-original location in the source file through a source map.
+`trace-mapping` allows you to take the line and column of an output file and trace it to the original location in the source file through a source map.
 
-You may already be familiar with the [`source-map`][source-map] package's `SourceMapConsumer`. This
-provides the same `originalPositionFor` and `generatedPositionFor` API, without requires WASM.
+You may already be familiar with the [`source-map`][source-map] package's `SourceMapConsumer`. This provides the same `originalPositionFor` and `generatedPositionFor` API, without requiring WASM.
 
 ## Installation
 
@@ -17,7 +15,11 @@ npm install @jridgewell/trace-mapping
 ## Usage
 
 ```typescript
-import { TraceMap, originalPositionFor, generatedPositionFor } from '@jridgewell/trace-mapping';
+import {
+  TraceMap,
+  originalPositionFor,
+  generatedPositionFor,
+} from '@jridgewell/trace-mapping';
 
 const tracer = new TraceMap({
   version: 3,
@@ -35,15 +37,18 @@ assert.deepEqual(traced, {
   name: 'foo',
 });
 
-const generated = generatedPositionFor(tracer, { source: 'input.js', line: 42, column: 4 });
+const generated = generatedPositionFor(tracer, {
+  source: 'input.js',
+  line: 42,
+  column: 4,
+});
 assert.deepEqual(generated, {
   line: 1,
   column: 5,
 });
 ```
 
-We also provide a lower level API to get the actual segment that matches our line and column. Unlike
-`originalPositionFor`, `traceSegment` uses a 0-base for `line`:
+We also provide a lower level API to get the actual segment that matches our line and column. Unlike `originalPositionFor`, `traceSegment` uses a 0-base for `line`:
 
 ```typescript
 import { traceSegment } from '@jridgewell/trace-mapping';
