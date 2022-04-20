@@ -378,7 +378,7 @@ describe('binary search', () => {
 });
 
 describe('memoizedBinarySearch', () => {
-  const array: SourceMapSegment[] = [[0], [5], [10]];
+  const array: SourceMapSegment[] = [[1], [5], [10]];
 
   test('refinds same index', (t) => {
     const memo = memoizedState();
@@ -388,12 +388,19 @@ describe('memoizedBinarySearch', () => {
   });
 
   test('restores found state', (t) => {
-    const memo = memoizedState();
+    const memo1 = memoizedState();
+    const memo2 = memoizedState();
 
-    t.is(memoizedBinarySearch(array, 6, memo, 0), 1);
-    binarySearch(array, 0, 0, array.length - 1);
-    t.is(found, true);
-    t.is(memoizedBinarySearch(array, 6, memo, 0), 1);
+    t.is(memoizedBinarySearch(array, 0, memo1, 0), -1);
     t.is(found, false);
+
+    t.is(memoizedBinarySearch(array, 5, memo2, 0), 1);
+    t.is(found, true);
+
+    t.is(memoizedBinarySearch(array, 0, memo1, 0), -1);
+    t.is(found, false);
+
+    t.is(memoizedBinarySearch(array, 5, memo2, 0), 1);
+    t.is(found, true);
   });
 });
