@@ -97,6 +97,7 @@ export function memoizedBinarySearch(
   let high = haystack.length - 1;
   if (key === lastKey) {
     if (needle === lastNeedle) {
+      found = haystack[lastIndex][COLUMN] === needle;
       return lastIndex;
     }
 

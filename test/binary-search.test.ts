@@ -1,4 +1,4 @@
-import { binarySearch } from '../src/binary-search';
+import { binarySearch, found, memoizedState, memoizedBinarySearch } from '../src/binary-search';
 import { test, describe } from './setup';
 
 type SourceMapSegment = [number];
@@ -374,5 +374,26 @@ describe('binary search', () => {
       t.is(binarySearch(array, 4, 0, 2), 2);
       t.is(binarySearch(array, 4, 0, 3), 3);
     });
+  });
+});
+
+describe('memoizedBinarySearch', () => {
+  const array: SourceMapSegment[] = [[0], [5], [10]];
+
+  test('refinds same index', (t) => {
+    const memo = memoizedState();
+
+    t.is(memoizedBinarySearch(array, 6, memo, 0), 1);
+    t.is(memoizedBinarySearch(array, 6, memo, 0), 1);
+  });
+
+  test('restores found state', (t) => {
+    const memo = memoizedState();
+
+    t.is(memoizedBinarySearch(array, 6, memo, 0), 1);
+    binarySearch(array, 0, 0, array.length - 1);
+    t.is(found, true);
+    t.is(memoizedBinarySearch(array, 6, memo, 0), 1);
+    t.is(found, false);
   });
 });

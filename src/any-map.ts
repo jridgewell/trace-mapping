@@ -32,7 +32,7 @@ export const AnyMap: AnyMap = function (map, mapUrl) {
     const no = sections[i + 1].offset;
     addSection(sections[i], mapUrl, mappings, sources, sourcesContent, names, no.line, no.column);
   }
-  for (; i < sections.length; i++) {
+  if (sections.length > 0) {
     addSection(sections[i], mapUrl, mappings, sources, sourcesContent, names, -1, -1);
   }
 
