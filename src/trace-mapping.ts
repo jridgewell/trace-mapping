@@ -124,6 +124,20 @@ export let eachMapping: (map: TraceMap, cb: (mapping: EachMapping) => void) => v
  */
 export let presortedDecodedMap: (map: DecodedSourceMap, mapUrl?: string) => TraceMap;
 
+/**
+ * Returns a sourcemap object (with decoded mappings) suitable for passing to a library that expects
+ * a sourcemap, or to JSON.stringify.
+ */
+export let decodedMap: (
+  map: TraceMap,
+) => Omit<DecodedSourceMap, 'mappings'> & { mappings: readonly SourceMapSegment[][] };
+
+/**
+ * Returns a sourcemap object (with encoded mappings) suitable for passing to a library that expects
+ * a sourcemap, or to JSON.stringify.
+ */
+export let encodedMap: (map: TraceMap) => EncodedSourceMap;
+
 export { AnyMap } from './any-map';
 
 export class TraceMap implements SourceMap {
@@ -303,6 +317,30 @@ export class TraceMap implements SourceMap {
       const tracer = new TraceMap(clone, mapUrl);
       tracer._decoded = map.mappings;
       return tracer;
+    };
+
+    decodedMap = (map) => {
+      return {
+        version: 3,
+        file: map.file,
+        names: map.names,
+        sourceRoot: map.sourceRoot,
+        sources: map.sources,
+        sourcesContent: map.sourcesContent,
+        mappings: decodedMappings(map),
+      };
+    };
+
+    encodedMap = (map) => {
+      return {
+        version: 3,
+        file: map.file,
+        names: map.names,
+        sourceRoot: map.sourceRoot,
+        sources: map.sources,
+        sourcesContent: map.sourcesContent,
+        mappings: encodedMappings(map),
+      };
     };
   }
 }
