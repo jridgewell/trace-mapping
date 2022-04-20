@@ -5,7 +5,6 @@ import { encode, decode } from '@jridgewell/sourcemap-codec';
 import { test, describe } from './setup';
 import {
   TraceMap,
-  AnyMap,
   encodedMappings,
   decodedMappings,
   traceSegment,
@@ -23,7 +22,6 @@ import type {
   EncodedSourceMap,
   DecodedSourceMap,
   EachMapping,
-  SectionedSourceMap,
 } from '../src/trace-mapping';
 
 describe('TraceMap', () => {
@@ -372,106 +370,6 @@ describe('TraceMap', () => {
 
       const tracer = presortedDecodedMap(reversedDecoded);
       t.deepEqual(decodedMappings(tracer), mappings);
-    });
-  });
-});
-
-describe('AnyMap', () => {
-  const map: SectionedSourceMap = {
-    version: 3,
-    file: 'sectioned.js',
-    sections: [
-      {
-        offset: { line: 1, column: 1 },
-        map: {
-          version: 3,
-          names: ['first'],
-          sources: ['first.js'],
-          sourcesContent: ['firstsource'],
-          mappings: 'AAAAA,CAAC',
-        },
-      },
-      {
-        offset: { line: 2, column: 0 },
-        map: {
-          version: 3,
-          sections: [
-            {
-              offset: { line: 0, column: 0 },
-              map: {
-                version: 3,
-                names: ['second'],
-                sources: ['second.js'],
-                sourcesContent: ['secondsource'],
-                sourceRoot: 'nested',
-                mappings: 'AAAAA,CAAA;AAAA',
-              },
-            },
-            {
-              offset: { line: 0, column: 1 },
-              map: {
-                version: 3,
-                names: [],
-                sources: ['third.js'],
-                sourcesContent: ['thirdsource'],
-                mappings: 'AAAA',
-              },
-            },
-          ],
-        },
-      },
-    ],
-  };
-
-  describe('map properties', () => {
-    test('version', (t) => {
-      const tracer = new AnyMap(map);
-      t.is(tracer.version, map.version);
-    });
-
-    test('file', (t) => {
-      const tracer = new AnyMap(map);
-      t.is(tracer.file, map.file);
-    });
-
-    test('sourceRoot', (t) => {
-      const tracer = new AnyMap(map);
-      t.is(tracer.sourceRoot, undefined);
-    });
-
-    test('sources', (t) => {
-      const tracer = new AnyMap(map);
-      t.deepEqual(tracer.sources, ['first.js', 'nested/second.js', 'third.js']);
-    });
-
-    test('names', (t) => {
-      const tracer = new AnyMap(map);
-      t.deepEqual(tracer.names, ['first', 'second']);
-    });
-
-    test('encodedMappings', (t) => {
-      const tracer = new AnyMap(map);
-      t.is(encodedMappings(tracer), ';CAAAA,CAAC;ACADC,CCAA');
-    });
-
-    test('decodedMappings', (t) => {
-      const tracer = new AnyMap(map);
-      t.deepEqual(decodedMappings(tracer), [
-        [],
-        [
-          [1, 0, 0, 0, 0],
-          [2, 0, 0, 1],
-        ],
-        [
-          [0, 1, 0, 0, 1],
-          [1, 2, 0, 0],
-        ],
-      ]);
-    });
-
-    test('sourcesContent', (t) => {
-      const tracer = new AnyMap(map);
-      t.deepEqual(tracer.sourcesContent, ['firstsource', 'secondsource', 'thirdsource']);
     });
   });
 });

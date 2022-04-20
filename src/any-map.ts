@@ -33,7 +33,7 @@ export const AnyMap: AnyMap = function (map, mapUrl) {
     addSection(sections[i], mapUrl, mappings, sources, sourcesContent, names, no.line, no.column);
   }
   if (sections.length > 0) {
-    addSection(sections[i], mapUrl, mappings, sources, sourcesContent, names, -1, -1);
+    addSection(sections[i], mapUrl, mappings, sources, sourcesContent, names, Infinity, Infinity);
   }
 
   const joined: DecodedSourceMap = {
@@ -58,25 +58,25 @@ function addSection(
   stopLine: number,
   stopColumn: number,
 ) {
-  const { offset, map } = section;
-  const { line: lineOffset, column: columnOffset } = offset;
+  const map = AnyMap(section.map, mapUrl);
+  const { line: lineOffset, column: columnOffset } = section.offset;
+
+  const sourcesOffset = sources.length;
+  const namesOffset = names.length;
+  const decoded = decodedMappings(map);
+  const { resolvedSources } = map;
+  append(sources, resolvedSources);
+  append(sourcesContent, map.sourcesContent || fillSourcesContent(resolvedSources.length));
+  append(names, map.names);
 
   // If this section jumps forwards several lines, we need to add lines to the output mappings catch up.
   for (let i = mappings.length; i <= lineOffset; i++) mappings.push([]);
 
-  const trace = AnyMap(map, mapUrl);
-  const sourcesOffset = sources.length;
-  const namesOffset = names.length;
-  const decoded = decodedMappings(trace);
-  const { resolvedSources } = trace;
-  append(sources, resolvedSources);
-  append(sourcesContent, trace.sourcesContent || fillSourcesContent(resolvedSources.length));
-  append(names, trace.names);
-
   // We can only add so many lines before we step into the range that the next section's map
   // controls. When we get to the last line, then we'll start checking the segments to see if
   // they've crossed into the column range.
-  const len = stopLine === -1 ? decoded.length : Math.min(decoded.length, stopLine + 1);
+  const stopI = stopLine - lineOffset;
+  const len = Math.min(decoded.length, stopI + 1);
 
   for (let i = 0; i < len; i++) {
     const line = decoded[i];
@@ -93,7 +93,7 @@ function addSection(
 
       // If this segment steps into the column range that the next section's map controls, we need
       // to stop early.
-      if (i === stopLine && column >= stopColumn) break;
+      if (i === stopI && column >= stopColumn) break;
 
       if (seg.length === 1) {
         out.push([column]);
