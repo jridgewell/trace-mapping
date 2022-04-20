@@ -42,7 +42,7 @@
     "test": "run-s -n test:lint test:only",
     "test:debug": "ava debug",
     "test:lint": "run-s -n test:lint:*",
-    "test:lint:prettier": "prettier --check '{src,test}/**/*.ts'",
+    "test:lint:prettier": "prettier --check '{src,test}/**/*.ts' '**/*.md'",
     "test:lint:ts": "eslint '{src,test}/**/*.ts'",
     "test:only": "c8 ava",
     "test:watch": "ava --watch"

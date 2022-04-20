@@ -2,9 +2,11 @@
 
 > Trace the original position through a source map
 
-`trace-mapping` allows you to take the line and column of an output file and trace it to the original location in the source file through a source map.
+`trace-mapping` allows you to take the line and column of an output file and trace it to the
+original location in the source file through a source map.
 
-You may already be familiar with the [`source-map`][source-map] package's `SourceMapConsumer`. This provides the same `originalPositionFor` and `generatedPositionFor` API, without requiring WASM.
+You may already be familiar with the [`source-map`][source-map] package's `SourceMapConsumer`. This
+provides the same `originalPositionFor` and `generatedPositionFor` API, without requiring WASM.
 
 ## Installation
 
@@ -15,11 +17,7 @@ npm install @jridgewell/trace-mapping
 ## Usage
 
 ```typescript
-import {
-  TraceMap,
-  originalPositionFor,
-  generatedPositionFor,
-} from '@jridgewell/trace-mapping';
+import { TraceMap, originalPositionFor, generatedPositionFor } from '@jridgewell/trace-mapping';
 
 const tracer = new TraceMap({
   version: 3,
@@ -48,7 +46,8 @@ assert.deepEqual(generated, {
 });
 ```
 
-We also provide a lower level API to get the actual segment that matches our line and column. Unlike `originalPositionFor`, `traceSegment` uses a 0-base for `line`:
+We also provide a lower level API to get the actual segment that matches our line and column. Unlike
+`originalPositionFor`, `traceSegment` uses a 0-base for `line`:
 
 ```typescript
 import { traceSegment } from '@jridgewell/trace-mapping';
@@ -59,6 +58,60 @@ const traced = traceSegment(tracer, /* line */ 0, /* column */ 5);
 // Segments are [outputColumn, sourcesIndex, sourceLine, sourceColumn, namesIndex]
 // Again, line is 0-base and so is sourceLine
 assert.deepEqual(traced, [5, 0, 41, 4, 0]);
+```
+
+### SectionedSourceMaps
+
+The sourcemap spec defines a special `sections` field that's designed to handle concatenation of
+output code with associated sourcemaps. This type of sourcemap is rarely used (no major build tool
+produces it), but if you are hand coding a concatenation you may need it. We provide an `AnyMap`
+helper that can receive either a regular sourcemap or a `SectionedSourceMap` and returns a
+`TraceMap` instance:
+
+```typescript
+import { AnyMap } from '@jridgewell/trace-mapping';
+const fooOutput = 'foo';
+const barOutput = 'bar';
+const output = [fooOutput, barOutput].join('\n');
+
+const sectioned = new AnyMap({
+  version: 3,
+  sections: [
+    {
+      // 0-base line and column
+      offset: { line: 0, column: 0 },
+      // fooOutput's sourcemap
+      map: {
+        version: 3,
+        sources: ['foo.js'],
+        names: ['foo'],
+        mappings: 'AAAAA',
+      },
+    },
+    {
+      // barOutput's sourcemap will not affect the first line, only the second
+      offset: { line: 1, column: 0 },
+      map: {
+        version: 3,
+        sources: ['bar.js'],
+        names: ['bar'],
+        mappings: 'AAAAA',
+      },
+    },
+  ],
+});
+
+const traced = originalPositionFor(sectioned, {
+  line: 2,
+  column: 0,
+});
+
+assert.deepEqual(traced, {
+  source: 'bar.js',
+  line: 1,
+  column: 0,
+  name: 'bar',
+});
 ```
 
 ## Benchmarks
