@@ -17,6 +17,20 @@ export interface DecodedSourceMap extends SourceMapV3 {
   mappings: SourceMapSegment[][];
 }
 
+export interface Section {
+  offset: {
+    line: number;
+    column: number;
+  };
+  map: EncodedSourceMap | DecodedSourceMap | SectionedSourceMap;
+}
+
+export interface SectionedSourceMap {
+  file?: string | null;
+  sections: Section[];
+  version: 3;
+}
+
 export type OriginalMapping = {
   source: string | null;
   line: number;
@@ -41,6 +55,7 @@ export type InvalidGeneratedMapping = {
 };
 
 export type SourceMapInput = string | EncodedSourceMap | DecodedSourceMap;
+export type SectionedSourceMapInput = SourceMapInput | SectionedSourceMap;
 
 export type Needle = { line: number; column: number; bias?: 1 | -1 };
 export type SourceNeedle = { source: string; line: number; column: number; bias?: 1 | -1 };

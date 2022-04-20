@@ -41,8 +41,10 @@ import type { MemoState } from './binary-search';
 export type { SourceMapSegment } from './sourcemap-segment';
 export type {
   SourceMapInput,
+  SectionedSourceMapInput,
   DecodedSourceMap,
   EncodedSourceMap,
+  SectionedSourceMap,
   InvalidOriginalMapping,
   OriginalMapping as Mapping,
   OriginalMapping,
@@ -121,6 +123,8 @@ export let eachMapping: (map: TraceMap, cb: (mapping: EachMapping) => void) => v
  * maps.
  */
 export let presortedDecodedMap: (map: DecodedSourceMap, mapUrl?: string) => TraceMap;
+
+export { AnyMap } from './any-map';
 
 export class TraceMap implements SourceMap {
   declare version: SourceMapV3['version'];
