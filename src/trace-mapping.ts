@@ -159,7 +159,10 @@ export class TraceMap implements SourceMap {
 
   constructor(map: SourceMapInput, mapUrl?: string | null) {
     const isString = typeof map === 'string';
-    const parsed = isString ? (JSON.parse(map) as Exclude<SourceMapInput, string>) : map;
+
+    if (!isString && map.constructor === TraceMap) return map;
+
+    const parsed = (isString ? JSON.parse(map) : map) as Exclude<SourceMapInput, string | TraceMap>;
 
     const { version, file, names, sourceRoot, sources, sourcesContent } = parsed;
     this.version = version;

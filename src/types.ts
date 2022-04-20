@@ -1,4 +1,5 @@
 import type { SourceMapSegment } from './sourcemap-segment';
+import type { TraceMap } from './trace-mapping';
 
 export interface SourceMapV3 {
   file?: string | null;
@@ -54,7 +55,7 @@ export type InvalidGeneratedMapping = {
   column: null;
 };
 
-export type SourceMapInput = string | EncodedSourceMap | DecodedSourceMap;
+export type SourceMapInput = string | EncodedSourceMap | DecodedSourceMap | TraceMap;
 export type SectionedSourceMapInput = SourceMapInput | SectionedSourceMap;
 
 export type Needle = { line: number; column: number; bias?: 1 | -1 };
