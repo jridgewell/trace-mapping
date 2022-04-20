@@ -12,7 +12,7 @@ export type Source = {
 // Rebuilds the original source files, with mappings that are ordered by source line/column instead
 // of generated line/column.
 export default function buildBySources(
-  decoded: SourceMapSegment[][],
+  decoded: readonly SourceMapSegment[][],
   memos: MemoState[],
 ): Source[] {
   const sources: Source[] = memos.map(buildNullArray);

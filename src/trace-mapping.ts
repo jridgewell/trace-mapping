@@ -137,7 +137,7 @@ export class TraceMap implements SourceMap {
   declare resolvedSources: string[];
   private declare _encoded: string | undefined;
 
-  private declare _decoded: SourceMapSegment[][];
+  private declare _decoded: SourceMapSegment[][] | undefined;
   private _decodedMemo = memoizedState();
 
   private _bySources: Source[] | undefined = undefined;
@@ -165,7 +165,7 @@ export class TraceMap implements SourceMap {
     const { mappings } = parsed;
     if (typeof mappings === 'string') {
       this._encoded = mappings;
-      this._decoded = decode(mappings);
+      this._decoded = undefined;
     } else {
       this._encoded = undefined;
       this._decoded = maybeSort(mappings, isString);
@@ -174,15 +174,27 @@ export class TraceMap implements SourceMap {
 
   static {
     encodedMappings = (map) => {
-      return (map._encoded ??= encode(map._decoded));
+      return (map._encoded ??= encode(map._decoded!));
     };
 
     decodedMappings = (map) => {
-      return map._decoded;
+      return (map._decoded ||= decode(map._encoded!));
     };
 
     traceSegment = (map, line, column) => {
-      return traceOriginalSegment(map, line, column, GREATEST_LOWER_BOUND);
+      const decoded = decodedMappings(map);
+
+      // It's common for parent source maps to have pointers to lines that have no
+      // mapping (like a "//# sourceMappingURL=") at the end of the child file.
+      if (line >= decoded.length) return null;
+
+      return traceSegmentInternal(
+        decoded[line],
+        map._decodedMemo,
+        line,
+        column,
+        GREATEST_LOWER_BOUND,
+      );
     };
 
     originalPositionFor = (map, { line, column, bias }) => {
@@ -190,7 +202,19 @@ export class TraceMap implements SourceMap {
       if (line < 0) throw new Error(LINE_GTR_ZERO);
       if (column < 0) throw new Error(COL_GTR_EQ_ZERO);
 
-      const segment = traceOriginalSegment(map, line, column, bias || GREATEST_LOWER_BOUND);
+      const decoded = decodedMappings(map);
+
+      // It's common for parent source maps to have pointers to lines that have no
+      // mapping (like a "//# sourceMappingURL=") at the end of the child file.
+      if (line >= decoded.length) return INVALID_ORIGINAL_MAPPING;
+
+      const segment = traceSegmentInternal(
+        decoded[line],
+        map._decodedMemo,
+        line,
+        column,
+        bias || GREATEST_LOWER_BOUND,
+      );
 
       if (segment == null) return INVALID_ORIGINAL_MAPPING;
       if (segment.length == 1) return INVALID_ORIGINAL_MAPPING;
@@ -215,7 +239,7 @@ export class TraceMap implements SourceMap {
       if (sourceIndex === -1) return INVALID_GENERATED_MAPPING;
 
       const generated = (map._bySources ||= buildBySources(
-        map._decoded,
+        decodedMappings(map),
         (map._bySourceMemos = sources.map(memoizedState)),
       ));
       const memos = map._bySourceMemos!;
@@ -240,7 +264,8 @@ export class TraceMap implements SourceMap {
     };
 
     eachMapping = (map, cb) => {
-      const { _decoded: decoded, names, resolvedSources } = map;
+      const decoded = decodedMappings(map);
+      const { names, resolvedSources } = map;
 
       for (let i = 0; i < decoded.length; i++) {
         const line = decoded[i];
@@ -279,50 +304,35 @@ export class TraceMap implements SourceMap {
       tracer._decoded = map.mappings;
       return tracer;
     };
-
-    function traceOriginalSegment(
-      map: TraceMap,
-      line: number,
-      column: number,
-      bias: typeof LEAST_UPPER_BOUND | typeof GREATEST_LOWER_BOUND,
-    ): Readonly<SourceMapSegment> | null {
-      const decoded = map._decoded;
-
-      // It's common for parent source maps to have pointers to lines that have no
-      // mapping (like a "//# sourceMappingURL=") at the end of the child file.
-      if (line >= decoded.length) return null;
-
-      return traceSegmentInternal(decoded[line], map._decodedMemo, line, column, bias);
-    }
-
-    function traceSegmentInternal(
-      segments: SourceMapSegment[],
-      memo: MemoState,
-      line: number,
-      column: number,
-      bias: typeof LEAST_UPPER_BOUND | typeof GREATEST_LOWER_BOUND,
-    ): Readonly<SourceMapSegment> | null;
-    function traceSegmentInternal(
-      segments: ReverseSegment[],
-      memo: MemoState,
-      line: number,
-      column: number,
-      bias: typeof LEAST_UPPER_BOUND | typeof GREATEST_LOWER_BOUND,
-    ): Readonly<ReverseSegment> | null;
-    function traceSegmentInternal(
-      segments: SourceMapSegment[] | ReverseSegment[],
-      memo: MemoState,
-      line: number,
-      column: number,
-      bias: typeof LEAST_UPPER_BOUND | typeof GREATEST_LOWER_BOUND,
-    ): Readonly<SourceMapSegment | ReverseSegment> | null {
-      let index = memoizedBinarySearch(segments, column, memo, line);
-      if (bsFound) {
-        index = (bias === LEAST_UPPER_BOUND ? upperBound : lowerBound)(segments, column, index);
-      } else if (bias === LEAST_UPPER_BOUND) index++;
-
-      if (index === -1 || index === segments.length) return null;
-      return segments[index];
-    }
   }
+}
+
+function traceSegmentInternal(
+  segments: SourceMapSegment[],
+  memo: MemoState,
+  line: number,
+  column: number,
+  bias: typeof LEAST_UPPER_BOUND | typeof GREATEST_LOWER_BOUND,
+): Readonly<SourceMapSegment> | null;
+function traceSegmentInternal(
+  segments: ReverseSegment[],
+  memo: MemoState,
+  line: number,
+  column: number,
+  bias: typeof LEAST_UPPER_BOUND | typeof GREATEST_LOWER_BOUND,
+): Readonly<ReverseSegment> | null;
+function traceSegmentInternal(
+  segments: SourceMapSegment[] | ReverseSegment[],
+  memo: MemoState,
+  line: number,
+  column: number,
+  bias: typeof LEAST_UPPER_BOUND | typeof GREATEST_LOWER_BOUND,
+): Readonly<SourceMapSegment | ReverseSegment> | null {
+  let index = memoizedBinarySearch(segments, column, memo, line);
+  if (bsFound) {
+    index = (bias === LEAST_UPPER_BOUND ? upperBound : lowerBound)(segments, column, index);
+  } else if (bias === LEAST_UPPER_BOUND) index++;
+
+  if (index === -1 || index === segments.length) return null;
+  return segments[index];
 }
