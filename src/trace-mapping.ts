@@ -321,7 +321,7 @@ export class TraceMap implements SourceMap {
         index = (bias === LEAST_UPPER_BOUND ? upperBound : lowerBound)(segments, column, index);
       } else if (bias === LEAST_UPPER_BOUND) index++;
 
-      if (index < 0 || index == segments.length) return null;
+      if (index === -1 || index === segments.length) return null;
       return segments[index];
     }
   }
