@@ -64,77 +64,77 @@ assert.deepEqual(traced, [5, 0, 41, 4, 0]);
 ## Benchmarks
 
 ```
-node v16.13.0
+node v18.0.0
 
 amp.js.map
-trace-mapping:    decoded JSON input x 41.68 ops/sec ±20.44% (38 runs sampled)
-trace-mapping:    encoded JSON input x 32.20 ops/sec ±45.61% (26 runs sampled)
-trace-mapping:    decoded Object input x 409 ops/sec ±17.04% (38 runs sampled)
-trace-mapping:    encoded Object input x 104 ops/sec ±16.38% (38 runs sampled)
-source-map-js:    encoded Object input x 10.78 ops/sec ±25.34% (22 runs sampled)
-source-map-0.6.1: encoded Object input x 5.16 ops/sec ±18.91% (18 runs sampled)
+trace-mapping:    decoded JSON input x 183 ops/sec ±0.41% (87 runs sampled)
+trace-mapping:    encoded JSON input x 384 ops/sec ±0.89% (89 runs sampled)
+trace-mapping:    decoded Object input x 3,085 ops/sec ±0.24% (100 runs sampled)
+trace-mapping:    encoded Object input x 452 ops/sec ±0.80% (84 runs sampled)
+source-map-js:    encoded Object input x 88.82 ops/sec ±0.45% (77 runs sampled)
+source-map-0.6.1: encoded Object input x 38.39 ops/sec ±1.88% (52 runs sampled)
 Fastest is trace-mapping:    decoded Object input
 
-trace-mapping:    decoded originalPositionFor x 264,268 ops/sec ±14.14% (39 runs sampled)
-trace-mapping:    encoded originalPositionFor x 528,134 ops/sec ±11.70% (59 runs sampled)
-source-map-js:    encoded originalPositionFor x 273,022 ops/sec ±20.39% (68 runs sampled)
-source-map-0.6.1: encoded originalPositionFor x 120,340 ops/sec ±14.28% (41 runs sampled)
-source-map-0.7.3: encoded originalPositionFor x 308,158 ops/sec ±11.84% (64 runs sampled)
-Fastest is trace-mapping:    encoded originalPositionFor
+trace-mapping:    decoded originalPositionFor x 4,025,347 ops/sec ±0.15% (97 runs sampled)
+trace-mapping:    encoded originalPositionFor x 3,333,136 ops/sec ±1.26% (90 runs sampled)
+source-map-js:    encoded originalPositionFor x 824,978 ops/sec ±1.06% (94 runs sampled)
+source-map-0.6.1: encoded originalPositionFor x 741,300 ops/sec ±0.93% (92 runs sampled)
+source-map-0.8.0: encoded originalPositionFor x 2,587,603 ops/sec ±0.75% (97 runs sampled)
+Fastest is trace-mapping:    decoded originalPositionFor
 
 ***
 
 babel.min.js.map
-trace-mapping:    decoded JSON input x 5.52 ops/sec ±21.77% (19 runs sampled)
-trace-mapping:    encoded JSON input x 10.72 ops/sec ±12.76% (27 runs sampled)
-trace-mapping:    decoded Object input x 348 ops/sec ±3.07% (79 runs sampled)
-trace-mapping:    encoded Object input x 9.20 ops/sec ±12.19% (20 runs sampled)
-source-map-js:    encoded Object input x 3.09 ops/sec ±11.56% (12 runs sampled)
-source-map-0.6.1: encoded Object input x 1.74 ops/sec ±14.48% (9 runs sampled)
+trace-mapping:    decoded JSON input x 17.43 ops/sec ±8.81% (33 runs sampled)
+trace-mapping:    encoded JSON input x 34.18 ops/sec ±4.67% (50 runs sampled)
+trace-mapping:    decoded Object input x 1,010 ops/sec ±0.41% (98 runs sampled)
+trace-mapping:    encoded Object input x 39.45 ops/sec ±4.01% (52 runs sampled)
+source-map-js:    encoded Object input x 6.57 ops/sec ±3.04% (21 runs sampled)
+source-map-0.6.1: encoded Object input x 4.23 ops/sec ±2.93% (15 runs sampled)
 Fastest is trace-mapping:    decoded Object input
 
-trace-mapping:    decoded originalPositionFor x 2,898,435 ops/sec ±6.37% (76 runs sampled)
-trace-mapping:    encoded originalPositionFor x 2,499,183 ops/sec ±4.94% (79 runs sampled)
-source-map-js:    encoded originalPositionFor x 141 ops/sec ±195.99% (81 runs sampled)
-source-map-0.6.1: encoded originalPositionFor x 127 ops/sec ±195.99% (75 runs sampled)
-source-map-0.7.3: encoded originalPositionFor x 2,966,966 ops/sec ±12.73% (83 runs sampled)
-Fastest is trace-mapping:    decoded originalPositionFor,source-map-0.7.3: encoded originalPositionFor
+trace-mapping:    decoded originalPositionFor x 7,576,265 ops/sec ±0.74% (96 runs sampled)
+trace-mapping:    encoded originalPositionFor x 5,019,743 ops/sec ±0.74% (94 runs sampled)
+source-map-js:    encoded originalPositionFor x 3,396,137 ops/sec ±42.32% (95 runs sampled)
+source-map-0.6.1: encoded originalPositionFor x 3,753,176 ops/sec ±0.72% (95 runs sampled)
+source-map-0.8.0: encoded originalPositionFor x 6,423,633 ops/sec ±0.74% (95 runs sampled)
+Fastest is trace-mapping:    decoded originalPositionFor
 
 ***
 
 preact.js.map
-trace-mapping:    decoded JSON input x 1,617 ops/sec ±5.57% (79 runs sampled)
-trace-mapping:    encoded JSON input x 3,486 ops/sec ±2.94% (87 runs sampled)
-trace-mapping:    decoded Object input x 136,226 ops/sec ±5.93% (75 runs sampled)
-trace-mapping:    encoded Object input x 7,609 ops/sec ±2.55% (87 runs sampled)
-source-map-js:    encoded Object input x 1,271 ops/sec ±7.33% (78 runs sampled)
-source-map-0.6.1: encoded Object input x 565 ops/sec ±2.98% (83 runs sampled)
+trace-mapping:    decoded JSON input x 3,499 ops/sec ±0.18% (98 runs sampled)
+trace-mapping:    encoded JSON input x 6,078 ops/sec ±0.25% (99 runs sampled)
+trace-mapping:    decoded Object input x 254,788 ops/sec ±0.13% (100 runs sampled)
+trace-mapping:    encoded Object input x 14,063 ops/sec ±0.27% (94 runs sampled)
+source-map-js:    encoded Object input x 2,465 ops/sec ±0.25% (98 runs sampled)
+source-map-0.6.1: encoded Object input x 1,174 ops/sec ±1.90% (95 runs sampled)
 Fastest is trace-mapping:    decoded Object input
 
-trace-mapping:    decoded originalPositionFor x 5,043,368 ops/sec ±5.39% (82 runs sampled)
-trace-mapping:    encoded originalPositionFor x 4,278,674 ops/sec ±8.18% (86 runs sampled)
-source-map-js:    encoded originalPositionFor x 1,315,722 ops/sec ±8.02% (80 runs sampled)
-source-map-0.6.1: encoded originalPositionFor x 748,765 ops/sec ±3.29% (87 runs sampled)
-source-map-0.7.3: encoded originalPositionFor x 1,560,329 ops/sec ±3.83% (85 runs sampled)
+trace-mapping:    decoded originalPositionFor x 7,720,171 ops/sec ±0.14% (97 runs sampled)
+trace-mapping:    encoded originalPositionFor x 6,864,485 ops/sec ±0.16% (101 runs sampled)
+source-map-js:    encoded originalPositionFor x 2,387,219 ops/sec ±0.28% (98 runs sampled)
+source-map-0.6.1: encoded originalPositionFor x 1,565,339 ops/sec ±0.32% (101 runs sampled)
+source-map-0.8.0: encoded originalPositionFor x 3,819,732 ops/sec ±0.38% (98 runs sampled)
 Fastest is trace-mapping:    decoded originalPositionFor
 
 ***
 
 react.js.map
-trace-mapping:    decoded JSON input x 788 ops/sec ±4.57% (84 runs sampled)
-trace-mapping:    encoded JSON input x 2,117 ops/sec ±3.07% (82 runs sampled)
-trace-mapping:    decoded Object input x 38,526 ops/sec ±3.91% (75 runs sampled)
-trace-mapping:    encoded Object input x 2,806 ops/sec ±2.80% (88 runs sampled)
-source-map-js:    encoded Object input x 387 ops/sec ±12.69% (75 runs sampled)
-source-map-0.6.1: encoded Object input x 192 ops/sec ±1.71% (81 runs sampled)
+trace-mapping:    decoded JSON input x 1,719 ops/sec ±0.19% (99 runs sampled)
+trace-mapping:    encoded JSON input x 4,284 ops/sec ±0.51% (99 runs sampled)
+trace-mapping:    decoded Object input x 94,668 ops/sec ±0.08% (99 runs sampled)
+trace-mapping:    encoded Object input x 5,287 ops/sec ±0.24% (99 runs sampled)
+source-map-js:    encoded Object input x 814 ops/sec ±0.20% (98 runs sampled)
+source-map-0.6.1: encoded Object input x 429 ops/sec ±0.24% (94 runs sampled)
 Fastest is trace-mapping:    decoded Object input
 
-trace-mapping:    decoded originalPositionFor x 15,109,060 ops/sec ±6.30% (77 runs sampled)
-trace-mapping:    encoded originalPositionFor x 17,028,124 ops/sec ±4.54% (84 runs sampled)
-source-map-js:    encoded originalPositionFor x 8,912,348 ops/sec ±6.00% (78 runs sampled)
-source-map-0.6.1: encoded originalPositionFor x 6,569,081 ops/sec ±3.61% (82 runs sampled)
-source-map-0.7.3: encoded originalPositionFor x 9,004,404 ops/sec ±6.75% (75 runs sampled)
-Fastest is trace-mapping:    encoded originalPositionFor
+trace-mapping:    decoded originalPositionFor x 28,927,989 ops/sec ±0.61% (94 runs sampled)
+trace-mapping:    encoded originalPositionFor x 27,394,475 ops/sec ±0.55% (97 runs sampled)
+source-map-js:    encoded originalPositionFor x 16,856,730 ops/sec ±0.45% (96 runs sampled)
+source-map-0.6.1: encoded originalPositionFor x 12,258,950 ops/sec ±0.41% (97 runs sampled)
+source-map-0.8.0: encoded originalPositionFor x 22,272,990 ops/sec ±0.58% (95 runs sampled)
+Fastest is trace-mapping:    decoded originalPositionFor
 ```
 
 [source-map]: https://www.npmjs.com/package/source-map

@@ -12,6 +12,8 @@ import { SourceMapConsumer as SourceMapConsumerWasm } from 'source-map-wasm';
 
 const dir = relative(process.cwd(), dirname(fileURLToPath(import.meta.url)));
 
+console.log(`node ${process.version}\n`);
+
 async function bench(file) {
   const map = JSON.parse(readFileSync(join(dir, file)));
   const encodedMapData = map;
@@ -39,7 +41,7 @@ async function bench(file) {
       new SourceMapConsumer061(encodedMapData).originalPositionFor({ line: 1, column: 0 });
     })
     // WASM isn't tested because its async and OOMs.
-    // .add('source-map-0.7.3: encoded Object input', () => { })
+    // .add('source-map-0.8.0: encoded Object input', () => { })
 
     // add listeners
     .on('error', ({ error }) => console.error(error))
@@ -94,7 +96,7 @@ async function bench(file) {
       const column = line[j][0];
       smc061.originalPositionFor({ line: i + 1, column });
     })
-    .add('source-map-0.7.3: encoded originalPositionFor', () => {
+    .add('source-map-0.8.0: encoded originalPositionFor', () => {
       const i = Math.floor(Math.random() * lines.length);
       const line = lines[i];
       if (line.length === 0) return;
