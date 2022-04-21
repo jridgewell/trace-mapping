@@ -7,7 +7,12 @@ import {
   NAMES_INDEX,
 } from './sourcemap-segment';
 
-import type { Section, DecodedSourceMap, SectionedSourceMapInput } from './types';
+import type {
+  Section,
+  SectionedSourceMap,
+  DecodedSourceMap,
+  SectionedSourceMapInput,
+} from './types';
 import type { SourceMapSegment } from './sourcemap-segment';
 
 type AnyMap = {
@@ -25,16 +30,8 @@ export const AnyMap: AnyMap = function (map, mapUrl) {
   const sources: string[] = [];
   const sourcesContent: (string | null)[] = [];
   const names: string[] = [];
-  const { sections } = parsed;
 
-  let i = 0;
-  for (; i < sections.length - 1; i++) {
-    const no = sections[i + 1].offset;
-    addSection(sections[i], mapUrl, mappings, sources, sourcesContent, names, no.line, no.column);
-  }
-  if (sections.length > 0) {
-    addSection(sections[i], mapUrl, mappings, sources, sourcesContent, names, Infinity, Infinity);
-  }
+  recurse(parsed, mapUrl, mappings, sources, sourcesContent, names, 0, 0, Infinity, Infinity);
 
   const joined: DecodedSourceMap = {
     version: 3,
@@ -48,19 +45,79 @@ export const AnyMap: AnyMap = function (map, mapUrl) {
   return presortedDecodedMap(joined);
 } as AnyMap;
 
-function addSection(
-  section: Section,
+function recurse(
+  input: SectionedSourceMap,
   mapUrl: string | null | undefined,
   mappings: SourceMapSegment[][],
   sources: string[],
   sourcesContent: (string | null)[],
   names: string[],
+  lineOffset: number,
+  columnOffset: number,
   stopLine: number,
   stopColumn: number,
 ) {
-  const map = AnyMap(section.map, mapUrl);
-  const { line: lineOffset, column: columnOffset } = section.offset;
+  const { sections } = input;
+  let i = 0;
+  for (; i < sections.length - 1; i++) {
+    const { map, offset } = sections[i];
+    const nextOffset = sections[i + 1].offset;
 
+    let sl = lineOffset + nextOffset.line;
+    let sc = columnOffset + nextOffset.column;
+    if (sl === stopLine) {
+      sc = Math.min(sc, stopColumn);
+    } else if (sl > stopLine) {
+      sl = stopLine;
+      sc = stopColumn;
+    }
+
+    addSection(
+      map,
+      mapUrl,
+      mappings,
+      sources,
+      sourcesContent,
+      names,
+      lineOffset + offset.line,
+      columnOffset + offset.column,
+      sl,
+      sc,
+    );
+  }
+
+  if (sections.length > 0) {
+    const { map, offset } = sections[i];
+    addSection(
+      map,
+      mapUrl,
+      mappings,
+      sources,
+      sourcesContent,
+      names,
+      lineOffset + offset.line,
+      columnOffset + offset.column,
+      stopLine,
+      stopColumn,
+    );
+  }
+}
+
+function addSection(
+  input: Section['map'],
+  mapUrl: string | null | undefined,
+  mappings: SourceMapSegment[][],
+  sources: string[],
+  sourcesContent: (string | null)[],
+  names: string[],
+  lineOffset: number,
+  columnOffset: number,
+  stopLine: number,
+  stopColumn: number,
+) {
+  if ('sections' in input) return recurse(...(arguments as unknown as Parameters<typeof recurse>));
+
+  const map = AnyMap(input, mapUrl);
   const sourcesOffset = sources.length;
   const namesOffset = names.length;
   const decoded = decodedMappings(map);
@@ -72,28 +129,30 @@ function addSection(
   // If this section jumps forwards several lines, we need to add lines to the output mappings catch up.
   for (let i = mappings.length; i <= lineOffset; i++) mappings.push([]);
 
-  // We can only add so many lines before we step into the range that the next section's map
-  // controls. When we get to the last line, then we'll start checking the segments to see if
-  // they've crossed into the column range.
-  const stopI = stopLine - lineOffset;
-  const len = Math.min(decoded.length, stopI + 1);
+  for (let i = 0; i < decoded.length; i++) {
+    const lineI = lineOffset + i;
 
-  for (let i = 0; i < len; i++) {
-    const line = decoded[i];
+    // We can only add so many lines before we step into the range that the next section's map
+    // controls. When we get to the last line, then we'll start checking the segments to see if
+    // they've crossed into the column range. But it may not have any columns that overstep, so we
+    // still need to check that we don't overstep lines, too.
+    if (lineI > stopLine) return;
+
     // On the 0th loop, the line will already exist due to a previous section, or the line catch up
     // loop above.
-    const out = i === 0 ? mappings[lineOffset] : (mappings[lineOffset + i] = []);
+    const out = i === 0 ? mappings[lineI] : (mappings[lineI] = []);
     // On the 0th loop, the section's column offset shifts us forward. On all other lines (since the
     // map can be multiple lines), it doesn't.
     const cOffset = i === 0 ? columnOffset : 0;
 
+    const line = decoded[i];
     for (let j = 0; j < line.length; j++) {
       const seg = line[j];
       const column = cOffset + seg[COLUMN];
 
       // If this segment steps into the column range that the next section's map controls, we need
       // to stop early.
-      if (i === stopI && column >= stopColumn) break;
+      if (lineI === stopLine && column >= stopColumn) return;
 
       if (seg.length === 1) {
         out.push([column]);
