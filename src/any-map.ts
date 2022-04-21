@@ -58,18 +58,20 @@ function recurse(
   stopColumn: number,
 ) {
   const { sections } = input;
-  let i = 0;
-  for (; i < sections.length - 1; i++) {
+  for (let i = 0; i < sections.length; i++) {
     const { map, offset } = sections[i];
-    const nextOffset = sections[i + 1].offset;
 
-    let sl = lineOffset + nextOffset.line;
-    let sc = columnOffset + nextOffset.column;
-    if (sl === stopLine) {
-      sc = Math.min(sc, stopColumn);
-    } else if (sl > stopLine) {
-      sl = stopLine;
-      sc = stopColumn;
+    let sl = stopLine;
+    let sc = stopColumn;
+    if (i + 1 < sections.length) {
+      const nextOffset = sections[i + 1].offset;
+      sl = Math.min(stopLine, lineOffset + nextOffset.line);
+
+      if (sl === stopLine) {
+        sc = Math.min(stopColumn, columnOffset + nextOffset.column);
+      } else if (sl < stopLine) {
+        sc = columnOffset + nextOffset.column;
+      }
     }
 
     addSection(
@@ -83,22 +85,6 @@ function recurse(
       columnOffset + offset.column,
       sl,
       sc,
-    );
-  }
-
-  if (sections.length > 0) {
-    const { map, offset } = sections[i];
-    addSection(
-      map,
-      mapUrl,
-      mappings,
-      sources,
-      sourcesContent,
-      names,
-      lineOffset + offset.line,
-      columnOffset + offset.column,
-      stopLine,
-      stopColumn,
     );
   }
 }
