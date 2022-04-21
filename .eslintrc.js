@@ -1,7 +1,9 @@
+/* eslint-env node */
+
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'no-only-tests'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
@@ -20,6 +22,7 @@ module.exports = {
     ],
     'no-constant-condition': 'off',
     'no-unused-labels': 'off',
+    'prefer-rest-params': 'off',
   },
   overrides: [
     {
@@ -27,6 +30,7 @@ module.exports = {
       rules: {
         '@typescript-eslint/no-empty-function': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
+        'no-only-tests/no-only-tests': 'error',
       },
     },
   ],

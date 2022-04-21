@@ -98,10 +98,10 @@ describe('AnyMap', () => {
 
     test('encodedMappings', (t) => {
       const tracer = new AnyMap(map);
-      t.is(encodedMappings(tracer), ';GCAAC;AAAA,ACAAC,CCAA');
+      t.is(encodedMappings(tracer), ';EAAAA,CCAAC;ACAAC,CCAA');
     });
 
-    test.only('decodedMappings', (t) => {
+    test('decodedMappings', (t) => {
       const tracer = new AnyMap(map);
       t.deepEqual(decodedMappings(tracer), [
         [],

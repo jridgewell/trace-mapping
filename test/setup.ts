@@ -29,7 +29,7 @@ const test = function test<Args extends unknown[]>(
 };
 
 test.macro = ava.macro;
-test.only = <Args extends unknown[]>(label: string, fn: Implementation<Args>, ...args: Args) => {
+test['only'] = <Args extends unknown[]>(label: string, fn: Implementation<Args>, ...args: Args) => {
   ava.only(getLabel(label), fn, ...args);
 };
 test.skip = function skip<Args extends unknown[]>(
