@@ -107,10 +107,12 @@ function addSection(
   const sourcesOffset = sources.length;
   const namesOffset = names.length;
   const decoded = decodedMappings(map);
-  const { resolvedSources } = map;
+  const { resolvedSources, sourcesContent: contents } = map;
+
   append(sources, resolvedSources);
-  append(sourcesContent, map.sourcesContent || fillSourcesContent(resolvedSources.length));
   append(names, map.names);
+  if (contents) append(sourcesContent, contents);
+  else for (let i = 0; i < resolvedSources.length; i++) sourcesContent.push(null);
 
   for (let i = 0; i < decoded.length; i++) {
     const lineI = lineOffset + i;
@@ -161,14 +163,4 @@ function append<T>(arr: T[], other: T[]) {
 function getLine<T>(arr: T[][], index: number): T[] {
   for (let i = arr.length; i <= index; i++) arr[i] = [];
   return arr[index];
-}
-
-// Sourcemaps don't need to have sourcesContent, and if they don't, we need to create an array of
-// equal length to the sources. This is because the sources and sourcesContent are paired arrays,
-// where `sourcesContent[i]` is the content of the `sources[i]` file. If we didn't, then joined
-// sourcemap would desynchronize the sources/contents.
-function fillSourcesContent(len: number): null[] {
-  const sourcesContent = [];
-  for (let i = 0; i < len; i++) sourcesContent[i] = null;
-  return sourcesContent;
 }
