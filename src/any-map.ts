@@ -103,7 +103,7 @@ function addSection(
 ) {
   if ('sections' in input) return recurse(...(arguments as unknown as Parameters<typeof recurse>));
 
-  const map = AnyMap(input, mapUrl);
+  const map = new TraceMap(input, mapUrl);
   const sourcesOffset = sources.length;
   const namesOffset = names.length;
   const decoded = decodedMappings(map);
@@ -111,9 +111,6 @@ function addSection(
   append(sources, resolvedSources);
   append(sourcesContent, map.sourcesContent || fillSourcesContent(resolvedSources.length));
   append(names, map.names);
-
-  // If this section jumps forwards several lines, we need to add lines to the output mappings catch up.
-  for (let i = mappings.length; i <= lineOffset; i++) mappings.push([]);
 
   for (let i = 0; i < decoded.length; i++) {
     const lineI = lineOffset + i;
@@ -124,9 +121,9 @@ function addSection(
     // still need to check that we don't overstep lines, too.
     if (lineI > stopLine) return;
 
-    // On the 0th loop, the line will already exist due to a previous section, or the line catch up
-    // loop above.
-    const out = i === 0 ? mappings[lineI] : (mappings[lineI] = []);
+    // The out line may already exist in mappings (if we're continuing the line started by a
+    // previous section). Or, we may have jumped ahead several lines to start this section.
+    const out = getLine(mappings, lineI);
     // On the 0th loop, the section's column offset shifts us forward. On all other lines (since the
     // map can be multiple lines), it doesn't.
     const cOffset = i === 0 ? columnOffset : 0;
@@ -148,18 +145,22 @@ function addSection(
       const sourcesIndex = sourcesOffset + seg[SOURCES_INDEX];
       const sourceLine = seg[SOURCE_LINE];
       const sourceColumn = seg[SOURCE_COLUMN];
-      if (seg.length === 4) {
-        out.push([column, sourcesIndex, sourceLine, sourceColumn]);
-        continue;
-      }
-
-      out.push([column, sourcesIndex, sourceLine, sourceColumn, namesOffset + seg[NAMES_INDEX]]);
+      out.push(
+        seg.length === 4
+          ? [column, sourcesIndex, sourceLine, sourceColumn]
+          : [column, sourcesIndex, sourceLine, sourceColumn, namesOffset + seg[NAMES_INDEX]],
+      );
     }
   }
 }
 
 function append<T>(arr: T[], other: T[]) {
   for (let i = 0; i < other.length; i++) arr.push(other[i]);
+}
+
+function getLine<T>(arr: T[][], index: number): T[] {
+  for (let i = arr.length; i <= index; i++) arr[i] = [];
+  return arr[index];
 }
 
 // Sourcemaps don't need to have sourcesContent, and if they don't, we need to create an array of
