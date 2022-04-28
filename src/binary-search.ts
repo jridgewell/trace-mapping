@@ -56,7 +56,7 @@ export function upperBound(
   needle: number,
   index: number,
 ): number {
-  for (let i = index + 1; i < haystack.length; i++, index++) {
+  for (let i = index + 1; i < haystack.length; index = i++) {
     if (haystack[i][COLUMN] !== needle) break;
   }
   return index;
@@ -67,7 +67,7 @@ export function lowerBound(
   needle: number,
   index: number,
 ): number {
-  for (let i = index - 1; i >= 0; i--, index--) {
+  for (let i = index - 1; i >= 0; index = i--) {
     if (haystack[i][COLUMN] !== needle) break;
   }
   return index;
