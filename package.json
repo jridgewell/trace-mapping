@@ -29,7 +29,7 @@
   "scripts": {
     "benchmark": "run-s build:rollup benchmark:*",
     "benchmark:install": "cd benchmark && npm install",
-    "benchmark:only": "node benchmark/index.mjs",
+    "benchmark:only": "node --expose-gc benchmark/index.mjs",
     "build": "run-s -n build:*",
     "build:rollup": "rollup -c rollup.config.js",
     "build:ts": "tsc --project tsconfig.build.json",

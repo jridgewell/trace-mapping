@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join, relative } from 'path';
 import Benchmark from 'benchmark';
 import { decode } from '@jridgewell/sourcemap-codec';
-import { TraceMap, decodedMappings, originalPositionFor } from '../dist/trace-mapping.mjs';
+import { TraceMap, originalPositionFor } from '../dist/trace-mapping.mjs';
 import { SourceMapConsumer as SourceMapConsumerJs } from 'source-map-js';
 import { SourceMapConsumer as SourceMapConsumer061 } from 'source-map';
 import { SourceMapConsumer as SourceMapConsumerWasm } from 'source-map-wasm';
@@ -14,6 +14,29 @@ const dir = relative(process.cwd(), dirname(fileURLToPath(import.meta.url)));
 
 console.log(`node ${process.version}\n`);
 
+async function track(label, results, cb) {
+  if (global.gc) global.gc();
+  const before = process.memoryUsage();
+  const ret = await cb();
+  const after = process.memoryUsage();
+  const d = delta(before, after);
+  console.log(
+    `${label.padEnd(25, ' ')} ${String(d.heapUsed + d.external).padStart(10, ' ')} bytes`,
+  );
+  results.push({ label, delta: d.heapUsed + d.external });
+  return ret;
+}
+
+function delta(before, after) {
+  return {
+    rss: after.rss - before.rss,
+    heapTotal: after.heapTotal - before.heapTotal,
+    heapUsed: after.heapUsed - before.heapUsed,
+    external: after.external - before.external,
+    arrayBuffers: after.arrayBuffers - before.arrayBuffers,
+  };
+}
+
 async function bench(file) {
   const map = JSON.parse(readFileSync(join(dir, file)));
   const encodedMapData = map;
@@ -21,6 +44,49 @@ async function bench(file) {
   const decodedMapData = { ...map, mappings: decode(map.mappings) };
   const decodedMapDataJson = JSON.stringify(decodedMapData);
 
+  const lines = decodedMapData.mappings;
+  const segments = lines.reduce((cur, line) => {
+    return cur + line.length;
+  }, 0);
+  console.log(file, `- ${segments} segments`);
+  console.log('');
+
+  console.log('Memory Usage:');
+  const results = [];
+  const decoded = await track('trace-mapping decoded', results, () => {
+    const decoded = new TraceMap(decodedMapData);
+    originalPositionFor(decoded, { line: 1, column: 0 });
+    return decoded;
+  });
+  const encoded = await track('trace-mapping encoded', results, () => {
+    const encoded = new TraceMap(encodedMapData);
+    originalPositionFor(encoded, { line: 1, column: 0 });
+    return encoded;
+  });
+  const smcjs = await track('source-map-js', results, () => {
+    const smcjs = new SourceMapConsumerJs(encodedMapData);
+    smcjs.originalPositionFor({ line: 1, column: 0 });
+    return smcjs;
+  });
+  const smc061 = await track('source-map-0.6.1', results, () => {
+    const smc061 = new SourceMapConsumer061(encodedMapData);
+    smc061.originalPositionFor({ line: 1, column: 0 });
+    return smc061;
+  });
+  const smcWasm = await track('source-map-0.8.0', results, async () => {
+    const smcWasm = await new SourceMapConsumerWasm(encodedMapData);
+    smcWasm.originalPositionFor({ line: 1, column: 0 });
+    return smcWasm;
+  });
+  const winner = results.reduce((min, cur) => {
+    if (cur.delta < min.delta) return cur;
+    return min;
+  });
+  console.log(`Smallest memory usage is ${winner.label}`);
+
+  console.log('');
+
+  console.log('Init speed:');
   new Benchmark.Suite()
     .add('trace-mapping:    decoded JSON input', () => {
       originalPositionFor(new TraceMap(decodedMapDataJson), { line: 1, column: 0 });
@@ -44,7 +110,7 @@ async function bench(file) {
     // .add('source-map-0.8.0: encoded Object input', () => { })
 
     // add listeners
-    .on('error', ({ error }) => console.error(error))
+    .on('error', (event) => console.error(event.target.error))
     .on('cycle', (event) => {
       console.log(String(event.target));
     })
@@ -55,14 +121,7 @@ async function bench(file) {
 
   console.log('');
 
-  const decoded = new TraceMap(decodedMapData);
-  const encoded = new TraceMap(encodedMapData);
-  const smcjs = new SourceMapConsumerJs(encodedMapData);
-  const smc061 = new SourceMapConsumer061(encodedMapData);
-  const smcWasm = await new SourceMapConsumerWasm(encodedMapData);
-
-  const lines = decodedMappings(decoded);
-
+  console.log('Trace speed:');
   new Benchmark.Suite()
     .add('trace-mapping:    decoded originalPositionFor', () => {
       const i = Math.floor(Math.random() * lines.length);
@@ -105,7 +164,7 @@ async function bench(file) {
       smcWasm.originalPositionFor({ line: i + 1, column });
     })
     // add listeners
-    .on('error', ({ error }) => console.error(error))
+    .on('error', (event) => console.error(event.target.error))
     .on('cycle', (event) => {
       console.log(String(event.target));
     })
@@ -122,10 +181,9 @@ async function run(files) {
   for (const file of files) {
     if (!file.endsWith('.map')) continue;
 
-    if (!first) console.log('\n***\n');
+    if (!first) console.log('\n\n***\n\n');
     first = false;
 
-    console.log(file);
     await bench(file);
   }
 }
