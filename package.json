@@ -14,10 +14,10 @@
   ],
   "exports": {
     ".": {
+      "types": "./dist/types/trace-mapping.d.ts",
       "browser": "./dist/trace-mapping.umd.js",
       "require": "./dist/trace-mapping.umd.js",
-      "import": "./dist/trace-mapping.mjs",
-      "types": "./dist/types/trace-mapping.d.ts"
+      "import": "./dist/trace-mapping.mjs"
     },
     "./package.json": "./package.json"
   },
