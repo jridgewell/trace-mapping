@@ -16,7 +16,8 @@
     ".": {
       "browser": "./dist/trace-mapping.umd.js",
       "require": "./dist/trace-mapping.umd.js",
-      "import": "./dist/trace-mapping.mjs"
+      "import": "./dist/trace-mapping.mjs",
+      "types": "./dist/types/trace-mapping.d.ts"
     },
     "./package.json": "./package.json"
   },
