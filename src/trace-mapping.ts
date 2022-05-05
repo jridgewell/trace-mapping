@@ -160,7 +160,7 @@ export class TraceMap implements SourceMap {
   constructor(map: SourceMapInput, mapUrl?: string | null) {
     const isString = typeof map === 'string';
 
-    if (!isString && map.constructor === TraceMap) return map;
+    if (!isString && (map as unknown as { _decodedMemo: any })._decodedMemo) return map as TraceMap;
 
     const parsed = (isString ? JSON.parse(map) : map) as Exclude<SourceMapInput, string | TraceMap>;
 
