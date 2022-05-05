@@ -71,8 +71,6 @@ const COL_GTR_EQ_ZERO = '`column` must be greater than or equal to 0 (columns st
 export const LEAST_UPPER_BOUND = -1;
 export const GREATEST_LOWER_BOUND = 1;
 
-const BRAND = Symbol.for('@jridgewell/trace-mapping');
-
 /**
  * Returns the encoded (VLQ string) form of the SourceMap's mappings field.
  */
@@ -149,21 +147,20 @@ export class TraceMap implements SourceMap {
   declare sourceRoot: SourceMapV3['sourceRoot'];
   declare sources: SourceMapV3['sources'];
   declare sourcesContent: SourceMapV3['sourcesContent'];
-  declare resolvedSources: string[];
 
+  declare resolvedSources: string[];
   private declare _encoded: string | undefined;
+
   private declare _decoded: SourceMapSegment[][] | undefined;
   private _decodedMemo = memoizedState();
 
   private _bySources: Source[] | undefined = undefined;
   private _bySourceMemos: MemoState[] | undefined = undefined;
 
-  private [BRAND] = true;
-
   constructor(map: SourceMapInput, mapUrl?: string | null) {
     const isString = typeof map === 'string';
 
-    if (!isString && (map as unknown as {[BRAND]: true | undefined})[BRAND]) return map as TraceMap;
+    if (!isString && map.constructor === TraceMap) return map;
 
     const parsed = (isString ? JSON.parse(map) : map) as Exclude<SourceMapInput, string | TraceMap>;
 
