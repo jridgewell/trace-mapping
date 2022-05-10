@@ -11,6 +11,7 @@ import {
   originalPositionFor,
   generatedPositionFor,
   presortedDecodedMap,
+  sourceContentFor,
   eachMapping,
   GREATEST_LOWER_BOUND,
   LEAST_UPPER_BOUND,
@@ -65,7 +66,7 @@ describe('TraceMap', () => {
     mappings: encode(decodedMap.mappings),
   };
   function replaceField(
-    map: SourceMapInput,
+    map: DecodedSourceMap | EncodedSourceMap | string,
     field: keyof (DecodedSourceMap | EncodedSourceMap),
     value: any,
   ): SourceMapInput {
@@ -81,7 +82,7 @@ describe('TraceMap', () => {
     return JSON.stringify(map);
   }
 
-  function testSuite(map: SourceMapInput) {
+  function testSuite(map: DecodedSourceMap | EncodedSourceMap | string) {
     return () => {
       describe('map properties', () => {
         test('version', (t) => {
@@ -122,6 +123,31 @@ describe('TraceMap', () => {
         test('sourcesContent', (t) => {
           const tracer = new TraceMap(map);
           t.deepEqual(tracer.sourcesContent, decodedMap.sourcesContent);
+        });
+
+        describe('sourceContentFor', () => {
+          test('returns null if no sourcesContent', (t) => {
+            const tracer = new TraceMap(replaceField(map, 'sourcesContent', undefined));
+            const source = tracer.sources[0]!;
+            t.is(sourceContentFor(tracer, source), null);
+          });
+
+          test('returns null if source not found', (t) => {
+            const tracer = new TraceMap(map);
+            t.is(sourceContentFor(tracer, 'foobar'), null);
+          });
+
+          test('returns sourceContent for source', (t) => {
+            const tracer = new TraceMap(map);
+            const source = tracer.sources[0]!;
+            t.is(sourceContentFor(tracer, source), decodedMap.sourcesContent![0]);
+          });
+
+          test('returns sourceContent for resolved source', (t) => {
+            const tracer = new TraceMap(map);
+            const source = tracer.resolvedSources[0]!;
+            t.is(sourceContentFor(tracer, source), decodedMap.sourcesContent![0]);
+          });
         });
 
         describe('resolvedSources', () => {
