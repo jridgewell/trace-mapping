@@ -119,6 +119,11 @@ export let generatedPositionFor: (
 export let eachMapping: (map: TraceMap, cb: (mapping: EachMapping) => void) => void;
 
 /**
+ * Retrieves the source content for a particular source, if its found. Returns null if not.
+ */
+export let sourceContentFor: (map: TraceMap, source: string) => string | null;
+
+/**
  * A helper that skips sorting of the input map's mappings array, which can be expensive for larger
  * maps.
  */
@@ -312,6 +317,16 @@ export class TraceMap implements SourceMap {
           } as EachMapping);
         }
       }
+    };
+
+    sourceContentFor = (map, source) => {
+      const { sources, resolvedSources, sourcesContent } = map;
+      if (sourcesContent == null) return null;
+
+      let index = sources.indexOf(source);
+      if (index === -1) index = resolvedSources.indexOf(source);
+
+      return index === -1 ? null : sourcesContent[index];
     };
 
     presortedDecodedMap = (map, mapUrl) => {
