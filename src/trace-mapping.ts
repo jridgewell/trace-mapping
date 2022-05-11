@@ -165,12 +165,8 @@ export class TraceMap implements SourceMap {
     this.sources = sources;
     this.sourcesContent = sourcesContent;
 
-    if (sourceRoot || mapUrl) {
-      const from = resolve(sourceRoot || '', stripFilename(mapUrl));
-      this.resolvedSources = sources.map((s) => resolve(s || '', from));
-    } else {
-      this.resolvedSources = sources.map((s) => s || '');
-    }
+    const from = resolve(sourceRoot || '', stripFilename(mapUrl));
+    this.resolvedSources = sources.map((s) => resolve(s || '', from));
 
     const { mappings } = parsed;
     if (typeof mappings === 'string') {
