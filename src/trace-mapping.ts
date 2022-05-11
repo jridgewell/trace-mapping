@@ -53,18 +53,6 @@ export type {
   EachMapping,
 } from './types';
 
-const INVALID_ORIGINAL_MAPPING: InvalidOriginalMapping = Object.freeze({
-  source: null,
-  line: null,
-  column: null,
-  name: null,
-});
-
-const INVALID_GENERATED_MAPPING: InvalidGeneratedMapping = Object.freeze({
-  line: null,
-  column: null,
-});
-
 const LINE_GTR_ZERO = '`line` must be greater than 0 (lines start at line 1)';
 const COL_GTR_EQ_ZERO = '`column` must be greater than or equal to 0 (columns start at column 0)';
 
@@ -228,7 +216,7 @@ export class TraceMap implements SourceMap {
 
       // It's common for parent source maps to have pointers to lines that have no
       // mapping (like a "//# sourceMappingURL=") at the end of the child file.
-      if (line >= decoded.length) return INVALID_ORIGINAL_MAPPING;
+      if (line >= decoded.length) return OMapping(null, null, null, null);
 
       const segment = traceSegmentInternal(
         decoded[line],
@@ -238,16 +226,16 @@ export class TraceMap implements SourceMap {
         bias || GREATEST_LOWER_BOUND,
       );
 
-      if (segment == null) return INVALID_ORIGINAL_MAPPING;
-      if (segment.length == 1) return INVALID_ORIGINAL_MAPPING;
+      if (segment == null) return OMapping(null, null, null, null);
+      if (segment.length == 1) return OMapping(null, null, null, null);
 
       const { names, resolvedSources } = map;
-      return {
-        source: resolvedSources[segment[SOURCES_INDEX]],
-        line: segment[SOURCE_LINE] + 1,
-        column: segment[SOURCE_COLUMN],
-        name: segment.length === 5 ? names[segment[NAMES_INDEX]] : null,
-      };
+      return OMapping(
+        resolvedSources[segment[SOURCES_INDEX]],
+        segment[SOURCE_LINE] + 1,
+        segment[SOURCE_COLUMN],
+        segment.length === 5 ? names[segment[NAMES_INDEX]] : null,
+      );
     };
 
     generatedPositionFor = (map, { source, line, column, bias }) => {
@@ -258,7 +246,7 @@ export class TraceMap implements SourceMap {
       const { sources, resolvedSources } = map;
       let sourceIndex = sources.indexOf(source);
       if (sourceIndex === -1) sourceIndex = resolvedSources.indexOf(source);
-      if (sourceIndex === -1) return INVALID_GENERATED_MAPPING;
+      if (sourceIndex === -1) return GMapping(null, null);
 
       const generated = (map._bySources ||= buildBySources(
         decodedMappings(map),
@@ -268,7 +256,7 @@ export class TraceMap implements SourceMap {
 
       const segments = generated[sourceIndex][line];
 
-      if (segments == null) return INVALID_GENERATED_MAPPING;
+      if (segments == null) return GMapping(null, null);
 
       const segment = traceSegmentInternal(
         segments,
@@ -278,11 +266,8 @@ export class TraceMap implements SourceMap {
         bias || GREATEST_LOWER_BOUND,
       );
 
-      if (segment == null) return INVALID_GENERATED_MAPPING;
-      return {
-        line: segment[REV_GENERATED_LINE] + 1,
-        column: segment[REV_GENERATED_COLUMN],
-      };
+      if (segment == null) return GMapping(null, null);
+      return GMapping(segment[REV_GENERATED_LINE] + 1, segment[REV_GENERATED_COLUMN]);
     };
 
     eachMapping = (map, cb) => {
@@ -361,6 +346,36 @@ export class TraceMap implements SourceMap {
       };
     };
   }
+}
+
+function OMapping(
+  source: null,
+  line: null,
+  column: null,
+  name: null,
+): OriginalMapping | InvalidOriginalMapping;
+function OMapping(
+  source: string,
+  line: number,
+  column: number,
+  name: string | null,
+): OriginalMapping | InvalidOriginalMapping;
+function OMapping(
+  source: string | null,
+  line: number | null,
+  column: number | null,
+  name: string | null,
+): OriginalMapping | InvalidOriginalMapping {
+  return { source, line, column, name } as any;
+}
+
+function GMapping(line: null, column: null): GeneratedMapping | InvalidGeneratedMapping;
+function GMapping(line: number, column: number): GeneratedMapping | InvalidGeneratedMapping;
+function GMapping(
+  line: number | null,
+  column: number | null,
+): GeneratedMapping | InvalidGeneratedMapping {
+  return { line, column } as any;
 }
 
 function traceSegmentInternal(
