@@ -10,7 +10,6 @@
     "declaration": true,
     "allowSyntheticDefaultImports": true,
     "declarationDir": "dist/types",
-    "outDir": "dist/lib",
     "typeRoots": ["node_modules/@types"]
   },
   "exclude": ["dist"],
