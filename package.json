@@ -10,8 +10,7 @@
   "module": "dist/trace-mapping.mjs",
   "typings": "dist/types/trace-mapping.d.ts",
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "exports": {
     ".": [
