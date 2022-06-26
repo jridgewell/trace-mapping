@@ -14,12 +14,15 @@
     "src"
   ],
   "exports": {
-    ".": {
-      "types": "./dist/types/trace-mapping.d.ts",
-      "browser": "./dist/trace-mapping.umd.js",
-      "require": "./dist/trace-mapping.umd.js",
-      "import": "./dist/trace-mapping.mjs"
-    },
+    ".": [
+      {
+        "types": "./dist/types/trace-mapping.d.ts",
+        "browser": "./dist/trace-mapping.umd.js",
+        "require": "./dist/trace-mapping.umd.js",
+        "import": "./dist/trace-mapping.mjs"
+      },
+      "./dist/trace-mapping.umd.js"
+    ],
     "./package.json": "./package.json"
   },
   "author": "Justin Ridgewell <justin@ridgewell.name>",
