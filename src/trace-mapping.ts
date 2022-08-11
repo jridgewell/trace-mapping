@@ -145,10 +145,10 @@ export class TraceMap implements SourceMap {
   private declare _encoded: string | undefined;
 
   private declare _decoded: SourceMapSegment[][] | undefined;
-  private _decodedMemo = memoizedState();
+  private declare _decodedMemo: MemoState;
 
-  private _bySources: Source[] | undefined = undefined;
-  private _bySourceMemos: MemoState[] | undefined = undefined;
+  private declare _bySources: Source[] | undefined;
+  private declare _bySourceMemos: MemoState[] | undefined;
 
   constructor(map: SourceMapInput, mapUrl?: string | null) {
     const isString = typeof map === 'string';
@@ -176,6 +176,10 @@ export class TraceMap implements SourceMap {
       this._encoded = undefined;
       this._decoded = maybeSort(mappings, isString);
     }
+
+    this._decodedMemo = memoizedState();
+    this._bySources = undefined;
+    this._bySourceMemos = undefined;
   }
 
   static {
@@ -311,37 +315,34 @@ export class TraceMap implements SourceMap {
     };
 
     presortedDecodedMap = (map, mapUrl) => {
-      const clone = Object.assign({}, map);
-      clone.mappings = [];
-      const tracer = new TraceMap(clone, mapUrl);
+      const tracer = new TraceMap(clone(map, []), mapUrl);
       tracer._decoded = map.mappings;
       return tracer;
     };
 
     decodedMap = (map) => {
-      return {
-        version: 3,
-        file: map.file,
-        names: map.names,
-        sourceRoot: map.sourceRoot,
-        sources: map.sources,
-        sourcesContent: map.sourcesContent,
-        mappings: decodedMappings(map),
-      };
+      return clone(map, decodedMappings(map));
     };
 
     encodedMap = (map) => {
-      return {
-        version: 3,
-        file: map.file,
-        names: map.names,
-        sourceRoot: map.sourceRoot,
-        sources: map.sources,
-        sourcesContent: map.sourcesContent,
-        mappings: encodedMappings(map),
-      };
+      return clone(map, encodedMappings(map));
     };
   }
+}
+
+function clone<T extends string | readonly SourceMapSegment[][]>(
+  map: TraceMap | DecodedSourceMap | EncodedSourceMap,
+  mappings: T,
+): T extends string ? EncodedSourceMap : DecodedSourceMap {
+  return {
+    version: map.version,
+    file: map.file,
+    names: map.names,
+    sourceRoot: map.sourceRoot,
+    sources: map.sources,
+    sourcesContent: map.sourcesContent,
+    mappings,
+  } as any;
 }
 
 function OMapping(
