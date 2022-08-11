@@ -311,37 +311,34 @@ export class TraceMap implements SourceMap {
     };
 
     presortedDecodedMap = (map, mapUrl) => {
-      const clone = Object.assign({}, map);
-      clone.mappings = [];
-      const tracer = new TraceMap(clone, mapUrl);
+      const tracer = new TraceMap(clone(map, []), mapUrl);
       tracer._decoded = map.mappings;
       return tracer;
     };
 
     decodedMap = (map) => {
-      return {
-        version: 3,
-        file: map.file,
-        names: map.names,
-        sourceRoot: map.sourceRoot,
-        sources: map.sources,
-        sourcesContent: map.sourcesContent,
-        mappings: decodedMappings(map),
-      };
+      return clone(map, decodedMappings(map));
     };
 
     encodedMap = (map) => {
-      return {
-        version: 3,
-        file: map.file,
-        names: map.names,
-        sourceRoot: map.sourceRoot,
-        sources: map.sources,
-        sourcesContent: map.sourcesContent,
-        mappings: encodedMappings(map),
-      };
+      return clone(map, encodedMappings(map));
     };
   }
+}
+
+function clone<T extends string | readonly SourceMapSegment[][]>(
+  map: TraceMap | DecodedSourceMap | EncodedSourceMap,
+  mappings: T,
+): T extends string ? EncodedSourceMap : DecodedSourceMap {
+  return {
+    version: map.version,
+    file: map.file,
+    names: map.names,
+    sourceRoot: map.sourceRoot,
+    sources: map.sources,
+    sourcesContent: map.sourcesContent,
+    mappings,
+  } as any;
 }
 
 function OMapping(

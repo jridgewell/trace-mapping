@@ -397,5 +397,16 @@ describe('TraceMap', () => {
       const tracer = presortedDecodedMap(reversedDecoded);
       t.deepEqual(decodedMappings(tracer), mappings);
     });
+
+    test('ignores non-sourcemap fields from output', (t) => {
+      // `map` will contain a `_encoded` field equal to the encoded map's, a _decoded equal to [],
+      // and a _decodedMemo field. This fooled the duck-type early return detection, and preserved
+      // invalid values on the presorted tracer.
+      // https://github.com/facebook/jest/issues/12998#issuecomment-1212426850
+      const map = Object.assign({}, new TraceMap(encodedMap), { mappings: [] });
+      const tracer = presortedDecodedMap(map);
+
+      t.is(encodedMappings(tracer), '');
+    });
   });
 });
