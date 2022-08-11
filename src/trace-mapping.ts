@@ -145,10 +145,10 @@ export class TraceMap implements SourceMap {
   private declare _encoded: string | undefined;
 
   private declare _decoded: SourceMapSegment[][] | undefined;
-  private _decodedMemo = memoizedState();
+  private declare _decodedMemo: MemoState;
 
-  private _bySources: Source[] | undefined = undefined;
-  private _bySourceMemos: MemoState[] | undefined = undefined;
+  private declare _bySources: Source[] | undefined;
+  private declare _bySourceMemos: MemoState[] | undefined;
 
   constructor(map: SourceMapInput, mapUrl?: string | null) {
     const isString = typeof map === 'string';
@@ -176,6 +176,10 @@ export class TraceMap implements SourceMap {
       this._encoded = undefined;
       this._decoded = maybeSort(mappings, isString);
     }
+
+    this._decodedMemo = memoizedState();
+    this._bySources = undefined;
+    this._bySourceMemos = undefined;
   }
 
   static {
