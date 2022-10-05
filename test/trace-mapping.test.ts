@@ -15,6 +15,7 @@ import {
   eachMapping,
   GREATEST_LOWER_BOUND,
   LEAST_UPPER_BOUND,
+  allGeneratedPositionsFor,
 } from '../src/trace-mapping';
 
 import type { ExecutionContext } from 'ava';
@@ -299,6 +300,32 @@ describe('TraceMap', () => {
           line: 5,
           column: 0,
         });
+      });
+
+      test('allGeneratedPositionsFor', (t) => {
+        const tracer = new TraceMap(map);
+
+        t.deepEqual(
+          allGeneratedPositionsFor(tracer, {
+            source: 'input.js',
+            line: 1,
+            column: 14,
+          }),
+          [
+            {
+              line: 1,
+              column: 13,
+            },
+            {
+              line: 1,
+              column: 18,
+            },
+          ],
+        );
+
+
+        t.deepEqual(allGeneratedPositionsFor(tracer, { source: 'input.js', line: 100, column: 13 }), []);
+        t.deepEqual(allGeneratedPositionsFor(tracer, { source: 'input.js', line: 1, column: 100 }), []);
       });
     };
   }
