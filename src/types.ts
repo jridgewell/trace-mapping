@@ -57,14 +57,6 @@ export type InvalidGeneratedMapping = {
 
 export type Bias = typeof GREATEST_LOWER_BOUND | typeof LEAST_UPPER_BOUND;
 
-type Ro<T> = T extends Array<infer V>
-  ? V[] | Readonly<V[]> | RoArray<V> | Readonly<RoArray<V>>
-  : T extends object
-  ? T | Readonly<T> | RoObject<T> | Readonly<RoObject<T>>
-  : T;
-type RoArray<T> = Ro<T>[];
-type RoObject<T> = { [K in keyof T]: T[K] | Ro<T[K]> };
-
 export type SourceMapInput = string | Ro<EncodedSourceMap> | Ro<DecodedSourceMap> | TraceMap;
 
 export type SectionedSourceMapInput = SourceMapInput | Ro<SectionedSourceMap>;
@@ -99,3 +91,11 @@ export abstract class SourceMap {
   declare sourcesContent: SourceMapV3['sourcesContent'];
   declare resolvedSources: SourceMapV3['sources'];
 }
+
+export type Ro<T> = T extends Array<infer V>
+  ? V[] | Readonly<V[]> | RoArray<V> | Readonly<RoArray<V>>
+  : T extends object
+  ? T | Readonly<T> | RoObject<T> | Readonly<RoObject<T>>
+  : T;
+type RoArray<T> = Ro<T>[];
+type RoObject<T> = { [K in keyof T]: T[K] | Ro<T[K]> };

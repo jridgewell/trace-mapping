@@ -12,6 +12,7 @@ import type {
   SectionedSourceMap,
   DecodedSourceMap,
   SectionedSourceMapInput,
+  Ro,
 } from './types';
 import type { SourceMapSegment } from './sourcemap-segment';
 
@@ -46,7 +47,7 @@ export const AnyMap: AnyMap = function (map, mapUrl) {
 } as AnyMap;
 
 function recurse(
-  input: SectionedSourceMap,
+  input: Ro<SectionedSourceMap>,
   mapUrl: string | null | undefined,
   mappings: SourceMapSegment[][],
   sources: string[],
@@ -90,7 +91,7 @@ function recurse(
 }
 
 function addSection(
-  input: Section['map'],
+  input: Ro<Section['map']>,
   mapUrl: string | null | undefined,
   mappings: SourceMapSegment[][],
   sources: string[],
