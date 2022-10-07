@@ -12,6 +12,7 @@ import {
   found as bsFound,
 } from './binary-search';
 import {
+  COLUMN,
   SOURCES_INDEX,
   SOURCE_LINE,
   SOURCE_COLUMN,
@@ -34,6 +35,7 @@ import type {
   SourceNeedle,
   SourceMap,
   EachMapping,
+  Bias,
 } from './types';
 import type { Source } from './by-source';
 import type { MemoState } from './binary-search';
@@ -58,6 +60,7 @@ const COL_GTR_EQ_ZERO = '`column` must be greater than or equal to 0 (columns st
 
 export const LEAST_UPPER_BOUND = -1;
 export const GREATEST_LOWER_BOUND = 1;
+const ALL_BOUND = 0;
 
 /**
  * Returns the encoded (VLQ string) form of the SourceMap's mappings field.
@@ -90,11 +93,7 @@ export let originalPositionFor: (
 ) => OriginalMapping | InvalidOriginalMapping;
 
 /**
- * Finds the source/line/column directly after the mapping returned by originalPositionFor, provided
- * the found mapping is from the same source and line as the originalPositionFor mapping.
- *
- * Eg, in the code `let id = 1`, `originalPositionAfter` could find the mapping associated with `1`
- * using the same needle that would return `id` when calling `originalPositionFor`.
+ * Finds the generated line/column position of the provided source/line/column source position.
  */
 export let generatedPositionFor: (
   map: TraceMap,
@@ -102,12 +101,9 @@ export let generatedPositionFor: (
 ) => GeneratedMapping | InvalidGeneratedMapping;
 
 /**
- * Finds all source/line/columns that correspond to the provided source position.
+ * Finds all generated line/column positions of the provided source/line/column source position.
  */
-export let allGeneratedPositionsFor: (
-  map: TraceMap,
-  needle: SourceNeedle,
-) => GeneratedMapping[];
+export let allGeneratedPositionsFor: (map: TraceMap, needle: SourceNeedle) => GeneratedMapping[];
 
 /**
  * Iterates each mapping in generated position order.
@@ -206,15 +202,16 @@ export class TraceMap implements SourceMap {
       // mapping (like a "//# sourceMappingURL=") at the end of the child file.
       if (line >= decoded.length) return null;
 
+      const segments = decoded[line];
       const index = traceSegmentInternal(
-        decoded[line],
+        segments,
         map._decodedMemo,
         line,
         column,
         GREATEST_LOWER_BOUND,
       );
 
-      return index == null ? null : decoded[line][index];
+      return index === -1 ? null : segments[index];
     };
 
     originalPositionFor = (map, { line, column, bias }) => {
@@ -228,18 +225,19 @@ export class TraceMap implements SourceMap {
       // mapping (like a "//# sourceMappingURL=") at the end of the child file.
       if (line >= decoded.length) return OMapping(null, null, null, null);
 
+      const segments = decoded[line];
       const index = traceSegmentInternal(
-        decoded[line],
+        segments,
         map._decodedMemo,
         line,
         column,
         bias || GREATEST_LOWER_BOUND,
       );
 
-      if (index == null) return OMapping(null, null, null, null);
+      if (index === -1) return OMapping(null, null, null, null);
 
-      const segment = decoded[line][index];
-      if (segment.length == 1) return OMapping(null, null, null, null);
+      const segment = segments[index];
+      if (segment.length === 1) return OMapping(null, null, null, null);
 
       const { names, resolvedSources } = map;
       return OMapping(
@@ -251,55 +249,11 @@ export class TraceMap implements SourceMap {
     };
 
     allGeneratedPositionsFor = (map, { source, line, column }) => {
-      line--;
-      const components = getNeedleComponents(map, source, line, column);
-      if (components == null) return [];
-
-      let min = traceSegmentInternal(
-        components.segments,
-        components.memo,
-        line,
-        column,
-        GREATEST_LOWER_BOUND,
-      );
-      const max = traceSegmentInternal(
-        components.segments,
-        components.memo,
-        line,
-        column,
-        LEAST_UPPER_BOUND,
-      );
-
-      if (min == null || max == null) {
-        return [];
-      }
-
-      const result = [];
-      for (; min <= max; min++) {
-        const segment = components.segments[min];
-        result.push(GMapping(segment[REV_GENERATED_LINE] + 1, segment[REV_GENERATED_COLUMN]));
-      }
-
-      return result;
+      return generatedPosition(map, source, line, column, ALL_BOUND);
     };
 
     generatedPositionFor = (map, { source, line, column, bias }) => {
-      line--;
-      const components = getNeedleComponents(map, source, line, column);
-      if (components == null) return GMapping(null, null);
-
-      const index = traceSegmentInternal(
-        components.segments,
-        components.memo,
-        line,
-        column,
-        bias || GREATEST_LOWER_BOUND,
-      );
-
-      if (index == null) return GMapping(null, null);
-
-      const segment = components.segments[index];
-      return GMapping(segment[REV_GENERATED_LINE] + 1, segment[REV_GENERATED_COLUMN]);
+      return generatedPosition(map, source, line, column, bias || GREATEST_LOWER_BOUND);
     };
 
     eachMapping = (map, cb) => {
@@ -360,22 +314,53 @@ export class TraceMap implements SourceMap {
       return clone(map, encodedMappings(map));
     };
 
-    function getNeedleComponents(map: TraceMap, source: string, line: number, column: number) {
+    function generatedPosition(
+      map: TraceMap,
+      source: string,
+      line: number,
+      column: number,
+      bias: Bias,
+    ): GeneratedMapping | InvalidGeneratedMapping;
+    function generatedPosition(
+      map: TraceMap,
+      source: string,
+      line: number,
+      column: number,
+      bias: 0,
+    ): GeneratedMapping[];
+    function generatedPosition(
+      map: TraceMap,
+      source: string,
+      line: number,
+      column: number,
+      bias: Bias | 0,
+    ): GeneratedMapping | InvalidGeneratedMapping | GeneratedMapping[] {
+      line--;
       if (line < 0) throw new Error(LINE_GTR_ZERO);
       if (column < 0) throw new Error(COL_GTR_EQ_ZERO);
 
       const { sources, resolvedSources } = map;
       let sourceIndex = sources.indexOf(source);
       if (sourceIndex === -1) sourceIndex = resolvedSources.indexOf(source);
-      if (sourceIndex === -1) return null;
+      if (sourceIndex === -1) return bias === ALL_BOUND ? [] : GMapping(null, null);
 
       const generated = (map._bySources ||= buildBySources(
         decodedMappings(map),
         (map._bySourceMemos = sources.map(memoizedState)),
       ));
-      const memo = map._bySourceMemos![sourceIndex];
+
       const segments = generated[sourceIndex][line];
-      return segments ? { memo, segments } : null;
+      if (segments == null) return bias === ALL_BOUND ? [] : GMapping(null, null);
+
+      const memo = map._bySourceMemos![sourceIndex];
+
+      if (bias === ALL_BOUND) return sliceGeneratedPositions(segments, memo, line, column);
+
+      const index = traceSegmentInternal(segments, memo, line, column, bias);
+      if (index === -1) return GMapping(null, null);
+
+      const segment = segments[index];
+      return GMapping(segment[REV_GENERATED_LINE] + 1, segment[REV_GENERATED_COLUMN]);
     }
   }
 }
@@ -395,18 +380,13 @@ function clone<T extends string | readonly SourceMapSegment[][]>(
   } as any;
 }
 
-function OMapping(
-  source: null,
-  line: null,
-  column: null,
-  name: null,
-): OriginalMapping | InvalidOriginalMapping;
+function OMapping(source: null, line: null, column: null, name: null): InvalidOriginalMapping;
 function OMapping(
   source: string,
   line: number,
   column: number,
   name: string | null,
-): OriginalMapping | InvalidOriginalMapping;
+): OriginalMapping;
 function OMapping(
   source: string | null,
   line: number | null,
@@ -430,27 +410,53 @@ function traceSegmentInternal(
   memo: MemoState,
   line: number,
   column: number,
-  bias: typeof LEAST_UPPER_BOUND | typeof GREATEST_LOWER_BOUND,
-): number | null;
+  bias: Bias,
+): number;
 function traceSegmentInternal(
   segments: ReverseSegment[],
   memo: MemoState,
   line: number,
   column: number,
-  bias: typeof LEAST_UPPER_BOUND | typeof GREATEST_LOWER_BOUND,
-): number | null;
+  bias: Bias,
+): number;
 function traceSegmentInternal(
   segments: SourceMapSegment[] | ReverseSegment[],
   memo: MemoState,
   line: number,
   column: number,
-  bias: typeof LEAST_UPPER_BOUND | typeof GREATEST_LOWER_BOUND,
-): number | null {
+  bias: Bias,
+): number {
   let index = memoizedBinarySearch(segments, column, memo, line);
   if (bsFound) {
     index = (bias === LEAST_UPPER_BOUND ? upperBound : lowerBound)(segments, column, index);
   } else if (bias === LEAST_UPPER_BOUND) index++;
 
-  if (index === -1 || index === segments.length) return null;
+  if (index === -1 || index === segments.length) return -1;
   return index;
+}
+
+function sliceGeneratedPositions(
+  segments: ReverseSegment[],
+  memo: MemoState,
+  line: number,
+  column: number,
+): GeneratedMapping[] {
+  let min = traceSegmentInternal(segments, memo, line, column, GREATEST_LOWER_BOUND);
+  if (min === -1) return [];
+
+  // We may have found the segment that started at an earlier column. If this is the case, then we
+  // need to slice all generated segments that match _that_ column, because all such segments span
+  // to our desired column.
+  const matchedColumn = bsFound ? column : segments[min][COLUMN];
+
+  // The binary search is not guaranteed to find the lower bound when a match wasn't found.
+  if (!bsFound) min = lowerBound(segments, matchedColumn, min);
+  const max = upperBound(segments, matchedColumn, min);
+
+  const result = [];
+  for (; min <= max; min++) {
+    const segment = segments[min];
+    result.push(GMapping(segment[REV_GENERATED_LINE] + 1, segment[REV_GENERATED_COLUMN]));
+  }
+  return result;
 }

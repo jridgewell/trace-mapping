@@ -1,5 +1,5 @@
 import type { SourceMapSegment } from './sourcemap-segment';
-import type { TraceMap } from './trace-mapping';
+import type { GREATEST_LOWER_BOUND, LEAST_UPPER_BOUND, TraceMap } from './trace-mapping';
 
 export interface SourceMapV3 {
   file?: string | null;
@@ -55,11 +55,13 @@ export type InvalidGeneratedMapping = {
   column: null;
 };
 
+export type Bias = typeof GREATEST_LOWER_BOUND | typeof LEAST_UPPER_BOUND;
+
 export type SourceMapInput = string | EncodedSourceMap | DecodedSourceMap | TraceMap;
 export type SectionedSourceMapInput = SourceMapInput | SectionedSourceMap;
 
-export type Needle = { line: number; column: number; bias?: 1 | -1 };
-export type SourceNeedle = { source: string; line: number; column: number; bias?: 1 | -1 };
+export type Needle = { line: number; column: number; bias?: Bias };
+export type SourceNeedle = { source: string; line: number; column: number; bias?: Bias };
 
 export type EachMapping =
   | {
