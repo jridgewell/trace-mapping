@@ -4,8 +4,7 @@ export default {
   },
   nodeArguments: [
     '--no-warnings',
-    '--loader=esbuild-node-loader',
-    '--experimental-specifier-resolution=node',
+    '--loader=tsx',
   ],
   files: ['test/**/*.test.ts'],
 };

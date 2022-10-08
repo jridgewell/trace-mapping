@@ -349,10 +349,9 @@ describe('TraceMap', () => {
           [{ line: 1, column: 18 }],
         );
 
-        t.deepEqual(
-          allGeneratedPositionsFor(tracer, { source: 'input.js', line: 1, column: 10 }),
-          [{ line: 1, column: 9 }],
-        );
+        t.deepEqual(allGeneratedPositionsFor(tracer, { source: 'input.js', line: 1, column: 10 }), [
+          { line: 1, column: 9 },
+        ]);
       });
     };
   }
