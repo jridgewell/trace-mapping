@@ -159,7 +159,7 @@ export class TraceMap implements SourceMap {
 
     if (!isString && (map as unknown as { _decodedMemo: any })._decodedMemo) return map as TraceMap;
 
-    const parsed = (isString ? JSON.parse(map) : map) as Exclude<SourceMapInput, string | TraceMap>;
+    const parsed = (isString ? JSON.parse(map) : map) as DecodedSourceMap | EncodedSourceMap;
 
     const { version, file, names, sourceRoot, sources, sourcesContent } = parsed;
     this.version = version;

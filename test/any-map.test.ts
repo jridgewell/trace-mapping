@@ -3,7 +3,7 @@
 import { test, describe } from './setup';
 import { AnyMap, encodedMappings, decodedMappings } from '../src/trace-mapping';
 
-import type { SectionedSourceMap } from '../src/trace-mapping';
+import type { SectionedSourceMap, SourceMapSegment } from '../src/trace-mapping';
 
 describe('AnyMap', () => {
   const map: SectionedSourceMap = {
@@ -124,6 +124,23 @@ describe('AnyMap', () => {
         'thirdsource',
         'fourthsource',
       ]);
+    });
+  });
+
+  describe('typescript readonly type', () => {
+    test('decoded source map', (t) => {
+      // This is a TS lint test, not a real one.
+      t.pass();
+
+      const decodedMap = {
+        version: 3 as const,
+        sources: ['input.js'] as readonly string[],
+        names: [] as readonly string[],
+        mappings: [] as readonly SourceMapSegment[][],
+        sourcesContent: [] as readonly string[],
+      };
+
+      new AnyMap(decodedMap);
     });
   });
 });

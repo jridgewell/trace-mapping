@@ -24,6 +24,7 @@ import type {
   EncodedSourceMap,
   DecodedSourceMap,
   EachMapping,
+  SourceMapSegment,
 } from '../src/trace-mapping';
 
 describe('TraceMap', () => {
@@ -460,6 +461,23 @@ describe('TraceMap', () => {
       const tracer = presortedDecodedMap(map);
 
       t.is(encodedMappings(tracer), '');
+    });
+  });
+
+  describe('typescript readonly type', () => {
+    test('decoded source map', (t) => {
+      // This is a TS lint test, not a real one.
+      t.pass();
+
+      const decodedMap = {
+        version: 3 as const,
+        sources: ['input.js'] as readonly string[],
+        names: [] as readonly string[],
+        mappings: [] as readonly SourceMapSegment[][],
+        sourcesContent: [] as readonly string[],
+      };
+
+      new TraceMap(decodedMap);
     });
   });
 });
