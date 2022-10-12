@@ -60,7 +60,6 @@ const COL_GTR_EQ_ZERO = '`column` must be greater than or equal to 0 (columns st
 
 export const LEAST_UPPER_BOUND = -1;
 export const GREATEST_LOWER_BOUND = 1;
-const ALL_BOUND = 0;
 
 /**
  * Returns the encoded (VLQ string) form of the SourceMap's mappings field.
@@ -248,12 +247,13 @@ export class TraceMap implements SourceMap {
       );
     };
 
-    allGeneratedPositionsFor = (map, { source, line, column }) => {
-      return generatedPosition(map, source, line, column, ALL_BOUND);
+    allGeneratedPositionsFor = (map, { source, line, column, bias }) => {
+      // SourceMapConsumer uses LEAST_UPPER_BOUND for some reason, so we follow suit.
+      return generatedPosition(map, source, line, column, bias || LEAST_UPPER_BOUND, true);
     };
 
     generatedPositionFor = (map, { source, line, column, bias }) => {
-      return generatedPosition(map, source, line, column, bias || GREATEST_LOWER_BOUND);
+      return generatedPosition(map, source, line, column, bias || GREATEST_LOWER_BOUND, false);
     };
 
     eachMapping = (map, cb) => {
@@ -320,20 +320,23 @@ export class TraceMap implements SourceMap {
       line: number,
       column: number,
       bias: Bias,
+      all: false,
     ): GeneratedMapping | InvalidGeneratedMapping;
     function generatedPosition(
       map: TraceMap,
       source: string,
       line: number,
       column: number,
-      bias: 0,
+      bias: Bias,
+      all: true,
     ): GeneratedMapping[];
     function generatedPosition(
       map: TraceMap,
       source: string,
       line: number,
       column: number,
-      bias: Bias | 0,
+      bias: Bias,
+      all: boolean,
     ): GeneratedMapping | InvalidGeneratedMapping | GeneratedMapping[] {
       line--;
       if (line < 0) throw new Error(LINE_GTR_ZERO);
@@ -342,7 +345,7 @@ export class TraceMap implements SourceMap {
       const { sources, resolvedSources } = map;
       let sourceIndex = sources.indexOf(source);
       if (sourceIndex === -1) sourceIndex = resolvedSources.indexOf(source);
-      if (sourceIndex === -1) return bias === ALL_BOUND ? [] : GMapping(null, null);
+      if (sourceIndex === -1) return all ? [] : GMapping(null, null);
 
       const generated = (map._bySources ||= buildBySources(
         decodedMappings(map),
@@ -350,11 +353,11 @@ export class TraceMap implements SourceMap {
       ));
 
       const segments = generated[sourceIndex][line];
-      if (segments == null) return bias === ALL_BOUND ? [] : GMapping(null, null);
+      if (segments == null) return all ? [] : GMapping(null, null);
 
       const memo = map._bySourceMemos![sourceIndex];
 
-      if (bias === ALL_BOUND) return sliceGeneratedPositions(segments, memo, line, column);
+      if (all) return sliceGeneratedPositions(segments, memo, line, column, bias);
 
       const index = traceSegmentInternal(segments, memo, line, column, bias);
       if (index === -1) return GMapping(null, null);
@@ -440,9 +443,19 @@ function sliceGeneratedPositions(
   memo: MemoState,
   line: number,
   column: number,
+  bias: Bias,
 ): GeneratedMapping[] {
   let min = traceSegmentInternal(segments, memo, line, column, GREATEST_LOWER_BOUND);
-  if (min === -1) return [];
+
+  // We ignored the bias when tracing the segment so that we're guarnateed to find the first (in
+  // insertion order) segment that matched. Even if we did respect the bias when tracing, we would
+  // still need to call `lowerBound()` to find the first segment, which is slower than just looking
+  // for the GREATEST_LOWER_BOUND to begin with. The only difference that matters for us is when the
+  // binary search didn't match, in which case GREATEST_LOWER_BOUND just needs to increment to
+  // match LEAST_UPPER_BOUND.
+  if (!bsFound && bias === LEAST_UPPER_BOUND) min++;
+
+  if (min === -1 || min === segments.length) return [];
 
   // We may have found the segment that started at an earlier column. If this is the case, then we
   // need to slice all generated segments that match _that_ column, because all such segments span

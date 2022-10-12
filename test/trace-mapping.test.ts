@@ -322,6 +322,34 @@ describe('TraceMap', () => {
             column: 9,
           }),
           [
+            { line: 2, column: 8 },
+            { line: 2, column: 17 },
+            { line: 2, column: 32 },
+          ],
+        );
+
+        t.deepEqual(
+          allGeneratedPositionsFor(tracer, {
+            source: 'input.js',
+            line: 2,
+            column: 9,
+            bias: LEAST_UPPER_BOUND,
+          }),
+          [
+            { line: 2, column: 8 },
+            { line: 2, column: 17 },
+            { line: 2, column: 32 },
+          ],
+        );
+
+        t.deepEqual(
+          allGeneratedPositionsFor(tracer, {
+            source: 'input.js',
+            line: 2,
+            column: 9,
+            bias: GREATEST_LOWER_BOUND,
+          }),
+          [
             { line: 2, column: 4 },
             { line: 2, column: 33 },
           ],
@@ -341,17 +369,31 @@ describe('TraceMap', () => {
         );
 
         t.deepEqual(
+          allGeneratedPositionsFor(tracer, {
+            source: 'input.js',
+            line: 2,
+            column: 10,
+            bias: GREATEST_LOWER_BOUND,
+          }),
+          [
+            { line: 2, column: 8 },
+            { line: 2, column: 17 },
+            { line: 2, column: 32 },
+          ],
+        );
+
+        t.deepEqual(
           allGeneratedPositionsFor(tracer, { source: 'input.js', line: 100, column: 13 }),
           [],
         );
 
         t.deepEqual(
           allGeneratedPositionsFor(tracer, { source: 'input.js', line: 1, column: 100 }),
-          [{ line: 1, column: 18 }],
+          [],
         );
 
         t.deepEqual(allGeneratedPositionsFor(tracer, { source: 'input.js', line: 1, column: 10 }), [
-          { line: 1, column: 9 },
+          { line: 1, column: 13 },
         ]);
       });
     };
