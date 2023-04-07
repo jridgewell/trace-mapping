@@ -8,7 +8,7 @@
   ],
   "main": "dist/trace-mapping.umd.js",
   "module": "dist/trace-mapping.mjs",
-  "typings": "dist/types/trace-mapping.d.ts",
+  "types": "dist/types/trace-mapping.d.ts",
   "files": [
     "dist"
   ],
