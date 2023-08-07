@@ -69,7 +69,7 @@
     "typescript": "4.8.4"
   },
   "dependencies": {
-    "@jridgewell/resolve-uri": "3.1.0",
-    "@jridgewell/sourcemap-codec": "1.4.14"
+    "@jridgewell/resolve-uri": "^3.1.0",
+    "@jridgewell/sourcemap-codec": "^1.4.14"
   }
 }
