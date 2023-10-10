@@ -163,7 +163,7 @@ export class TraceMap implements SourceMap {
     const { version, file, names, sourceRoot, sources, sourcesContent } = parsed;
     this.version = version;
     this.file = file;
-    this.names = names;
+    this.names = names || [];
     this.sourceRoot = sourceRoot;
     this.sources = sources;
     this.sourcesContent = sourcesContent;
