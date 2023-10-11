@@ -58,7 +58,6 @@ describe('AnyMap', () => {
               offset: { line: 0, column: 1 },
               map: {
                 version: 3,
-                names: [],
                 sources: ['fourth.js'],
                 sourcesContent: ['fourthsource'],
                 mappings: 'AAAA',
