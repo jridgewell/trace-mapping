@@ -41,19 +41,7 @@ import type { Source } from './by-source';
 import type { MemoState } from './binary-search';
 
 export type { SourceMapSegment } from './sourcemap-segment';
-export type {
-  SourceMapInput,
-  SectionedSourceMapInput,
-  DecodedSourceMap,
-  EncodedSourceMap,
-  SectionedSourceMap,
-  InvalidOriginalMapping,
-  OriginalMapping as Mapping,
-  OriginalMapping,
-  InvalidGeneratedMapping,
-  GeneratedMapping,
-  EachMapping,
-} from './types';
+export type * from './types';
 
 const LINE_GTR_ZERO = '`line` must be greater than 0 (lines start at line 1)';
 const COL_GTR_EQ_ZERO = '`column` must be greater than or equal to 0 (columns start at column 0)';
