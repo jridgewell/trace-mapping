@@ -1,6 +1,6 @@
 /// <reference lib="esnext" />
 
-import { test, describe } from './setup';
+import { strict as assert } from 'assert';
 import { AnyMap, encodedMappings, decodedMappings } from '../src/trace-mapping';
 
 import type { SectionedSourceMap, SourceMapSegment } from '../src/trace-mapping';
@@ -70,39 +70,39 @@ describe('AnyMap', () => {
   };
 
   describe('map properties', () => {
-    test('version', (t) => {
+    it('version', () => {
       const tracer = new AnyMap(map);
-      t.is(tracer.version, map.version);
+      assert.equal(tracer.version, map.version);
     });
 
-    test('file', (t) => {
+    it('file', () => {
       const tracer = new AnyMap(map);
-      t.is(tracer.file, map.file);
+      assert.equal(tracer.file, map.file);
     });
 
-    test('sourceRoot', (t) => {
+    it('sourceRoot', () => {
       const tracer = new AnyMap(map);
-      t.is(tracer.sourceRoot, undefined);
+      assert.equal(tracer.sourceRoot, undefined);
     });
 
-    test('sources', (t) => {
+    it('sources', () => {
       const tracer = new AnyMap(map);
-      t.deepEqual(tracer.sources, ['first.js', 'second.js', 'nested/third.js', 'fourth.js']);
+      assert.deepEqual(tracer.sources, ['first.js', 'second.js', 'nested/third.js', 'fourth.js']);
     });
 
-    test('names', (t) => {
+    it('names', () => {
       const tracer = new AnyMap(map);
-      t.deepEqual(tracer.names, ['first', 'second', 'third']);
+      assert.deepEqual(tracer.names, ['first', 'second', 'third']);
     });
 
-    test('encodedMappings', (t) => {
+    it('encodedMappings', () => {
       const tracer = new AnyMap(map);
-      t.is(encodedMappings(tracer), ';EAAAA,CCAAC;ACAAC,CCAA');
+      assert.equal(encodedMappings(tracer), ';EAAAA,CCAAC;ACAAC,CCAA');
     });
 
-    test('decodedMappings', (t) => {
+    it('decodedMappings', () => {
       const tracer = new AnyMap(map);
-      t.deepEqual(decodedMappings(tracer), [
+      assert.deepEqual(decodedMappings(tracer), [
         [],
         [
           [2, 0, 0, 0, 0],
@@ -115,9 +115,9 @@ describe('AnyMap', () => {
       ]);
     });
 
-    test('sourcesContent', (t) => {
+    it('sourcesContent', () => {
       const tracer = new AnyMap(map);
-      t.deepEqual(tracer.sourcesContent, [
+      assert.deepEqual(tracer.sourcesContent, [
         'firstsource',
         'secondsource',
         'thirdsource',
@@ -127,10 +127,8 @@ describe('AnyMap', () => {
   });
 
   describe('typescript readonly type', () => {
-    test('decoded source map', (t) => {
+    it('decoded source map', () => {
       // This is a TS lint test, not a real one.
-      t.pass();
-
       const decodedMap = {
         version: 3 as const,
         sources: ['input.js'] as readonly string[],

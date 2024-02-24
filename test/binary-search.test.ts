@@ -1,378 +1,378 @@
+import { strict as assert } from 'assert';
 import { binarySearch, found, memoizedState, memoizedBinarySearch } from '../src/binary-search';
-import { test, describe } from './setup';
 
 type SourceMapSegment = [number];
 
 describe('binary search', () => {
-  test('returns index of match', (t) => {
+  it('returns index of match', () => {
     const array: SourceMapSegment[] = [];
 
     array.push([0]);
-    t.is(binarySearch(array, 0, 0, array.length - 1), 0);
+    assert.equal(binarySearch(array, 0, 0, array.length - 1), 0);
 
     array.push([1]);
-    t.is(binarySearch(array, 0, 0, array.length - 1), 0);
-    t.is(binarySearch(array, 1, 0, array.length - 1), 1);
+    assert.equal(binarySearch(array, 0, 0, array.length - 1), 0);
+    assert.equal(binarySearch(array, 1, 0, array.length - 1), 1);
 
     array.push([2]);
-    t.is(binarySearch(array, 0, 0, array.length - 1), 0);
-    t.is(binarySearch(array, 1, 0, array.length - 1), 1);
-    t.is(binarySearch(array, 2, 0, array.length - 1), 2);
+    assert.equal(binarySearch(array, 0, 0, array.length - 1), 0);
+    assert.equal(binarySearch(array, 1, 0, array.length - 1), 1);
+    assert.equal(binarySearch(array, 2, 0, array.length - 1), 2);
 
     array.push([3]);
-    t.is(binarySearch(array, 0, 0, array.length - 1), 0);
-    t.is(binarySearch(array, 1, 0, array.length - 1), 1);
-    t.is(binarySearch(array, 2, 0, array.length - 1), 2);
-    t.is(binarySearch(array, 3, 0, array.length - 1), 3);
+    assert.equal(binarySearch(array, 0, 0, array.length - 1), 0);
+    assert.equal(binarySearch(array, 1, 0, array.length - 1), 1);
+    assert.equal(binarySearch(array, 2, 0, array.length - 1), 2);
+    assert.equal(binarySearch(array, 3, 0, array.length - 1), 3);
 
     array.push([4]);
-    t.is(binarySearch(array, 0, 0, array.length - 1), 0);
-    t.is(binarySearch(array, 1, 0, array.length - 1), 1);
-    t.is(binarySearch(array, 2, 0, array.length - 1), 2);
-    t.is(binarySearch(array, 3, 0, array.length - 1), 3);
-    t.is(binarySearch(array, 4, 0, array.length - 1), 4);
+    assert.equal(binarySearch(array, 0, 0, array.length - 1), 0);
+    assert.equal(binarySearch(array, 1, 0, array.length - 1), 1);
+    assert.equal(binarySearch(array, 2, 0, array.length - 1), 2);
+    assert.equal(binarySearch(array, 3, 0, array.length - 1), 3);
+    assert.equal(binarySearch(array, 4, 0, array.length - 1), 4);
 
     array.push([5]);
-    t.is(binarySearch(array, 0, 0, array.length - 1), 0);
-    t.is(binarySearch(array, 1, 0, array.length - 1), 1);
-    t.is(binarySearch(array, 2, 0, array.length - 1), 2);
-    t.is(binarySearch(array, 3, 0, array.length - 1), 3);
-    t.is(binarySearch(array, 4, 0, array.length - 1), 4);
-    t.is(binarySearch(array, 5, 0, array.length - 1), 5);
+    assert.equal(binarySearch(array, 0, 0, array.length - 1), 0);
+    assert.equal(binarySearch(array, 1, 0, array.length - 1), 1);
+    assert.equal(binarySearch(array, 2, 0, array.length - 1), 2);
+    assert.equal(binarySearch(array, 3, 0, array.length - 1), 3);
+    assert.equal(binarySearch(array, 4, 0, array.length - 1), 4);
+    assert.equal(binarySearch(array, 5, 0, array.length - 1), 5);
   });
 
-  test('for non-match returns index for value lower than needle', (t) => {
+  it('for non-match returns index for value lower than needle', () => {
     // Test middles, which have a number left and right of index.
     const array: SourceMapSegment[] = [];
 
     array.push([0]);
-    t.is(binarySearch(array, -1, 0, array.length - 1), -1);
-    t.is(binarySearch(array, 1, 0, array.length - 1), 0);
+    assert.equal(binarySearch(array, -1, 0, array.length - 1), -1);
+    assert.equal(binarySearch(array, 1, 0, array.length - 1), 0);
 
     array.push([2]);
-    t.is(binarySearch(array, -1, 0, array.length - 1), -1);
-    t.is(binarySearch(array, 1, 0, array.length - 1), 0);
-    t.is(binarySearch(array, 3, 0, array.length - 1), 1);
+    assert.equal(binarySearch(array, -1, 0, array.length - 1), -1);
+    assert.equal(binarySearch(array, 1, 0, array.length - 1), 0);
+    assert.equal(binarySearch(array, 3, 0, array.length - 1), 1);
 
     array.push([4]);
-    t.is(binarySearch(array, -1, 0, array.length - 1), -1);
-    t.is(binarySearch(array, 1, 0, array.length - 1), 0);
-    t.is(binarySearch(array, 3, 0, array.length - 1), 1);
-    t.is(binarySearch(array, 5, 0, array.length - 1), 2);
+    assert.equal(binarySearch(array, -1, 0, array.length - 1), -1);
+    assert.equal(binarySearch(array, 1, 0, array.length - 1), 0);
+    assert.equal(binarySearch(array, 3, 0, array.length - 1), 1);
+    assert.equal(binarySearch(array, 5, 0, array.length - 1), 2);
 
     array.push([6]);
-    t.is(binarySearch(array, -1, 0, array.length - 1), -1);
-    t.is(binarySearch(array, 1, 0, array.length - 1), 0);
-    t.is(binarySearch(array, 3, 0, array.length - 1), 1);
-    t.is(binarySearch(array, 5, 0, array.length - 1), 2);
-    t.is(binarySearch(array, 7, 0, array.length - 1), 3);
+    assert.equal(binarySearch(array, -1, 0, array.length - 1), -1);
+    assert.equal(binarySearch(array, 1, 0, array.length - 1), 0);
+    assert.equal(binarySearch(array, 3, 0, array.length - 1), 1);
+    assert.equal(binarySearch(array, 5, 0, array.length - 1), 2);
+    assert.equal(binarySearch(array, 7, 0, array.length - 1), 3);
 
     array.push([8]);
-    t.is(binarySearch(array, -1, 0, array.length - 1), -1);
-    t.is(binarySearch(array, 1, 0, array.length - 1), 0);
-    t.is(binarySearch(array, 3, 0, array.length - 1), 1);
-    t.is(binarySearch(array, 5, 0, array.length - 1), 2);
-    t.is(binarySearch(array, 7, 0, array.length - 1), 3);
-    t.is(binarySearch(array, 9, 0, array.length - 1), 4);
+    assert.equal(binarySearch(array, -1, 0, array.length - 1), -1);
+    assert.equal(binarySearch(array, 1, 0, array.length - 1), 0);
+    assert.equal(binarySearch(array, 3, 0, array.length - 1), 1);
+    assert.equal(binarySearch(array, 5, 0, array.length - 1), 2);
+    assert.equal(binarySearch(array, 7, 0, array.length - 1), 3);
+    assert.equal(binarySearch(array, 9, 0, array.length - 1), 4);
 
     array.push([10]);
-    t.is(binarySearch(array, -1, 0, array.length - 1), -1);
-    t.is(binarySearch(array, 1, 0, array.length - 1), 0);
-    t.is(binarySearch(array, 3, 0, array.length - 1), 1);
-    t.is(binarySearch(array, 5, 0, array.length - 1), 2);
-    t.is(binarySearch(array, 7, 0, array.length - 1), 3);
-    t.is(binarySearch(array, 9, 0, array.length - 1), 4);
-    t.is(binarySearch(array, 11, 0, array.length - 1), 5);
+    assert.equal(binarySearch(array, -1, 0, array.length - 1), -1);
+    assert.equal(binarySearch(array, 1, 0, array.length - 1), 0);
+    assert.equal(binarySearch(array, 3, 0, array.length - 1), 1);
+    assert.equal(binarySearch(array, 5, 0, array.length - 1), 2);
+    assert.equal(binarySearch(array, 7, 0, array.length - 1), 3);
+    assert.equal(binarySearch(array, 9, 0, array.length - 1), 4);
+    assert.equal(binarySearch(array, 11, 0, array.length - 1), 5);
   });
 
-  test('needle is lower than all elements returns -1', (t) => {
+  it('needle is lower than all elements returns -1', () => {
     const array: SourceMapSegment[] = [];
     const needle = -1;
 
     array.push([0]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), -1);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), -1);
 
     array.push([1]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), -1);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), -1);
 
     array.push([2]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), -1);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), -1);
 
     array.push([3]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), -1);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), -1);
 
     array.push([4]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), -1);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), -1);
 
     array.push([5]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), -1);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), -1);
   });
 
-  test('needle is higher than all elements returns last index', (t) => {
+  it('needle is higher than all elements returns last index', () => {
     const array: SourceMapSegment[] = [];
     const needle = 2 ** 16;
 
     array.push([0]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), array.length - 1);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), array.length - 1);
 
     array.push([1]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), array.length - 1);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), array.length - 1);
 
     array.push([2]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), array.length - 1);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), array.length - 1);
 
     array.push([3]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), array.length - 1);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), array.length - 1);
 
     array.push([4]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), array.length - 1);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), array.length - 1);
 
     array.push([5]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), array.length - 1);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), array.length - 1);
   });
 
-  test('empty array returns -1', (t) => {
+  it('empty array returns -1', () => {
     const array: SourceMapSegment[] = [];
 
-    t.is(binarySearch(array, -1, 0, array.length - 1), -1);
-    t.is(binarySearch(array, 0, 0, array.length - 1), -1);
-    t.is(binarySearch(array, 1, 0, array.length - 1), -1);
+    assert.equal(binarySearch(array, -1, 0, array.length - 1), -1);
+    assert.equal(binarySearch(array, 0, 0, array.length - 1), -1);
+    assert.equal(binarySearch(array, 1, 0, array.length - 1), -1);
   });
 
-  test('multiple items in array returns any match', (t) => {
+  it('multiple items in array returns any match', () => {
     const array: SourceMapSegment[] = [];
     const needle = 1;
 
     array.push([needle]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), 0);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), 0);
 
     array.push([needle]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), 0);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), 0);
 
     array.push([needle]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), 1);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), 1);
 
     array.push([needle]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), 1);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), 1);
 
     array.push([needle]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), 2);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), 2);
 
     array.push([needle]);
-    t.is(binarySearch(array, needle, 0, array.length - 1), 2);
+    assert.equal(binarySearch(array, needle, 0, array.length - 1), 2);
   });
 
   describe('low', () => {
-    test('low equals needle index returns needle index', (t) => {
+    it('low equals needle index returns needle index', () => {
       const array: SourceMapSegment[] = [];
 
       array.push([0]);
-      t.is(binarySearch(array, 0, 0, array.length - 1), 0);
+      assert.equal(binarySearch(array, 0, 0, array.length - 1), 0);
 
       array.push([1]);
-      t.is(binarySearch(array, 0, 0, array.length - 1), 0);
-      t.is(binarySearch(array, 1, 1, array.length - 1), 1);
+      assert.equal(binarySearch(array, 0, 0, array.length - 1), 0);
+      assert.equal(binarySearch(array, 1, 1, array.length - 1), 1);
 
       array.push([2]);
-      t.is(binarySearch(array, 0, 0, array.length - 1), 0);
-      t.is(binarySearch(array, 1, 1, array.length - 1), 1);
-      t.is(binarySearch(array, 2, 2, array.length - 1), 2);
+      assert.equal(binarySearch(array, 0, 0, array.length - 1), 0);
+      assert.equal(binarySearch(array, 1, 1, array.length - 1), 1);
+      assert.equal(binarySearch(array, 2, 2, array.length - 1), 2);
 
       array.push([3]);
-      t.is(binarySearch(array, 0, 0, array.length - 1), 0);
-      t.is(binarySearch(array, 1, 1, array.length - 1), 1);
-      t.is(binarySearch(array, 2, 2, array.length - 1), 2);
-      t.is(binarySearch(array, 3, 3, array.length - 1), 3);
+      assert.equal(binarySearch(array, 0, 0, array.length - 1), 0);
+      assert.equal(binarySearch(array, 1, 1, array.length - 1), 1);
+      assert.equal(binarySearch(array, 2, 2, array.length - 1), 2);
+      assert.equal(binarySearch(array, 3, 3, array.length - 1), 3);
 
       array.push([4]);
-      t.is(binarySearch(array, 0, 0, array.length - 1), 0);
-      t.is(binarySearch(array, 1, 1, array.length - 1), 1);
-      t.is(binarySearch(array, 2, 2, array.length - 1), 2);
-      t.is(binarySearch(array, 3, 3, array.length - 1), 3);
-      t.is(binarySearch(array, 4, 4, array.length - 1), 4);
+      assert.equal(binarySearch(array, 0, 0, array.length - 1), 0);
+      assert.equal(binarySearch(array, 1, 1, array.length - 1), 1);
+      assert.equal(binarySearch(array, 2, 2, array.length - 1), 2);
+      assert.equal(binarySearch(array, 3, 3, array.length - 1), 3);
+      assert.equal(binarySearch(array, 4, 4, array.length - 1), 4);
 
       array.push([5]);
-      t.is(binarySearch(array, 0, 0, array.length - 1), 0);
-      t.is(binarySearch(array, 1, 1, array.length - 1), 1);
-      t.is(binarySearch(array, 2, 2, array.length - 1), 2);
-      t.is(binarySearch(array, 3, 3, array.length - 1), 3);
-      t.is(binarySearch(array, 4, 4, array.length - 1), 4);
-      t.is(binarySearch(array, 5, 5, array.length - 1), 5);
+      assert.equal(binarySearch(array, 0, 0, array.length - 1), 0);
+      assert.equal(binarySearch(array, 1, 1, array.length - 1), 1);
+      assert.equal(binarySearch(array, 2, 2, array.length - 1), 2);
+      assert.equal(binarySearch(array, 3, 3, array.length - 1), 3);
+      assert.equal(binarySearch(array, 4, 4, array.length - 1), 4);
+      assert.equal(binarySearch(array, 5, 5, array.length - 1), 5);
     });
 
-    test('low higher than needle index returns left of high', (t) => {
+    it('low higher than needle index returns left of high', () => {
       const array: SourceMapSegment[] = [];
 
       array.push([0]);
 
       array.push([1]);
-      t.is(binarySearch(array, 0, 1, array.length - 1), 0);
+      assert.equal(binarySearch(array, 0, 1, array.length - 1), 0);
 
       array.push([2]);
-      t.is(binarySearch(array, 0, 1, array.length - 1), 0);
-      t.is(binarySearch(array, 0, 2, array.length - 1), 1);
-      t.is(binarySearch(array, 1, 2, array.length - 1), 1);
+      assert.equal(binarySearch(array, 0, 1, array.length - 1), 0);
+      assert.equal(binarySearch(array, 0, 2, array.length - 1), 1);
+      assert.equal(binarySearch(array, 1, 2, array.length - 1), 1);
 
       array.push([3]);
-      t.is(binarySearch(array, 0, 1, array.length - 1), 0);
-      t.is(binarySearch(array, 0, 2, array.length - 1), 1);
-      t.is(binarySearch(array, 0, 3, array.length - 1), 2);
-      t.is(binarySearch(array, 1, 2, array.length - 1), 1);
-      t.is(binarySearch(array, 1, 3, array.length - 1), 2);
-      t.is(binarySearch(array, 2, 3, array.length - 1), 2);
+      assert.equal(binarySearch(array, 0, 1, array.length - 1), 0);
+      assert.equal(binarySearch(array, 0, 2, array.length - 1), 1);
+      assert.equal(binarySearch(array, 0, 3, array.length - 1), 2);
+      assert.equal(binarySearch(array, 1, 2, array.length - 1), 1);
+      assert.equal(binarySearch(array, 1, 3, array.length - 1), 2);
+      assert.equal(binarySearch(array, 2, 3, array.length - 1), 2);
 
       array.push([4]);
-      t.is(binarySearch(array, 0, 1, array.length - 1), 0);
-      t.is(binarySearch(array, 0, 2, array.length - 1), 1);
-      t.is(binarySearch(array, 0, 3, array.length - 1), 2);
-      t.is(binarySearch(array, 0, 4, array.length - 1), 3);
-      t.is(binarySearch(array, 1, 2, array.length - 1), 1);
-      t.is(binarySearch(array, 1, 3, array.length - 1), 2);
-      t.is(binarySearch(array, 1, 4, array.length - 1), 3);
-      t.is(binarySearch(array, 2, 3, array.length - 1), 2);
-      t.is(binarySearch(array, 2, 4, array.length - 1), 3);
-      t.is(binarySearch(array, 3, 4, array.length - 1), 3);
+      assert.equal(binarySearch(array, 0, 1, array.length - 1), 0);
+      assert.equal(binarySearch(array, 0, 2, array.length - 1), 1);
+      assert.equal(binarySearch(array, 0, 3, array.length - 1), 2);
+      assert.equal(binarySearch(array, 0, 4, array.length - 1), 3);
+      assert.equal(binarySearch(array, 1, 2, array.length - 1), 1);
+      assert.equal(binarySearch(array, 1, 3, array.length - 1), 2);
+      assert.equal(binarySearch(array, 1, 4, array.length - 1), 3);
+      assert.equal(binarySearch(array, 2, 3, array.length - 1), 2);
+      assert.equal(binarySearch(array, 2, 4, array.length - 1), 3);
+      assert.equal(binarySearch(array, 3, 4, array.length - 1), 3);
     });
 
-    test('low lower than needle index returns needle index', (t) => {
+    it('low lower than needle index returns needle index', () => {
       const array: SourceMapSegment[] = [];
 
       array.push([0]);
 
       array.push([1]);
-      t.is(binarySearch(array, 1, 0, array.length - 1), 1);
+      assert.equal(binarySearch(array, 1, 0, array.length - 1), 1);
 
       array.push([2]);
-      t.is(binarySearch(array, 1, 0, array.length - 1), 1);
-      t.is(binarySearch(array, 2, 0, array.length - 1), 2);
-      t.is(binarySearch(array, 2, 1, array.length - 1), 2);
+      assert.equal(binarySearch(array, 1, 0, array.length - 1), 1);
+      assert.equal(binarySearch(array, 2, 0, array.length - 1), 2);
+      assert.equal(binarySearch(array, 2, 1, array.length - 1), 2);
 
       array.push([3]);
-      t.is(binarySearch(array, 1, 0, array.length - 1), 1);
-      t.is(binarySearch(array, 2, 0, array.length - 1), 2);
-      t.is(binarySearch(array, 2, 1, array.length - 1), 2);
-      t.is(binarySearch(array, 3, 0, array.length - 1), 3);
-      t.is(binarySearch(array, 3, 1, array.length - 1), 3);
-      t.is(binarySearch(array, 3, 2, array.length - 1), 3);
+      assert.equal(binarySearch(array, 1, 0, array.length - 1), 1);
+      assert.equal(binarySearch(array, 2, 0, array.length - 1), 2);
+      assert.equal(binarySearch(array, 2, 1, array.length - 1), 2);
+      assert.equal(binarySearch(array, 3, 0, array.length - 1), 3);
+      assert.equal(binarySearch(array, 3, 1, array.length - 1), 3);
+      assert.equal(binarySearch(array, 3, 2, array.length - 1), 3);
 
       array.push([4]);
-      t.is(binarySearch(array, 1, 0, array.length - 1), 1);
-      t.is(binarySearch(array, 2, 0, array.length - 1), 2);
-      t.is(binarySearch(array, 2, 1, array.length - 1), 2);
-      t.is(binarySearch(array, 3, 0, array.length - 1), 3);
-      t.is(binarySearch(array, 3, 1, array.length - 1), 3);
-      t.is(binarySearch(array, 3, 2, array.length - 1), 3);
-      t.is(binarySearch(array, 4, 0, array.length - 1), 4);
-      t.is(binarySearch(array, 4, 1, array.length - 1), 4);
-      t.is(binarySearch(array, 4, 2, array.length - 1), 4);
-      t.is(binarySearch(array, 4, 3, array.length - 1), 4);
+      assert.equal(binarySearch(array, 1, 0, array.length - 1), 1);
+      assert.equal(binarySearch(array, 2, 0, array.length - 1), 2);
+      assert.equal(binarySearch(array, 2, 1, array.length - 1), 2);
+      assert.equal(binarySearch(array, 3, 0, array.length - 1), 3);
+      assert.equal(binarySearch(array, 3, 1, array.length - 1), 3);
+      assert.equal(binarySearch(array, 3, 2, array.length - 1), 3);
+      assert.equal(binarySearch(array, 4, 0, array.length - 1), 4);
+      assert.equal(binarySearch(array, 4, 1, array.length - 1), 4);
+      assert.equal(binarySearch(array, 4, 2, array.length - 1), 4);
+      assert.equal(binarySearch(array, 4, 3, array.length - 1), 4);
     });
   });
 
   describe('high', () => {
-    test('high equals needle index returns needle index', (t) => {
+    it('high equals needle index returns needle index', () => {
       const array: SourceMapSegment[] = [];
 
       array.push([0]);
-      t.is(binarySearch(array, 0, 0, 0), 0);
+      assert.equal(binarySearch(array, 0, 0, 0), 0);
 
       array.push([1]);
-      t.is(binarySearch(array, 0, 0, 0), 0);
-      t.is(binarySearch(array, 1, 0, 1), 1);
+      assert.equal(binarySearch(array, 0, 0, 0), 0);
+      assert.equal(binarySearch(array, 1, 0, 1), 1);
 
       array.push([2]);
-      t.is(binarySearch(array, 0, 0, 0), 0);
-      t.is(binarySearch(array, 1, 0, 1), 1);
-      t.is(binarySearch(array, 2, 0, 2), 2);
+      assert.equal(binarySearch(array, 0, 0, 0), 0);
+      assert.equal(binarySearch(array, 1, 0, 1), 1);
+      assert.equal(binarySearch(array, 2, 0, 2), 2);
 
       array.push([3]);
-      t.is(binarySearch(array, 0, 0, 0), 0);
-      t.is(binarySearch(array, 1, 0, 1), 1);
-      t.is(binarySearch(array, 2, 0, 2), 2);
-      t.is(binarySearch(array, 3, 0, 3), 3);
+      assert.equal(binarySearch(array, 0, 0, 0), 0);
+      assert.equal(binarySearch(array, 1, 0, 1), 1);
+      assert.equal(binarySearch(array, 2, 0, 2), 2);
+      assert.equal(binarySearch(array, 3, 0, 3), 3);
 
       array.push([4]);
-      t.is(binarySearch(array, 0, 0, 0), 0);
-      t.is(binarySearch(array, 1, 0, 1), 1);
-      t.is(binarySearch(array, 2, 0, 2), 2);
-      t.is(binarySearch(array, 3, 0, 3), 3);
-      t.is(binarySearch(array, 4, 0, 4), 4);
+      assert.equal(binarySearch(array, 0, 0, 0), 0);
+      assert.equal(binarySearch(array, 1, 0, 1), 1);
+      assert.equal(binarySearch(array, 2, 0, 2), 2);
+      assert.equal(binarySearch(array, 3, 0, 3), 3);
+      assert.equal(binarySearch(array, 4, 0, 4), 4);
 
       array.push([5]);
-      t.is(binarySearch(array, 0, 0, 0), 0);
-      t.is(binarySearch(array, 1, 0, 1), 1);
-      t.is(binarySearch(array, 2, 0, 2), 2);
-      t.is(binarySearch(array, 3, 0, 3), 3);
-      t.is(binarySearch(array, 4, 0, 4), 4);
-      t.is(binarySearch(array, 5, 0, 5), 5);
+      assert.equal(binarySearch(array, 0, 0, 0), 0);
+      assert.equal(binarySearch(array, 1, 0, 1), 1);
+      assert.equal(binarySearch(array, 2, 0, 2), 2);
+      assert.equal(binarySearch(array, 3, 0, 3), 3);
+      assert.equal(binarySearch(array, 4, 0, 4), 4);
+      assert.equal(binarySearch(array, 5, 0, 5), 5);
     });
 
-    test('high higher than needle index returns needle index', (t) => {
+    it('high higher than needle index returns needle index', () => {
       const array: SourceMapSegment[] = [];
 
       array.push([0]);
 
       array.push([1]);
-      t.is(binarySearch(array, 0, 0, 1), 0);
+      assert.equal(binarySearch(array, 0, 0, 1), 0);
 
       array.push([2]);
-      t.is(binarySearch(array, 0, 0, 1), 0);
-      t.is(binarySearch(array, 0, 0, 2), 0);
-      t.is(binarySearch(array, 1, 0, 2), 1);
+      assert.equal(binarySearch(array, 0, 0, 1), 0);
+      assert.equal(binarySearch(array, 0, 0, 2), 0);
+      assert.equal(binarySearch(array, 1, 0, 2), 1);
 
       array.push([3]);
-      t.is(binarySearch(array, 0, 0, 1), 0);
-      t.is(binarySearch(array, 0, 0, 2), 0);
-      t.is(binarySearch(array, 0, 0, 3), 0);
-      t.is(binarySearch(array, 1, 0, 2), 1);
-      t.is(binarySearch(array, 1, 0, 3), 1);
-      t.is(binarySearch(array, 2, 0, 3), 2);
+      assert.equal(binarySearch(array, 0, 0, 1), 0);
+      assert.equal(binarySearch(array, 0, 0, 2), 0);
+      assert.equal(binarySearch(array, 0, 0, 3), 0);
+      assert.equal(binarySearch(array, 1, 0, 2), 1);
+      assert.equal(binarySearch(array, 1, 0, 3), 1);
+      assert.equal(binarySearch(array, 2, 0, 3), 2);
 
       array.push([4]);
-      t.is(binarySearch(array, 0, 0, 1), 0);
-      t.is(binarySearch(array, 0, 0, 2), 0);
-      t.is(binarySearch(array, 0, 0, 3), 0);
-      t.is(binarySearch(array, 0, 0, 4), 0);
-      t.is(binarySearch(array, 1, 0, 2), 1);
-      t.is(binarySearch(array, 1, 0, 3), 1);
-      t.is(binarySearch(array, 1, 0, 4), 1);
-      t.is(binarySearch(array, 2, 0, 3), 2);
-      t.is(binarySearch(array, 2, 0, 4), 2);
-      t.is(binarySearch(array, 3, 0, 4), 3);
+      assert.equal(binarySearch(array, 0, 0, 1), 0);
+      assert.equal(binarySearch(array, 0, 0, 2), 0);
+      assert.equal(binarySearch(array, 0, 0, 3), 0);
+      assert.equal(binarySearch(array, 0, 0, 4), 0);
+      assert.equal(binarySearch(array, 1, 0, 2), 1);
+      assert.equal(binarySearch(array, 1, 0, 3), 1);
+      assert.equal(binarySearch(array, 1, 0, 4), 1);
+      assert.equal(binarySearch(array, 2, 0, 3), 2);
+      assert.equal(binarySearch(array, 2, 0, 4), 2);
+      assert.equal(binarySearch(array, 3, 0, 4), 3);
     });
 
-    test('high lower than needle index returns high', (t) => {
+    it('high lower than needle index returns high', () => {
       const array: SourceMapSegment[] = [];
 
       array.push([0]);
 
       array.push([1]);
-      t.is(binarySearch(array, 1, 0, 0), 0);
+      assert.equal(binarySearch(array, 1, 0, 0), 0);
 
       array.push([2]);
-      t.is(binarySearch(array, 1, 0, 0), 0);
-      t.is(binarySearch(array, 2, 0, 0), 0);
-      t.is(binarySearch(array, 2, 0, 1), 1);
+      assert.equal(binarySearch(array, 1, 0, 0), 0);
+      assert.equal(binarySearch(array, 2, 0, 0), 0);
+      assert.equal(binarySearch(array, 2, 0, 1), 1);
 
       array.push([3]);
-      t.is(binarySearch(array, 1, 0, 0), 0);
-      t.is(binarySearch(array, 2, 0, 0), 0);
-      t.is(binarySearch(array, 2, 0, 1), 1);
-      t.is(binarySearch(array, 3, 0, 0), 0);
-      t.is(binarySearch(array, 3, 0, 1), 1);
-      t.is(binarySearch(array, 3, 0, 2), 2);
+      assert.equal(binarySearch(array, 1, 0, 0), 0);
+      assert.equal(binarySearch(array, 2, 0, 0), 0);
+      assert.equal(binarySearch(array, 2, 0, 1), 1);
+      assert.equal(binarySearch(array, 3, 0, 0), 0);
+      assert.equal(binarySearch(array, 3, 0, 1), 1);
+      assert.equal(binarySearch(array, 3, 0, 2), 2);
 
       array.push([4]);
-      t.is(binarySearch(array, 1, 0, 0), 0);
-      t.is(binarySearch(array, 2, 0, 0), 0);
-      t.is(binarySearch(array, 2, 0, 1), 1);
-      t.is(binarySearch(array, 3, 0, 0), 0);
-      t.is(binarySearch(array, 3, 0, 1), 1);
-      t.is(binarySearch(array, 3, 0, 2), 2);
-      t.is(binarySearch(array, 4, 0, 0), 0);
-      t.is(binarySearch(array, 4, 0, 1), 1);
-      t.is(binarySearch(array, 4, 0, 2), 2);
-      t.is(binarySearch(array, 4, 0, 3), 3);
+      assert.equal(binarySearch(array, 1, 0, 0), 0);
+      assert.equal(binarySearch(array, 2, 0, 0), 0);
+      assert.equal(binarySearch(array, 2, 0, 1), 1);
+      assert.equal(binarySearch(array, 3, 0, 0), 0);
+      assert.equal(binarySearch(array, 3, 0, 1), 1);
+      assert.equal(binarySearch(array, 3, 0, 2), 2);
+      assert.equal(binarySearch(array, 4, 0, 0), 0);
+      assert.equal(binarySearch(array, 4, 0, 1), 1);
+      assert.equal(binarySearch(array, 4, 0, 2), 2);
+      assert.equal(binarySearch(array, 4, 0, 3), 3);
     });
   });
 });
@@ -380,27 +380,27 @@ describe('binary search', () => {
 describe('memoizedBinarySearch', () => {
   const array: SourceMapSegment[] = [[1], [5], [10]];
 
-  test('refinds same index', (t) => {
+  it('refinds same index', () => {
     const memo = memoizedState();
 
-    t.is(memoizedBinarySearch(array, 6, memo, 0), 1);
-    t.is(memoizedBinarySearch(array, 6, memo, 0), 1);
+    assert.equal(memoizedBinarySearch(array, 6, memo, 0), 1);
+    assert.equal(memoizedBinarySearch(array, 6, memo, 0), 1);
   });
 
-  test('restores found state', (t) => {
+  it('restores found state', () => {
     const memo1 = memoizedState();
     const memo2 = memoizedState();
 
-    t.is(memoizedBinarySearch(array, 0, memo1, 0), -1);
-    t.is(found, false);
+    assert.equal(memoizedBinarySearch(array, 0, memo1, 0), -1);
+    assert.equal(found, false);
 
-    t.is(memoizedBinarySearch(array, 5, memo2, 0), 1);
-    t.is(found, true);
+    assert.equal(memoizedBinarySearch(array, 5, memo2, 0), 1);
+    assert.equal(found, true);
 
-    t.is(memoizedBinarySearch(array, 0, memo1, 0), -1);
-    t.is(found, false);
+    assert.equal(memoizedBinarySearch(array, 0, memo1, 0), -1);
+    assert.equal(found, false);
 
-    t.is(memoizedBinarySearch(array, 5, memo2, 0), 1);
-    t.is(found, true);
+    assert.equal(memoizedBinarySearch(array, 5, memo2, 0), 1);
+    assert.equal(found, true);
   });
 });

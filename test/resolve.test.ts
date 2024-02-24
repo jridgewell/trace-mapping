@@ -1,18 +1,18 @@
+import { strict as assert } from 'assert';
 import resolve from '../src/resolve';
-import { test, describe } from './setup';
 
 describe('resolve', () => {
-  test('resolves input relative to base', (t) => {
+  it('resolves input relative to base', () => {
     const base = 'bar/';
     const input = 'foo';
 
-    t.is(resolve(input, base), 'bar/foo');
+    assert.equal(resolve(input, base), 'bar/foo');
   });
 
-  test('treats base as a directory regardless of slash', (t) => {
+  it('treats base as a directory regardless of slash', () => {
     const base = 'bar';
     const input = 'foo';
 
-    t.is(resolve(input, base), 'bar/foo');
+    assert.equal(resolve(input, base), 'bar/foo');
   });
 });

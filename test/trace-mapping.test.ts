@@ -1,8 +1,8 @@
 /// <reference lib="esnext" />
 
+import { strict as assert } from 'assert';
 import { encode, decode } from '@jridgewell/sourcemap-codec';
 
-import { test, describe } from './setup';
 import {
   TraceMap,
   encodedMappings,
@@ -18,7 +18,6 @@ import {
   allGeneratedPositionsFor,
 } from '../src/trace-mapping';
 
-import type { ExecutionContext } from 'ava';
 import type {
   SourceMapInput,
   EncodedSourceMap,
@@ -87,107 +86,107 @@ describe('TraceMap', () => {
   function testSuite(map: DecodedSourceMap | EncodedSourceMap | string) {
     return () => {
       describe('map properties', () => {
-        test('version', (t) => {
+        it('version', () => {
           const tracer = new TraceMap(map);
-          t.is(tracer.version, decodedMap.version);
+          assert.equal(tracer.version, decodedMap.version);
         });
 
-        test('file', (t) => {
+        it('file', () => {
           const tracer = new TraceMap(map);
-          t.is(tracer.file, decodedMap.file);
+          assert.equal(tracer.file, decodedMap.file);
         });
 
-        test('sourceRoot', (t) => {
+        it('sourceRoot', () => {
           const tracer = new TraceMap(map);
-          t.is(tracer.sourceRoot, decodedMap.sourceRoot);
+          assert.equal(tracer.sourceRoot, decodedMap.sourceRoot);
         });
 
-        test('sources', (t) => {
+        it('sources', () => {
           const tracer = new TraceMap(map);
-          t.deepEqual(tracer.sources, decodedMap.sources);
+          assert.deepEqual(tracer.sources, decodedMap.sources);
         });
 
-        test('names', (t) => {
+        it('names', () => {
           const tracer = new TraceMap(map);
-          t.deepEqual(tracer.names, decodedMap.names);
+          assert.deepEqual(tracer.names, decodedMap.names);
         });
 
-        test('encodedMappings', (t) => {
+        it('encodedMappings', () => {
           const tracer = new TraceMap(map);
-          t.is(encodedMappings(tracer), encodedMap.mappings);
+          assert.equal(encodedMappings(tracer), encodedMap.mappings);
         });
 
-        test('decodedMappings', (t) => {
+        it('decodedMappings', () => {
           const tracer = new TraceMap(map);
-          t.deepEqual(decodedMappings(tracer), decodedMap.mappings);
+          assert.deepEqual(decodedMappings(tracer), decodedMap.mappings);
         });
 
-        test('sourcesContent', (t) => {
+        it('sourcesContent', () => {
           const tracer = new TraceMap(map);
-          t.deepEqual(tracer.sourcesContent, decodedMap.sourcesContent);
+          assert.deepEqual(tracer.sourcesContent, decodedMap.sourcesContent);
         });
 
         describe('sourceContentFor', () => {
-          test('returns null if no sourcesContent', (t) => {
+          it('returns null if no sourcesContent', () => {
             const tracer = new TraceMap(replaceField(map, 'sourcesContent', undefined));
             const source = tracer.sources[0]!;
-            t.is(sourceContentFor(tracer, source), null);
+            assert.equal(sourceContentFor(tracer, source), null);
           });
 
-          test('returns null if source not found', (t) => {
+          it('returns null if source not found', () => {
             const tracer = new TraceMap(map);
-            t.is(sourceContentFor(tracer, 'foobar'), null);
+            assert.equal(sourceContentFor(tracer, 'foobar'), null);
           });
 
-          test('returns sourceContent for source', (t) => {
+          it('returns sourceContent for source', () => {
             const tracer = new TraceMap(map);
             const source = tracer.sources[0]!;
-            t.is(sourceContentFor(tracer, source), decodedMap.sourcesContent![0]);
+            assert.equal(sourceContentFor(tracer, source), decodedMap.sourcesContent![0]);
           });
 
-          test('returns sourceContent for resolved source', (t) => {
+          it('returns sourceContent for resolved source', () => {
             const tracer = new TraceMap(map);
             const source = tracer.resolvedSources[0]!;
-            t.is(sourceContentFor(tracer, source), decodedMap.sourcesContent![0]);
+            assert.equal(sourceContentFor(tracer, source), decodedMap.sourcesContent![0]);
           });
         });
 
         describe('resolvedSources', () => {
-          test('unresolved without sourceRoot', (t) => {
+          it('unresolved without sourceRoot', () => {
             const tracer = new TraceMap(replaceField(map, 'sourceRoot', undefined));
-            t.deepEqual(tracer.resolvedSources, ['input.js']);
+            assert.deepEqual(tracer.resolvedSources, ['input.js']);
           });
 
-          test('relative to mapUrl', (t) => {
+          it('relative to mapUrl', () => {
             const tracer = new TraceMap(
               replaceField(map, 'sourceRoot', undefined),
               'foo/script.js.map',
             );
-            t.deepEqual(tracer.resolvedSources, ['foo/input.js']);
+            assert.deepEqual(tracer.resolvedSources, ['foo/input.js']);
           });
 
-          test('relative to sourceRoot', (t) => {
+          it('relative to sourceRoot', () => {
             const tracer = new TraceMap(replaceField(map, 'sourceRoot', 'foo'));
-            t.deepEqual(tracer.resolvedSources, ['foo/input.js']);
+            assert.deepEqual(tracer.resolvedSources, ['foo/input.js']);
           });
 
-          test('relative to mapUrl then sourceRoot', (t) => {
+          it('relative to mapUrl then sourceRoot', () => {
             const tracer = new TraceMap(
               replaceField(map, 'sourceRoot', 'bar'),
               'foo/script.js.map',
             );
-            t.deepEqual(tracer.resolvedSources, ['foo/bar/input.js']);
+            assert.deepEqual(tracer.resolvedSources, ['foo/bar/input.js']);
           });
         });
       });
 
-      test('traceSegment', (t) => {
+      it('traceSegment', () => {
         const { mappings } = decodedMap;
         const tracer = new TraceMap(map);
 
         // This comes before any segment on line 2, but importantly there are segments on line 1. If
         // binary searchign returns the last segment of line 1, we've failed.
-        t.is(traceSegment(tracer, 1, 0), null);
+        assert.equal(traceSegment(tracer, 1, 0), null);
 
         for (let line = 0; line < mappings.length; line++) {
           const segmentLine = mappings[line];
@@ -199,23 +198,23 @@ describe('TraceMap', () => {
 
             for (let column = segment[0]; column < nextColumn; column++) {
               const traced = traceSegment(tracer, line, column);
-              t.deepEqual(traced, segment, `{ line: ${line}, column: ${column} }`);
+              assert.deepEqual(traced, segment, `{ line: ${line}, column: ${column} }`);
             }
           }
         }
       });
 
-      test('originalPositionFor', (t) => {
+      it('originalPositionFor', () => {
         const tracer = new TraceMap(map);
 
-        t.deepEqual(originalPositionFor(tracer, { line: 2, column: 13 }), {
+        assert.deepEqual(originalPositionFor(tracer, { line: 2, column: 13 }), {
           source: 'https://astexplorer.net/input.js',
           line: 2,
           column: 14,
           name: 'Error',
         });
 
-        t.deepEqual(
+        assert.deepEqual(
           originalPositionFor(tracer, { line: 2, column: 13, bias: GREATEST_LOWER_BOUND }),
           {
             source: 'https://astexplorer.net/input.js',
@@ -225,53 +224,62 @@ describe('TraceMap', () => {
           },
         );
 
-        t.deepEqual(originalPositionFor(tracer, { line: 2, column: 13, bias: LEAST_UPPER_BOUND }), {
-          source: 'https://astexplorer.net/input.js',
-          line: 2,
-          column: 10,
-          name: null,
-        });
+        assert.deepEqual(
+          originalPositionFor(tracer, { line: 2, column: 13, bias: LEAST_UPPER_BOUND }),
+          {
+            source: 'https://astexplorer.net/input.js',
+            line: 2,
+            column: 10,
+            name: null,
+          },
+        );
 
-        t.deepEqual(originalPositionFor(tracer, { line: 100, column: 13 }), {
+        assert.deepEqual(originalPositionFor(tracer, { line: 100, column: 13 }), {
           source: null,
           line: null,
           column: null,
           name: null,
         });
 
-        t.throws(() => {
+        assert.throws(() => {
           originalPositionFor(tracer, { line: 0, column: 13 });
         });
 
-        t.throws(() => {
+        assert.throws(() => {
           originalPositionFor(tracer, { line: 1, column: -1 });
         });
       });
 
-      test('generatedPositionFor', (t) => {
+      it('generatedPositionFor', () => {
         const tracer = new TraceMap(map);
 
-        t.deepEqual(generatedPositionFor(tracer, { source: 'input.js', line: 4, column: 3 }), {
+        assert.deepEqual(generatedPositionFor(tracer, { source: 'input.js', line: 4, column: 3 }), {
           line: 5,
           column: 3,
         });
 
-        t.deepEqual(generatedPositionFor(tracer, { source: 'input.js', line: 1, column: 0 }), {
+        assert.deepEqual(generatedPositionFor(tracer, { source: 'input.js', line: 1, column: 0 }), {
           line: 1,
           column: 0,
         });
 
-        t.deepEqual(generatedPositionFor(tracer, { source: 'input.js', line: 1, column: 33 }), {
-          line: 1,
-          column: 18,
-        });
+        assert.deepEqual(
+          generatedPositionFor(tracer, { source: 'input.js', line: 1, column: 33 }),
+          {
+            line: 1,
+            column: 18,
+          },
+        );
 
-        t.deepEqual(generatedPositionFor(tracer, { source: 'input.js', line: 1, column: 14 }), {
-          line: 1,
-          column: 13,
-        });
+        assert.deepEqual(
+          generatedPositionFor(tracer, { source: 'input.js', line: 1, column: 14 }),
+          {
+            line: 1,
+            column: 13,
+          },
+        );
 
-        t.deepEqual(
+        assert.deepEqual(
           generatedPositionFor(tracer, {
             source: 'input.js',
             line: 1,
@@ -284,7 +292,7 @@ describe('TraceMap', () => {
           },
         );
 
-        t.deepEqual(
+        assert.deepEqual(
           generatedPositionFor(tracer, {
             source: 'input.js',
             line: 1,
@@ -297,16 +305,16 @@ describe('TraceMap', () => {
           },
         );
 
-        t.deepEqual(generatedPositionFor(tracer, { source: 'input.js', line: 4, column: 0 }), {
+        assert.deepEqual(generatedPositionFor(tracer, { source: 'input.js', line: 4, column: 0 }), {
           line: 5,
           column: 0,
         });
       });
 
-      test('allGeneratedPositionsFor', (t) => {
+      it('allGeneratedPositionsFor', () => {
         const tracer = new TraceMap(map);
 
-        t.deepEqual(
+        assert.deepEqual(
           allGeneratedPositionsFor(tracer, {
             source: 'input.js',
             line: 1,
@@ -315,7 +323,7 @@ describe('TraceMap', () => {
           [{ line: 1, column: 18 }],
         );
 
-        t.deepEqual(
+        assert.deepEqual(
           allGeneratedPositionsFor(tracer, {
             source: 'input.js',
             line: 2,
@@ -328,7 +336,7 @@ describe('TraceMap', () => {
           ],
         );
 
-        t.deepEqual(
+        assert.deepEqual(
           allGeneratedPositionsFor(tracer, {
             source: 'input.js',
             line: 2,
@@ -342,7 +350,7 @@ describe('TraceMap', () => {
           ],
         );
 
-        t.deepEqual(
+        assert.deepEqual(
           allGeneratedPositionsFor(tracer, {
             source: 'input.js',
             line: 2,
@@ -355,7 +363,7 @@ describe('TraceMap', () => {
           ],
         );
 
-        t.deepEqual(
+        assert.deepEqual(
           allGeneratedPositionsFor(tracer, {
             source: 'input.js',
             line: 2,
@@ -368,7 +376,7 @@ describe('TraceMap', () => {
           ],
         );
 
-        t.deepEqual(
+        assert.deepEqual(
           allGeneratedPositionsFor(tracer, {
             source: 'input.js',
             line: 2,
@@ -382,19 +390,20 @@ describe('TraceMap', () => {
           ],
         );
 
-        t.deepEqual(
+        assert.deepEqual(
           allGeneratedPositionsFor(tracer, { source: 'input.js', line: 100, column: 13 }),
           [],
         );
 
-        t.deepEqual(
+        assert.deepEqual(
           allGeneratedPositionsFor(tracer, { source: 'input.js', line: 1, column: 100 }),
           [],
         );
 
-        t.deepEqual(allGeneratedPositionsFor(tracer, { source: 'input.js', line: 1, column: 10 }), [
-          { line: 1, column: 13 },
-        ]);
+        assert.deepEqual(
+          allGeneratedPositionsFor(tracer, { source: 'input.js', line: 1, column: 10 }),
+          [{ line: 1, column: 13 }],
+        );
       });
     };
   }
@@ -416,15 +425,17 @@ describe('TraceMap', () => {
       ...encodedMap,
       mappings: encode(mappings),
     };
-    const macro = test.macro((t: ExecutionContext<unknown>, map: SourceMapInput) => {
-      const tracer = new TraceMap(map);
-      t.deepEqual(decodedMappings(tracer), decodedMap.mappings);
-    });
 
-    test('decoded source map', macro, reversedDecoded);
-    test('json decoded source map', macro, JSON.stringify(reversedDecoded));
-    test('encoded source map', macro, reversedEncoded);
-    test('json encoded source map', macro, JSON.stringify(reversedEncoded));
+    function macro(map: SourceMapInput) {
+      return () => {
+        const tracer = new TraceMap(map);
+        assert.deepEqual(decodedMappings(tracer), decodedMap.mappings);
+      };
+    }
+    it('decoded source map', macro(reversedDecoded));
+    it('json decoded source map', macro(JSON.stringify(reversedDecoded)));
+    it('encoded source map', macro(reversedEncoded));
+    it('json encoded source map', macro(JSON.stringify(reversedEncoded)));
   });
 
   describe('empty mappings with lines', () => {
@@ -437,17 +448,19 @@ describe('TraceMap', () => {
       mappings: ';;;;;;;;;;;;;;;;',
     };
 
-    const macro = test.macro((t: ExecutionContext<unknown>, map: SourceMapInput) => {
-      const tracer = new TraceMap(map);
-      for (let i = 0; i < decoded.mappings.length; i++) {
-        t.is(traceSegment(tracer, i, 0), null, `{ line: ${i} }`);
-      }
-    });
+    function macro(map: SourceMapInput) {
+      return () => {
+        const tracer = new TraceMap(map);
+        for (let i = 0; i < decoded.mappings.length; i++) {
+          assert.equal(traceSegment(tracer, i, 0), null, `{ line: ${i} }`);
+        }
+      };
+    }
 
-    test('decoded source map', macro, decoded);
-    test('json decoded source map', macro, JSON.stringify(decoded));
-    test('encoded source map', macro, encoded);
-    test('json encoded source map', macro, JSON.stringify(encoded));
+    it('decoded source map', macro(decoded));
+    it('json decoded source map', macro(JSON.stringify(decoded)));
+    it('encoded source map', macro(encoded));
+    it('json encoded source map', macro(JSON.stringify(encoded)));
   });
 
   describe('eachMapping', () => {
@@ -464,24 +477,24 @@ describe('TraceMap', () => {
       });
     });
 
-    const macro = test.macro((t: ExecutionContext<unknown>, map: SourceMapInput) => {
-      t.plan(mappings.length);
+    function macro(map: SourceMapInput) {
+      return () => {
+        const tracer = new TraceMap(map);
+        let i = 0;
+        eachMapping(tracer, (mapping) => {
+          assert.deepEqual(mapping, mappings[i++]);
+        });
+      };
+    }
 
-      const tracer = new TraceMap(map);
-      let i = 0;
-      eachMapping(tracer, (mapping) => {
-        t.deepEqual(mapping, mappings[i++]);
-      });
-    });
-
-    test('decoded source map', macro, decodedMap);
-    test('json decoded source map', macro, JSON.stringify(decodedMap));
-    test('encoded source map', macro, encodedMap);
-    test('json encoded source map', macro, JSON.stringify(encodedMap));
+    it('decoded source map', macro(decodedMap));
+    it('json decoded source map', macro(JSON.stringify(decodedMap)));
+    it('encoded source map', macro(encodedMap));
+    it('json encoded source map', macro(JSON.stringify(encodedMap)));
   });
 
   describe('presortedDecodedMap', () => {
-    test('propagates decoded mappings without sorting', (t) => {
+    it('propagates decoded mappings without sorting', () => {
       const mappings = decodedMap.mappings.map((line) => {
         return line.slice().reverse();
       });
@@ -491,10 +504,10 @@ describe('TraceMap', () => {
       };
 
       const tracer = presortedDecodedMap(reversedDecoded);
-      t.deepEqual(decodedMappings(tracer), mappings);
+      assert.deepEqual(decodedMappings(tracer), mappings);
     });
 
-    test('ignores non-sourcemap fields from output', (t) => {
+    it('ignores non-sourcemap fields from output', () => {
       // `map` will contain a `_encoded` field equal to the encoded map's, a _decoded equal to [],
       // and a _decodedMemo field. This fooled the duck-type early return detection, and preserved
       // invalid values on the presorted tracer.
@@ -502,14 +515,13 @@ describe('TraceMap', () => {
       const map = Object.assign({}, new TraceMap(encodedMap), { mappings: [] });
       const tracer = presortedDecodedMap(map);
 
-      t.is(encodedMappings(tracer), '');
+      assert.equal(encodedMappings(tracer), '');
     });
   });
 
   describe('typescript readonly type', () => {
-    test('decoded source map', (t) => {
+    it('decoded source map', () => {
       // This is a TS lint test, not a real one.
-      t.pass();
 
       const decodedMap = {
         version: 3 as const,

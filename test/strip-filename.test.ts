@@ -1,24 +1,24 @@
+import { strict as assert } from 'assert';
 import stripFilename from '../src/strip-filename';
-import { test, describe } from './setup';
 
 describe('stripFilename', () => {
-  test('returns empty string for empty string', (t) => {
-    t.is(stripFilename(''), '');
+  it('returns empty string for empty string', () => {
+    assert.equal(stripFilename(''), '');
   });
 
-  test('returns empty string if no directory', (t) => {
-    t.is(stripFilename('foo'), '');
+  it('returns empty string if no directory', () => {
+    assert.equal(stripFilename('foo'), '');
   });
 
-  test('it trims filename from directory path', (t) => {
-    t.is(stripFilename('/foo/bar/baz'), '/foo/bar/');
-    t.is(stripFilename('/foo/bar'), '/foo/');
+  it('it trims filename from directory path', () => {
+    assert.equal(stripFilename('/foo/bar/baz'), '/foo/bar/');
+    assert.equal(stripFilename('/foo/bar'), '/foo/');
   });
 
-  test('it does nothing if trailing slash', (t) => {
-    t.is(stripFilename('/foo/bar/baz/'), '/foo/bar/baz/');
-    t.is(stripFilename('/foo/bar/'), '/foo/bar/');
-    t.is(stripFilename('/foo/'), '/foo/');
-    t.is(stripFilename('/'), '/');
+  it('it does nothing if trailing slash', () => {
+    assert.equal(stripFilename('/foo/bar/baz/'), '/foo/bar/baz/');
+    assert.equal(stripFilename('/foo/bar/'), '/foo/bar/');
+    assert.equal(stripFilename('/foo/'), '/foo/');
+    assert.equal(stripFilename('/'), '/');
   });
 });
