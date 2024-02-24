@@ -34,13 +34,14 @@ export default function buildBySources(
       // segment should go. Either way, we want to insert after that. And there may be multiple
       // generated segments associated with an original location, so there may need to move several
       // indexes before we find where we need to insert.
-      const index = upperBound(
+      let index = upperBound(
         originalLine,
         sourceColumn,
         memoizedBinarySearch(originalLine, sourceColumn, memo, sourceLine),
       );
 
-      insert(originalLine, (memo.lastIndex = index + 1), [sourceColumn, i, seg[COLUMN]]);
+      memo.lastIndex = ++index;
+      insert(originalLine, index, [sourceColumn, i, seg[COLUMN]]);
     }
   }
 

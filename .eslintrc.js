@@ -18,6 +18,12 @@ module.exports = {
     'no-constant-condition': 'off',
     'no-unused-labels': 'off',
     'prefer-rest-params': 'off',
+    'prefer-const': [
+      'error',
+      {
+        destructuring: 'all',
+      },
+    ],
   },
   overrides: [
     {
