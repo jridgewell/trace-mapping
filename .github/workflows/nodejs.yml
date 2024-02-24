@@ -17,17 +17,18 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.latest-node-version }}
-      - name: Build with latest
+      - name: Build and test with latest
         run: |
           npm install
           npm run build
+          npm run test:only
       - name: Switch to Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
       - name: Test node
         run: |
-          npm run test:only
+          node dist/trace-mapping.umd.js
       - name: Benchmark
         run: |
           npm run benchmark:install
