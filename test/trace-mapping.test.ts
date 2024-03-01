@@ -152,6 +152,11 @@ describe('TraceMap', () => {
           });
         });
 
+        it('ignoreList', () => {
+          const tracer = new TraceMap(replaceField(map, 'ignoreList', [0]));
+          assert.deepEqual(tracer.ignoreList, [0]);
+        });
+
         describe('isIgnored', () => {
           it('returns false if no ignoreList', () => {
             const tracer = new TraceMap(replaceField(map, 'ignoreList', undefined));
