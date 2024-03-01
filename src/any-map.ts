@@ -8,11 +8,13 @@ import {
 } from './sourcemap-segment';
 
 import type {
-  Section,
-  SectionedSourceMap,
   DecodedSourceMap,
   SectionedSourceMapInput,
   Ro,
+  DecodedSourceMapXInput,
+  EncodedSourceMapXInput,
+  SectionedSourceMapXInput,
+  SectionXInput,
 } from './types';
 import type { SourceMapSegment } from './sourcemap-segment';
 
@@ -25,14 +27,29 @@ export const AnyMap: AnyMap = function (map, mapUrl) {
   const parsed =
     typeof map === 'string' ? (JSON.parse(map) as Exclude<SectionedSourceMapInput, string>) : map;
 
-  if (!('sections' in parsed)) return new TraceMap(parsed, mapUrl);
+  if (!('sections' in parsed)) {
+    return new TraceMap(parsed as DecodedSourceMapXInput | EncodedSourceMapXInput, mapUrl);
+  }
 
   const mappings: SourceMapSegment[][] = [];
   const sources: string[] = [];
   const sourcesContent: (string | null)[] = [];
   const names: string[] = [];
+  const ignoreList: number[] = [];
 
-  recurse(parsed, mapUrl, mappings, sources, sourcesContent, names, 0, 0, Infinity, Infinity);
+  recurse(
+    parsed,
+    mapUrl,
+    mappings,
+    sources,
+    sourcesContent,
+    names,
+    ignoreList,
+    0,
+    0,
+    Infinity,
+    Infinity,
+  );
 
   const joined: DecodedSourceMap = {
     version: 3,
@@ -41,18 +58,20 @@ export const AnyMap: AnyMap = function (map, mapUrl) {
     sources,
     sourcesContent,
     mappings,
+    ignoreList,
   };
 
   return presortedDecodedMap(joined);
 } as AnyMap;
 
 function recurse(
-  input: Ro<SectionedSourceMap>,
+  input: Ro<SectionedSourceMapXInput>,
   mapUrl: string | null | undefined,
   mappings: SourceMapSegment[][],
   sources: string[],
   sourcesContent: (string | null)[],
   names: string[],
+  ignoreList: number[],
   lineOffset: number,
   columnOffset: number,
   stopLine: number,
@@ -82,6 +101,7 @@ function recurse(
       sources,
       sourcesContent,
       names,
+      ignoreList,
       lineOffset + offset.line,
       columnOffset + offset.column,
       sl,
@@ -91,12 +111,13 @@ function recurse(
 }
 
 function addSection(
-  input: Ro<Section['map']>,
+  input: Ro<SectionXInput['map']>,
   mapUrl: string | null | undefined,
   mappings: SourceMapSegment[][],
   sources: string[],
   sourcesContent: (string | null)[],
   names: string[],
+  ignoreList: number[],
   lineOffset: number,
   columnOffset: number,
   stopLine: number,
@@ -108,12 +129,15 @@ function addSection(
   const sourcesOffset = sources.length;
   const namesOffset = names.length;
   const decoded = decodedMappings(map);
-  const { resolvedSources, sourcesContent: contents } = map;
+  const { resolvedSources, sourcesContent: contents, ignoreList: ignores } = map;
 
   append(sources, resolvedSources);
   append(names, map.names);
+
   if (contents) append(sourcesContent, contents);
   else for (let i = 0; i < resolvedSources.length; i++) sourcesContent.push(null);
+
+  if (ignores) for (let i = 0; i < ignores.length; i++) ignoreList.push(ignores[i] + sourcesOffset);
 
   for (let i = 0; i < decoded.length; i++) {
     const lineI = lineOffset + i;

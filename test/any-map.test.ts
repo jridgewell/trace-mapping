@@ -23,6 +23,7 @@ describe('AnyMap', () => {
                 sources: ['first.js'],
                 sourcesContent: ['firstsource'],
                 mappings: 'AAAAA,CAAC',
+                ignoreList: [0],
               },
             },
             {
@@ -58,9 +59,11 @@ describe('AnyMap', () => {
               offset: { line: 0, column: 1 },
               map: {
                 version: 3,
+                names: [],
                 sources: ['fourth.js'],
                 sourcesContent: ['fourthsource'],
-                mappings: 'AAAA',
+                mappings: [[[0, 0, 0, 0]]],
+                ignoreList: [0],
               },
             },
           ],
@@ -123,6 +126,11 @@ describe('AnyMap', () => {
         'thirdsource',
         'fourthsource',
       ]);
+    });
+
+    it('ignoreList', () => {
+      const tracer = new AnyMap(map);
+      assert.deepEqual(tracer.ignoreList, [0, 3]);
     });
   });
 

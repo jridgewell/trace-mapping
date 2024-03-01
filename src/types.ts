@@ -8,6 +8,7 @@ export interface SourceMapV3 {
   sources: (string | null)[];
   sourcesContent?: (string | null)[];
   version: 3;
+  ignoreList?: number[];
 }
 
 export interface EncodedSourceMap extends SourceMapV3 {
@@ -57,9 +58,22 @@ export type InvalidGeneratedMapping = {
 
 export type Bias = typeof GREATEST_LOWER_BOUND | typeof LEAST_UPPER_BOUND;
 
-export type SourceMapInput = string | Ro<EncodedSourceMap> | Ro<DecodedSourceMap> | TraceMap;
+export type XInput = { x_google_ignoreList?: SourceMapV3['ignoreList'] };
+export type EncodedSourceMapXInput = EncodedSourceMap & XInput;
+export type DecodedSourceMapXInput = DecodedSourceMap & XInput;
+export type SectionedSourceMapXInput = Omit<SectionedSourceMap, 'sections'> & {
+  sections: SectionXInput[];
+};
+export type SectionXInput = Omit<Section, 'map'> & {
+  map: EncodedSourceMapXInput | DecodedSourceMapXInput | SectionedSourceMapXInput;
+};
 
-export type SectionedSourceMapInput = SourceMapInput | Ro<SectionedSourceMap>;
+export type SourceMapInput =
+  | string
+  | Ro<EncodedSourceMapXInput>
+  | Ro<DecodedSourceMapXInput>
+  | TraceMap;
+export type SectionedSourceMapInput = SourceMapInput | Ro<SectionedSourceMapXInput>;
 
 export type Needle = { line: number; column: number; bias?: Bias };
 export type SourceNeedle = { source: string; line: number; column: number; bias?: Bias };
@@ -90,6 +104,7 @@ export abstract class SourceMap {
   declare sources: SourceMapV3['sources'];
   declare sourcesContent: SourceMapV3['sourcesContent'];
   declare resolvedSources: SourceMapV3['sources'];
+  declare ignoreList: SourceMapV3['ignoreList'];
 }
 
 export type Ro<T> = T extends Array<infer V>

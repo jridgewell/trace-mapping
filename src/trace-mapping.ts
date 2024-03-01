@@ -36,6 +36,7 @@ import type {
   SourceMap,
   EachMapping,
   Bias,
+  XInput,
 } from './types';
 import type { Source } from './by-source';
 import type { MemoState } from './binary-search';
@@ -84,6 +85,7 @@ export class TraceMap implements SourceMap {
   declare sourceRoot: SourceMapV3['sourceRoot'];
   declare sources: SourceMapV3['sources'];
   declare sourcesContent: SourceMapV3['sourcesContent'];
+  declare ignoreList: SourceMapV3['ignoreList'];
 
   declare resolvedSources: string[];
   private declare _encoded: string | undefined;
@@ -108,6 +110,7 @@ export class TraceMap implements SourceMap {
     this.sourceRoot = sourceRoot;
     this.sources = sources;
     this.sourcesContent = sourcesContent;
+    this.ignoreList = parsed.ignoreList || (parsed as XInput).x_google_ignoreList || undefined;
 
     const from = resolve(sourceRoot || '', stripFilename(mapUrl));
     this.resolvedSources = sources.map((s) => resolve(s || '', from));
@@ -276,17 +279,31 @@ export function eachMapping(map: TraceMap, cb: (mapping: EachMapping) => void): 
   }
 }
 
+function sourceIndex(map: TraceMap, source: string): number {
+  const { sources, resolvedSources } = map;
+  let index = sources.indexOf(source);
+  if (index === -1) index = resolvedSources.indexOf(source);
+  return index;
+}
+
 /**
  * Retrieves the source content for a particular source, if its found. Returns null if not.
  */
 export function sourceContentFor(map: TraceMap, source: string): string | null {
-  const { sources, resolvedSources, sourcesContent } = map;
+  const { sourcesContent } = map;
   if (sourcesContent == null) return null;
-
-  let index = sources.indexOf(source);
-  if (index === -1) index = resolvedSources.indexOf(source);
-
+  const index = sourceIndex(map, source);
   return index === -1 ? null : sourcesContent[index];
+}
+
+/**
+ * Determines if the source is marked to ignore by the source map.
+ */
+export function isIgnored(map: TraceMap, source: string): boolean {
+  const { ignoreList } = map;
+  if (ignoreList == null) return false;
+  const index = sourceIndex(map, source);
+  return index === -1 ? false : ignoreList.includes(index);
 }
 
 /**
@@ -318,7 +335,7 @@ export function encodedMap(map: TraceMap): EncodedSourceMap {
 }
 
 function clone<T extends string | readonly SourceMapSegment[][]>(
-  map: TraceMap | DecodedSourceMap | EncodedSourceMap,
+  map: TraceMap | DecodedSourceMap,
   mappings: T,
 ): T extends string ? EncodedSourceMap : DecodedSourceMap {
   return {
@@ -329,6 +346,7 @@ function clone<T extends string | readonly SourceMapSegment[][]>(
     sources: map.sources,
     sourcesContent: map.sourcesContent,
     mappings,
+    ignoreList: map.ignoreList || (map as XInput).x_google_ignoreList,
   } as any;
 }
 

@@ -16,6 +16,7 @@ import {
   GREATEST_LOWER_BOUND,
   LEAST_UPPER_BOUND,
   allGeneratedPositionsFor,
+  isIgnored,
 } from '../src/trace-mapping';
 
 import type {
@@ -148,6 +149,45 @@ describe('TraceMap', () => {
             const tracer = new TraceMap(map);
             const source = tracer.resolvedSources[0]!;
             assert.equal(sourceContentFor(tracer, source), decodedMap.sourcesContent![0]);
+          });
+        });
+
+        describe('isIgnored', () => {
+          it('returns false if no ignoreList', () => {
+            const tracer = new TraceMap(replaceField(map, 'ignoreList', undefined));
+            const source = tracer.sources[0]!;
+            assert.equal(isIgnored(tracer, source), false);
+          });
+
+          it('returns false if source not found', () => {
+            const tracer = new TraceMap(replaceField(map, 'ignoreList', [0]));
+            assert.equal(isIgnored(tracer, 'foobar'), false);
+          });
+
+          it('returns false if not ignored', () => {
+            const tracer = new TraceMap(replaceField(map, 'ignoreList', []));
+            const source = tracer.sources[0]!;
+            assert.equal(isIgnored(tracer, source), false);
+          });
+
+          it('returns true if ignored', () => {
+            const tracer = new TraceMap(replaceField(map, 'ignoreList', [0]));
+            const source = tracer.sources[0]!;
+            assert.equal(isIgnored(tracer, source), true);
+          });
+
+          it('returns ignored for resolved source', () => {
+            const tracer = new TraceMap(replaceField(map, 'ignoreList', [0]));
+            const source = tracer.resolvedSources[0]!;
+            assert.equal(isIgnored(tracer, source), true);
+          });
+
+          it('supports deprecated x_google_ignoreList', () => {
+            const tracer = new TraceMap(
+              replaceField(map, 'x_google_ignoreList' as 'ignoreList', [0]),
+            );
+            const source = tracer.sources[0]!;
+            assert.equal(isIgnored(tracer, source), true);
           });
         });
 
