@@ -60,6 +60,11 @@ export type {
   SectionedSourceMapInput,
   SourceMapInput,
   SourceNeedle,
+  XInput,
+  EncodedSourceMapXInput,
+  DecodedSourceMapXInput,
+  SectionedSourceMapXInput,
+  SectionXInput,
 } from './types';
 
 interface PublicMap {
