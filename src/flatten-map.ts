@@ -17,13 +17,13 @@ import type {
 } from './types';
 import type { SourceMapSegment } from './sourcemap-segment';
 
-type AnyMap = {
+type FlattenMap = {
   new (map: SectionedSourceMapInput, mapUrl?: string | null): TraceMap;
   (map: SectionedSourceMapInput, mapUrl?: string | null): TraceMap;
 };
 
-export const AnyMap: AnyMap = function (map, mapUrl) {
-  const parsed = parse(map);
+export const FlattenMap: FlattenMap = function (map, mapUrl) {
+  const parsed = parse(map as SectionedSourceMapInput);
 
   if (!('sections' in parsed)) {
     return new TraceMap(parsed as DecodedSourceMapXInput | EncodedSourceMapXInput, mapUrl);
@@ -60,7 +60,7 @@ export const AnyMap: AnyMap = function (map, mapUrl) {
   };
 
   return presortedDecodedMap(joined);
-} as AnyMap;
+} as FlattenMap;
 
 function parse<T>(map: T): Exclude<T, string> {
   return typeof map === 'string' ? JSON.parse(map) : map;

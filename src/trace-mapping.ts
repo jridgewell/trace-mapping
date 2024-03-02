@@ -82,7 +82,7 @@ const COL_GTR_EQ_ZERO = '`column` must be greater than or equal to 0 (columns st
 export const LEAST_UPPER_BOUND = -1;
 export const GREATEST_LOWER_BOUND = 1;
 
-export { AnyMap } from './any-map';
+export { FlattenMap, FlattenMap as AnyMap } from './any-map';
 
 export class TraceMap implements SourceMap {
   declare version: SourceMapV3['version'];

@@ -1,11 +1,11 @@
 /// <reference lib="esnext" />
 
 import { strict as assert } from 'assert';
-import { AnyMap, encodedMappings, decodedMappings } from '../src/trace-mapping';
+import { FlattenMap, encodedMappings, decodedMappings } from '../src/trace-mapping';
 
 import type { SectionedSourceMap, SourceMapSegment } from '../src/trace-mapping';
 
-describe('AnyMap', () => {
+describe('FlattenMap', () => {
   const map: SectionedSourceMap = {
     version: 3,
     file: 'sectioned.js',
@@ -74,37 +74,37 @@ describe('AnyMap', () => {
 
   describe('map properties', () => {
     it('version', () => {
-      const tracer = new AnyMap(map);
+      const tracer = new FlattenMap(map);
       assert.equal(tracer.version, map.version);
     });
 
     it('file', () => {
-      const tracer = new AnyMap(map);
+      const tracer = new FlattenMap(map);
       assert.equal(tracer.file, map.file);
     });
 
     it('sourceRoot', () => {
-      const tracer = new AnyMap(map);
+      const tracer = new FlattenMap(map);
       assert.equal(tracer.sourceRoot, undefined);
     });
 
     it('sources', () => {
-      const tracer = new AnyMap(map);
+      const tracer = new FlattenMap(map);
       assert.deepEqual(tracer.sources, ['first.js', 'second.js', 'nested/third.js', 'fourth.js']);
     });
 
     it('names', () => {
-      const tracer = new AnyMap(map);
+      const tracer = new FlattenMap(map);
       assert.deepEqual(tracer.names, ['first', 'second', 'third']);
     });
 
     it('encodedMappings', () => {
-      const tracer = new AnyMap(map);
+      const tracer = new FlattenMap(map);
       assert.equal(encodedMappings(tracer), ';EAAAA,CCAAC;ACAAC,CCAA');
     });
 
     it('decodedMappings', () => {
-      const tracer = new AnyMap(map);
+      const tracer = new FlattenMap(map);
       assert.deepEqual(decodedMappings(tracer), [
         [],
         [
@@ -119,7 +119,7 @@ describe('AnyMap', () => {
     });
 
     it('sourcesContent', () => {
-      const tracer = new AnyMap(map);
+      const tracer = new FlattenMap(map);
       assert.deepEqual(tracer.sourcesContent, [
         'firstsource',
         'secondsource',
@@ -129,7 +129,7 @@ describe('AnyMap', () => {
     });
 
     it('ignoreList', () => {
-      const tracer = new AnyMap(map);
+      const tracer = new FlattenMap(map);
       assert.deepEqual(tracer.ignoreList, [0, 3]);
     });
   });
@@ -145,7 +145,7 @@ describe('AnyMap', () => {
         sourcesContent: [] as readonly string[],
       };
 
-      new AnyMap(decodedMap);
+      new FlattenMap(decodedMap);
     });
   });
 });
