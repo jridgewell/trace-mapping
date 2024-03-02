@@ -3,6 +3,7 @@
   "devDependencies": {
     "source-map": "0.6.1",
     "source-map-js": "1.0.2",
-    "source-map-wasm": "npm:source-map@0.8.0-beta.0"
+    "source-map-wasm": "npm:source-map@0.8.0-beta.0",
+    "trace-map": "npm:@jridgewell/trace-mapping@latest"
   }
 }
