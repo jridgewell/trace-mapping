@@ -9,11 +9,10 @@ import {
 
 import type {
   DecodedSourceMap,
-  SectionedSourceMapInput,
-  Ro,
   DecodedSourceMapXInput,
   EncodedSourceMapXInput,
   SectionedSourceMapXInput,
+  SectionedSourceMapInput,
   SectionXInput,
 } from './types';
 import type { SourceMapSegment } from './sourcemap-segment';
@@ -24,8 +23,7 @@ type AnyMap = {
 };
 
 export const AnyMap: AnyMap = function (map, mapUrl) {
-  const parsed =
-    typeof map === 'string' ? (JSON.parse(map) as Exclude<SectionedSourceMapInput, string>) : map;
+  const parsed = parse(map);
 
   if (!('sections' in parsed)) {
     return new TraceMap(parsed as DecodedSourceMapXInput | EncodedSourceMapXInput, mapUrl);
@@ -64,8 +62,12 @@ export const AnyMap: AnyMap = function (map, mapUrl) {
   return presortedDecodedMap(joined);
 } as AnyMap;
 
+function parse<T>(map: T): Exclude<T, string> {
+  return typeof map === 'string' ? JSON.parse(map) : map;
+}
+
 function recurse(
-  input: Ro<SectionedSourceMapXInput>,
+  input: SectionedSourceMapXInput,
   mapUrl: string | null | undefined,
   mappings: SourceMapSegment[][],
   sources: string[],
@@ -111,7 +113,7 @@ function recurse(
 }
 
 function addSection(
-  input: Ro<SectionXInput['map']>,
+  input: SectionXInput['map'],
   mapUrl: string | null | undefined,
   mappings: SourceMapSegment[][],
   sources: string[],
@@ -123,9 +125,10 @@ function addSection(
   stopLine: number,
   stopColumn: number,
 ) {
-  if ('sections' in input) return recurse(...(arguments as unknown as Parameters<typeof recurse>));
+  const parsed = parse(input);
+  if ('sections' in parsed) return recurse(...(arguments as unknown as Parameters<typeof recurse>));
 
-  const map = new TraceMap(input, mapUrl);
+  const map = new TraceMap(parsed, mapUrl);
   const sourcesOffset = sources.length;
   const namesOffset = names.length;
   const decoded = decodedMappings(map);
