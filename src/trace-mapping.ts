@@ -37,6 +37,7 @@ import type {
   EachMapping,
   Bias,
   XInput,
+  SectionedSourceMap,
 } from './types';
 import type { Source } from './by-source';
 import type { MemoState } from './binary-search';
@@ -124,9 +125,13 @@ export class TraceMap implements SourceMap {
     if (typeof mappings === 'string') {
       this._encoded = mappings;
       this._decoded = undefined;
-    } else {
+    } else if (Array.isArray(mappings)) {
       this._encoded = undefined;
       this._decoded = maybeSort(mappings, isString);
+    } else if ((parsed as unknown as SectionedSourceMap).sections) {
+      throw new Error(`TraceMap passed sectioned source map, please use AnyMap export instead`);
+    } else {
+      throw new Error(`invalid source map: ${JSON.stringify(parsed)}`);
     }
 
     this._decodedMemo = memoizedState();
