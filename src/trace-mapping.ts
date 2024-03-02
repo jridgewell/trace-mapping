@@ -20,6 +20,7 @@ import {
   REV_GENERATED_LINE,
   REV_GENERATED_COLUMN,
 } from './sourcemap-segment';
+import { parse } from './types';
 
 import type { SourceMapSegment, ReverseSegment } from './sourcemap-segment';
 import type {
@@ -38,6 +39,7 @@ import type {
   Bias,
   XInput,
   SectionedSourceMap,
+  Ro,
 } from './types';
 import type { Source } from './by-source';
 import type { MemoState } from './binary-search';
@@ -82,7 +84,7 @@ const COL_GTR_EQ_ZERO = '`column` must be greater than or equal to 0 (columns st
 export const LEAST_UPPER_BOUND = -1;
 export const GREATEST_LOWER_BOUND = 1;
 
-export { FlattenMap, FlattenMap as AnyMap } from './any-map';
+export { FlattenMap, FlattenMap as AnyMap } from './flatten-map';
 
 export class TraceMap implements SourceMap {
   declare version: SourceMapV3['version'];
@@ -102,12 +104,11 @@ export class TraceMap implements SourceMap {
   private declare _bySources: Source[] | undefined;
   private declare _bySourceMemos: MemoState[] | undefined;
 
-  constructor(map: SourceMapInput, mapUrl?: string | null) {
+  constructor(map: Ro<SourceMapInput>, mapUrl?: string | null) {
     const isString = typeof map === 'string';
-
     if (!isString && (map as unknown as { _decodedMemo: any })._decodedMemo) return map as TraceMap;
 
-    const parsed = (isString ? JSON.parse(map) : map) as DecodedSourceMap | EncodedSourceMap;
+    const parsed = parse(map as Exclude<SourceMapInput, TraceMap>);
 
     const { version, file, names, sourceRoot, sources, sourcesContent } = parsed;
     this.version = version;

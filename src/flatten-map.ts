@@ -6,6 +6,7 @@ import {
   SOURCE_COLUMN,
   NAMES_INDEX,
 } from './sourcemap-segment';
+import { parse } from './types';
 
 import type {
   DecodedSourceMap,
@@ -14,12 +15,13 @@ import type {
   SectionedSourceMapXInput,
   SectionedSourceMapInput,
   SectionXInput,
+  Ro,
 } from './types';
 import type { SourceMapSegment } from './sourcemap-segment';
 
 type FlattenMap = {
-  new (map: SectionedSourceMapInput, mapUrl?: string | null): TraceMap;
-  (map: SectionedSourceMapInput, mapUrl?: string | null): TraceMap;
+  new (map: Ro<SectionedSourceMapInput>, mapUrl?: string | null): TraceMap;
+  (map: Ro<SectionedSourceMapInput>, mapUrl?: string | null): TraceMap;
 };
 
 export const FlattenMap: FlattenMap = function (map, mapUrl) {
@@ -61,10 +63,6 @@ export const FlattenMap: FlattenMap = function (map, mapUrl) {
 
   return presortedDecodedMap(joined);
 } as FlattenMap;
-
-function parse<T>(map: T): Exclude<T, string> {
-  return typeof map === 'string' ? JSON.parse(map) : map;
-}
 
 function recurse(
   input: SectionedSourceMapXInput,
