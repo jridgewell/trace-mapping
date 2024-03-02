@@ -65,15 +65,11 @@ export type SectionedSourceMapXInput = Omit<SectionedSourceMap, 'sections'> & {
   sections: SectionXInput[];
 };
 export type SectionXInput = Omit<Section, 'map'> & {
-  map: EncodedSourceMapXInput | DecodedSourceMapXInput | SectionedSourceMapXInput;
+  map: SectionedSourceMapInput;
 };
 
-export type SourceMapInput =
-  | string
-  | Ro<EncodedSourceMapXInput>
-  | Ro<DecodedSourceMapXInput>
-  | TraceMap;
-export type SectionedSourceMapInput = SourceMapInput | Ro<SectionedSourceMapXInput>;
+export type SourceMapInput = string | EncodedSourceMapXInput | DecodedSourceMapXInput | TraceMap;
+export type SectionedSourceMapInput = SourceMapInput | SectionedSourceMapXInput;
 
 export type Needle = { line: number; column: number; bias?: Bias };
 export type SourceNeedle = { source: string; line: number; column: number; bias?: Bias };
@@ -106,11 +102,3 @@ export abstract class SourceMap {
   declare resolvedSources: SourceMapV3['sources'];
   declare ignoreList: SourceMapV3['ignoreList'];
 }
-
-export type Ro<T> = T extends Array<infer V>
-  ? V[] | Readonly<V[]> | RoArray<V> | Readonly<RoArray<V>>
-  : T extends object
-    ? T | Readonly<T> | RoObject<T> | Readonly<RoObject<T>>
-    : T;
-type RoArray<T> = Ro<T>[];
-type RoObject<T> = { [K in keyof T]: T[K] | Ro<T[K]> };
