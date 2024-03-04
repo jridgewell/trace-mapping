@@ -20,10 +20,7 @@ export interface DecodedSourceMap extends SourceMapV3 {
 }
 
 export interface Section {
-  offset: {
-    line: number;
-    column: number;
-  };
+  offset: { line: number; column: number };
   map: EncodedSourceMap | DecodedSourceMap | SectionedSourceMap;
 }
 

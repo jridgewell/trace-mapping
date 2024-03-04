@@ -1,18 +1,34 @@
 import { strict as assert } from 'assert';
-import resolve from '../src/resolve';
+import resolver from '../src/resolve';
 
 describe('resolve', () => {
-  it('resolves input relative to base', () => {
-    const base = 'bar/';
-    const input = 'foo';
-
-    assert.equal(resolve(input, base), 'bar/foo');
+  it('unresolved without sourceRoot', () => {
+    const resolve = resolver(undefined, undefined);
+    assert.equal(resolve('input.js'), 'input.js');
   });
 
-  it('treats base as a directory regardless of slash', () => {
-    const base = 'bar';
-    const input = 'foo';
+  it('relative to mapUrl', () => {
+    const resolve = resolver('foo/script.js.map', undefined);
+    assert.equal(resolve('input.js'), 'foo/input.js');
+  });
 
-    assert.equal(resolve(input, base), 'bar/foo');
+  it('relative to sourceRoot', () => {
+    const resolve = resolver(undefined, 'foo');
+    assert.equal(resolve('input.js'), 'foo/input.js');
+  });
+
+  it('relative to mapUrl then sourceRoot', () => {
+    const resolve = resolver('foo/script.js.map', 'bar');
+    assert.equal(resolve('input.js'), 'foo/bar/input.js');
+  });
+
+  it('prepends sourceRoot to source before resolving', () => {
+    const resolve = resolver('foo/script.js.map', 'bar');
+    assert.equal(resolve('/input.js'), 'foo/bar/input.js');
+  });
+
+  it('skips undefined sourceRoot before resolving', () => {
+    const resolve = resolver('foo/script.js.map', undefined);
+    assert.equal(resolve('/input.js'), '/input.js');
   });
 });
