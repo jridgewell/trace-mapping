@@ -1,7 +1,6 @@
 import { encode, decode } from '@jridgewell/sourcemap-codec';
 
-import resolve from './resolve';
-import stripFilename from './strip-filename';
+import resolver from './resolve';
 import maybeSort from './sort';
 import buildBySources from './by-source';
 import {
@@ -119,8 +118,8 @@ export class TraceMap implements SourceMap {
     this.sourcesContent = sourcesContent;
     this.ignoreList = parsed.ignoreList || (parsed as XInput).x_google_ignoreList || undefined;
 
-    const from = resolve(sourceRoot || '', stripFilename(mapUrl));
-    this.resolvedSources = sources.map((s) => resolve(s || '', from));
+    const resolve = resolver(mapUrl, sourceRoot);
+    this.resolvedSources = sources.map(resolve);
 
     const { mappings } = parsed;
     if (typeof mappings === 'string') {

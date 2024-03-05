@@ -31,8 +31,7 @@ describe('TraceMap', () => {
   const decodedMap: DecodedSourceMap = {
     version: 3,
     sources: ['input.js'],
-    sourceRoot:
-      'https://astexplorer.net/#/gist/d91f04e37e8e12eec06f2886e6bc3a4d/56cd06cd895d3b638b4100658b0027787ca5e5f1',
+    sourceRoot: 'https://astexplorer.net/',
     names: ['foo', 'bar', 'Error'],
     mappings: [
       [
