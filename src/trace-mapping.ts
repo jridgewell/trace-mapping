@@ -119,7 +119,7 @@ export class TraceMap implements SourceMap {
     this.ignoreList = parsed.ignoreList || (parsed as XInput).x_google_ignoreList || undefined;
 
     const resolve = resolver(mapUrl, sourceRoot);
-    this.resolvedSources = sources.map((s) => resolve(s));
+    this.resolvedSources = sources.map(resolve);
 
     const { mappings } = parsed;
     if (typeof mappings === 'string') {
