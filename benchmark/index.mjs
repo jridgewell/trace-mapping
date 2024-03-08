@@ -7,11 +7,11 @@ import Benchmark from 'benchmark';
 import { decode } from '@jridgewell/sourcemap-codec';
 import {
   TraceMap as CurrentTraceMap,
-  originalPositionFor as currentOriginalPositionFor,
+  traceSegment as currentTraceSegment,
 } from '../dist/trace-mapping.mjs';
 import {
   TraceMap as LatestTraceMap,
-  originalPositionFor as latestOriginalPositionFor,
+  traceSegment as latestTraceSegment,
 } from '../dist/trace-mapping.mjs';
 import { SourceMapConsumer as SourceMapConsumerJs } from 'source-map-js';
 import { SourceMapConsumer as SourceMapConsumer061 } from 'source-map';
@@ -73,23 +73,23 @@ async function bench(file) {
     chromeMap;
   currentDecoded = await track('trace-mapping decoded', results, () => {
     const decoded = new CurrentTraceMap(decodedMapData);
-    currentOriginalPositionFor(decoded, { line: 1, column: 0 });
+    currentTraceSegment(decoded, 0, 0);
     return decoded;
   });
   currentEncoded = await track('trace-mapping encoded', results, () => {
     const encoded = new CurrentTraceMap(encodedMapData);
-    currentOriginalPositionFor(encoded, { line: 1, column: 0 });
+    currentTraceSegment(encoded, 0, 0);
     return encoded;
   });
   if (diff) {
     latestDecoded = await track('trace-mapping latest decoded', results, () => {
       const decoded = new LatestTraceMap(decodedMapData);
-      currentOriginalPositionFor(decoded, { line: 1, column: 0 });
+      latestTraceSegment(decoded, 0, 0);
       return decoded;
     });
     latestEncoded = await track('trace-mapping latest encoded', results, () => {
       const encoded = new LatestTraceMap(encodedMapData);
-      currentOriginalPositionFor(encoded, { line: 1, column: 0 });
+      latestTraceSegment(encoded, 0, 0);
       return encoded;
     });
   } else {
@@ -125,27 +125,21 @@ async function bench(file) {
   console.log('Init speed:');
   benchmark = new Benchmark.Suite()
     .add('trace-mapping:    decoded JSON input', () => {
-      currentOriginalPositionFor(new CurrentTraceMap(decodedMapDataJson), { line: 1, column: 0 });
+      currentTraceSegment(new CurrentTraceMap(decodedMapDataJson), 0, 0);
     })
     .add('trace-mapping:    encoded JSON input', () => {
-      currentOriginalPositionFor(new CurrentTraceMap(encodedMapDataJson), { line: 1, column: 0 });
+      currentTraceSegment(new CurrentTraceMap(encodedMapDataJson), 0, 0);
     });
   if (diff) {
     benchmark
       .add('trace-mapping latest:    decoded JSON input', () => {
-        latestOriginalPositionFor(new LatestTraceMap(decodedMapDataJson), { line: 1, column: 0 });
+        latestTraceSegment(new LatestTraceMap(decodedMapDataJson), 0, 0);
       })
       .add('trace-mapping latest:    encoded JSON input', () => {
-        latestOriginalPositionFor(new LatestTraceMap(encodedMapDataJson), { line: 1, column: 0 });
+        latestTraceSegment(new LatestTraceMap(encodedMapDataJson), 0, 0);
       });
   } else {
     benchmark
-      .add('trace-mapping:    decoded Object input', () => {
-        currentOriginalPositionFor(new CurrentTraceMap(decodedMapData), { line: 1, column: 0 });
-      })
-      .add('trace-mapping:    encoded Object input', () => {
-        currentOriginalPositionFor(new CurrentTraceMap(encodedMapData), { line: 1, column: 0 });
-      })
       .add('source-map-js:    encoded Object input', () => {
         new SourceMapConsumerJs(encodedMapData).originalPositionFor({ line: 1, column: 0 });
       })
@@ -179,7 +173,7 @@ async function bench(file) {
       if (line.length === 0) return;
       const j = Math.floor(Math.random() * line.length);
       const column = line[j][0];
-      currentOriginalPositionFor(currentDecoded, { line: i + 1, column });
+      currentTraceSegment(currentDecoded, i, column);
     })
     .add('trace-mapping:    encoded originalPositionFor', () => {
       const i = Math.floor(Math.random() * lines.length);
@@ -187,7 +181,7 @@ async function bench(file) {
       if (line.length === 0) return;
       const j = Math.floor(Math.random() * line.length);
       const column = line[j][0];
-      currentOriginalPositionFor(currentEncoded, { line: i + 1, column });
+      currentTraceSegment(currentEncoded, i, column);
     });
   if (diff) {
     new Benchmark.Suite()
@@ -197,7 +191,7 @@ async function bench(file) {
         if (line.length === 0) return;
         const j = Math.floor(Math.random() * line.length);
         const column = line[j][0];
-        latestOriginalPositionFor(latestDecoded, { line: i + 1, column });
+        latestTraceSegment(latestDecoded, i, column);
       })
       .add('trace-mapping latest:    encoded originalPositionFor', () => {
         const i = Math.floor(Math.random() * lines.length);
@@ -205,7 +199,7 @@ async function bench(file) {
         if (line.length === 0) return;
         const j = Math.floor(Math.random() * line.length);
         const column = line[j][0];
-        latestOriginalPositionFor(latestEncoded, { line: i + 1, column });
+        latestTraceSegment(latestEncoded, i, column);
       });
   } else {
     benchmark

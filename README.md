@@ -136,31 +136,29 @@ node v20.10.0
 amp.js.map - 45120 segments
 
 Memory Usage:
-trace-mapping decoded         414788 bytes
-trace-mapping encoded        6280096 bytes
-source-map-js               10788968 bytes
-source-map-0.6.1            17665560 bytes
-source-map-0.8.0             8754851 bytes
-Chrome dev tools             8765264 bytes
+trace-mapping decoded         432372 bytes
+trace-mapping encoded        6295488 bytes
+source-map-js               10795872 bytes
+source-map-0.6.1            17667200 bytes
+source-map-0.8.0             8742155 bytes
+Chrome dev tools             8672888 bytes
 Smallest memory usage is trace-mapping decoded
 
 Init speed:
-trace-mapping:    decoded JSON input x 206 ops/sec ±0.36% (88 runs sampled)
-trace-mapping:    encoded JSON input x 404 ops/sec ±1.65% (84 runs sampled)
-trace-mapping:    decoded Object input x 4,647 ops/sec ±0.12% (97 runs sampled)
-trace-mapping:    encoded Object input x 453 ops/sec ±1.73% (76 runs sampled)
-source-map-js:    encoded Object input x 77.10 ops/sec ±1.45% (68 runs sampled)
-source-map-0.6.1: encoded Object input x 39.01 ops/sec ±1.97% (53 runs sampled)
-Chrome dev tools: encoded Object input x 150 ops/sec ±1.60% (79 runs sampled)
-Fastest is trace-mapping:    decoded Object input
+trace-mapping:    decoded JSON input x 204 ops/sec ±0.29% (87 runs sampled)
+trace-mapping:    encoded JSON input x 406 ops/sec ±1.53% (88 runs sampled)
+source-map-js:    encoded Object input x 76.17 ops/sec ±1.55% (67 runs sampled)
+source-map-0.6.1: encoded Object input x 39.15 ops/sec ±2.05% (53 runs sampled)
+Chrome dev tools: encoded Object input x 150 ops/sec ±1.70% (78 runs sampled)
+Fastest is trace-mapping:    encoded JSON input
 
 Trace speed:
-trace-mapping:    decoded originalPositionFor x 3,998,025 ops/sec ±0.37% (100 runs sampled)
-trace-mapping:    encoded originalPositionFor x 3,289,465 ops/sec ±1.79% (92 runs sampled)
-source-map-js:    encoded originalPositionFor x 917,842 ops/sec ±1.07% (91 runs sampled)
-source-map-0.6.1: encoded originalPositionFor x 785,105 ops/sec ±1.17% (97 runs sampled)
-source-map-0.8.0: encoded originalPositionFor x 2,745,332 ops/sec ±0.91% (97 runs sampled)
-Chrome dev tools: encoded originalPositionFor x 4,287,614 ops/sec ±1.20% (91 runs sampled)
+trace-mapping:    decoded originalPositionFor x 4,224,123 ops/sec ±0.40% (98 runs sampled)
+trace-mapping:    encoded originalPositionFor x 3,640,822 ops/sec ±1.34% (95 runs sampled)
+source-map-js:    encoded originalPositionFor x 919,900 ops/sec ±1.12% (95 runs sampled)
+source-map-0.6.1: encoded originalPositionFor x 787,108 ops/sec ±0.75% (93 runs sampled)
+source-map-0.8.0: encoded originalPositionFor x 2,708,427 ops/sec ±0.90% (94 runs sampled)
+Chrome dev tools: encoded originalPositionFor x 4,372,386 ops/sec ±1.35% (93 runs sampled)
 Fastest is Chrome dev tools: encoded originalPositionFor
 
 
@@ -170,31 +168,29 @@ Fastest is Chrome dev tools: encoded originalPositionFor
 babel.min.js.map - 347793 segments
 
 Memory Usage:
-trace-mapping decoded          26704 bytes
-trace-mapping encoded       35430936 bytes
-source-map-js               51644904 bytes
-source-map-0.6.1            63528632 bytes
-source-map-0.8.0            43147288 bytes
-Chrome dev tools            50911744 bytes
+trace-mapping decoded          23704 bytes
+trace-mapping encoded       35446872 bytes
+source-map-js               51842336 bytes
+source-map-0.6.1            63364360 bytes
+source-map-0.8.0            43099656 bytes
+Chrome dev tools            50854488 bytes
 Smallest memory usage is trace-mapping decoded
 
 Init speed:
-trace-mapping:    decoded JSON input x 17.86 ops/sec ±6.05% (34 runs sampled)
-trace-mapping:    encoded JSON input x 30.95 ops/sec ±8.70% (43 runs sampled)
-trace-mapping:    decoded Object input x 791 ops/sec ±1.02% (93 runs sampled)
-trace-mapping:    encoded Object input x 33.02 ops/sec ±8.84% (45 runs sampled)
-source-map-js:    encoded Object input x 6.54 ops/sec ±4.17% (21 runs sampled)
-source-map-0.6.1: encoded Object input x 4.26 ops/sec ±4.84% (15 runs sampled)
-Chrome dev tools: encoded Object input x 22.13 ops/sec ±3.07% (41 runs sampled)
-Fastest is trace-mapping:    decoded Object input
+trace-mapping:    decoded JSON input x 17.90 ops/sec ±5.48% (34 runs sampled)
+trace-mapping:    encoded JSON input x 29.84 ops/sec ±9.93% (42 runs sampled)
+source-map-js:    encoded Object input x 6.37 ops/sec ±5.98% (21 runs sampled)
+source-map-0.6.1: encoded Object input x 4.26 ops/sec ±3.44% (15 runs sampled)
+Chrome dev tools: encoded Object input x 22.49 ops/sec ±3.91% (42 runs sampled)
+Fastest is trace-mapping:    encoded JSON input
 
 Trace speed:
-trace-mapping:    decoded originalPositionFor x 8,287,155 ops/sec ±1.61% (89 runs sampled)
-trace-mapping:    encoded originalPositionFor x 5,707,321 ops/sec ±1.64% (93 runs sampled)
-source-map-js:    encoded originalPositionFor x 4,617,011 ops/sec ±0.89% (96 runs sampled)
-source-map-0.6.1: encoded originalPositionFor x 4,003,422 ops/sec ±1.03% (93 runs sampled)
-source-map-0.8.0: encoded originalPositionFor x 6,823,856 ops/sec ±1.07% (93 runs sampled)
-Chrome dev tools: encoded originalPositionFor x 7,558,852 ops/sec ±0.96% (94 runs sampled)
+trace-mapping:    decoded originalPositionFor x 8,754,207 ops/sec ±1.37% (94 runs sampled)
+trace-mapping:    encoded originalPositionFor x 6,117,216 ops/sec ±1.17% (96 runs sampled)
+source-map-js:    encoded originalPositionFor x 4,642,432 ops/sec ±0.99% (94 runs sampled)
+source-map-0.6.1: encoded originalPositionFor x 4,050,880 ops/sec ±0.93% (92 runs sampled)
+source-map-0.8.0: encoded originalPositionFor x 6,909,491 ops/sec ±0.85% (94 runs sampled)
+Chrome dev tools: encoded originalPositionFor x 7,543,612 ops/sec ±1.28% (93 runs sampled)
 Fastest is trace-mapping:    decoded originalPositionFor
 
 
@@ -204,31 +200,29 @@ Fastest is trace-mapping:    decoded originalPositionFor
 preact.js.map - 1992 segments
 
 Memory Usage:
-trace-mapping decoded          41920 bytes
-trace-mapping encoded         254336 bytes
-source-map-js                 954752 bytes
-source-map-0.6.1             1160040 bytes
-source-map-0.8.0               65096 bytes
-Chrome dev tools              398792 bytes
+trace-mapping decoded          43160 bytes
+trace-mapping encoded         254448 bytes
+source-map-js                 908816 bytes
+source-map-0.6.1             1003896 bytes
+source-map-0.8.0               60736 bytes
+Chrome dev tools              693280 bytes
 Smallest memory usage is trace-mapping decoded
 
 Init speed:
-trace-mapping:    decoded JSON input x 3,726 ops/sec ±0.13% (99 runs sampled)
-trace-mapping:    encoded JSON input x 6,452 ops/sec ±0.25% (100 runs sampled)
-trace-mapping:    decoded Object input x 83,383 ops/sec ±0.19% (99 runs sampled)
-trace-mapping:    encoded Object input x 14,961 ops/sec ±0.25% (97 runs sampled)
-source-map-js:    encoded Object input x 2,539 ops/sec ±0.24% (98 runs sampled)
-source-map-0.6.1: encoded Object input x 1,237 ops/sec ±0.50% (97 runs sampled)
-Chrome dev tools: encoded Object input x 4,128 ops/sec ±0.47% (90 runs sampled)
-Fastest is trace-mapping:    decoded Object input
+trace-mapping:    decoded JSON input x 3,709 ops/sec ±0.28% (99 runs sampled)
+trace-mapping:    encoded JSON input x 6,460 ops/sec ±0.26% (98 runs sampled)
+source-map-js:    encoded Object input x 2,550 ops/sec ±0.20% (99 runs sampled)
+source-map-0.6.1: encoded Object input x 1,253 ops/sec ±0.23% (98 runs sampled)
+Chrome dev tools: encoded Object input x 4,134 ops/sec ±0.39% (90 runs sampled)
+Fastest is trace-mapping:    encoded JSON input
 
 Trace speed:
-trace-mapping:    decoded originalPositionFor x 7,860,922 ops/sec ±0.13% (99 runs sampled)
-trace-mapping:    encoded originalPositionFor x 7,194,603 ops/sec ±0.22% (98 runs sampled)
-source-map-js:    encoded originalPositionFor x 2,653,667 ops/sec ±0.27% (97 runs sampled)
-source-map-0.6.1: encoded originalPositionFor x 1,794,160 ops/sec ±0.33% (100 runs sampled)
-source-map-0.8.0: encoded originalPositionFor x 4,079,232 ops/sec ±0.35% (98 runs sampled)
-Chrome dev tools: encoded originalPositionFor x 8,502,450 ops/sec ±0.35% (98 runs sampled)
+trace-mapping:    decoded originalPositionFor x 8,343,405 ops/sec ±0.21% (97 runs sampled)
+trace-mapping:    encoded originalPositionFor x 7,762,166 ops/sec ±1.00% (98 runs sampled)
+source-map-js:    encoded originalPositionFor x 2,684,277 ops/sec ±0.18% (100 runs sampled)
+source-map-0.6.1: encoded originalPositionFor x 1,806,592 ops/sec ±0.23% (101 runs sampled)
+source-map-0.8.0: encoded originalPositionFor x 4,108,393 ops/sec ±0.31% (99 runs sampled)
+Chrome dev tools: encoded originalPositionFor x 8,509,258 ops/sec ±0.22% (96 runs sampled)
 Fastest is Chrome dev tools: encoded originalPositionFor
 
 
@@ -238,31 +232,29 @@ Fastest is Chrome dev tools: encoded originalPositionFor
 react.js.map - 5726 segments
 
 Memory Usage:
-trace-mapping decoded          13464 bytes
-trace-mapping encoded         682000 bytes
-source-map-js                2540984 bytes
-source-map-0.6.1             2230384 bytes
-source-map-0.8.0              230432 bytes
-Chrome dev tools             1118400 bytes
+trace-mapping decoded           6712 bytes
+trace-mapping encoded         681584 bytes
+source-map-js                2393864 bytes
+source-map-0.6.1             2136520 bytes
+source-map-0.8.0              137416 bytes
+Chrome dev tools             1139480 bytes
 Smallest memory usage is trace-mapping decoded
 
 Init speed:
-trace-mapping:    decoded JSON input x 1,902 ops/sec ±0.13% (100 runs sampled)
-trace-mapping:    encoded JSON input x 4,763 ops/sec ±0.34% (100 runs sampled)
-trace-mapping:    decoded Object input x 75,303 ops/sec ±0.22% (100 runs sampled)
-trace-mapping:    encoded Object input x 5,791 ops/sec ±0.23% (100 runs sampled)
-source-map-js:    encoded Object input x 811 ops/sec ±0.19% (96 runs sampled)
-source-map-0.6.1: encoded Object input x 420 ops/sec ±0.56% (93 runs sampled)
-Chrome dev tools: encoded Object input x 1,503 ops/sec ±0.46% (94 runs sampled)
-Fastest is trace-mapping:    decoded Object input
+trace-mapping:    decoded JSON input x 1,902 ops/sec ±0.15% (99 runs sampled)
+trace-mapping:    encoded JSON input x 4,759 ops/sec ±0.46% (98 runs sampled)
+source-map-js:    encoded Object input x 810 ops/sec ±0.24% (96 runs sampled)
+source-map-0.6.1: encoded Object input x 433 ops/sec ±0.38% (93 runs sampled)
+Chrome dev tools: encoded Object input x 1,579 ops/sec ±0.58% (96 runs sampled)
+Fastest is trace-mapping:    encoded JSON input
 
 Trace speed:
-trace-mapping:    decoded originalPositionFor x 34,044,182 ops/sec ±0.23% (95 runs sampled)
-trace-mapping:    encoded originalPositionFor x 34,822,726 ops/sec ±0.47% (97 runs sampled)
-source-map-js:    encoded originalPositionFor x 16,094,195 ops/sec ±3.07% (87 runs sampled)
-source-map-0.6.1: encoded originalPositionFor x 12,818,718 ops/sec ±1.90% (92 runs sampled)
-source-map-0.8.0: encoded originalPositionFor x 24,418,865 ops/sec ±0.36% (98 runs sampled)
-Chrome dev tools: encoded originalPositionFor x 39,636,843 ops/sec ±0.37% (96 runs sampled)
+trace-mapping:    decoded originalPositionFor x 37,970,548 ops/sec ±0.35% (94 runs sampled)
+trace-mapping:    encoded originalPositionFor x 36,277,823 ops/sec ±0.31% (95 runs sampled)
+source-map-js:    encoded originalPositionFor x 18,189,770 ops/sec ±0.39% (95 runs sampled)
+source-map-0.6.1: encoded originalPositionFor x 13,301,571 ops/sec ±0.37% (100 runs sampled)
+source-map-0.8.0: encoded originalPositionFor x 24,284,318 ops/sec ±0.40% (98 runs sampled)
+Chrome dev tools: encoded originalPositionFor x 40,156,093 ops/sec ±0.21% (98 runs sampled)
 Fastest is Chrome dev tools: encoded originalPositionFor
 
 
@@ -272,31 +264,29 @@ Fastest is Chrome dev tools: encoded originalPositionFor
 vscode.map - 2141001 segments
 
 Memory Usage:
-trace-mapping decoded        4983728 bytes
-trace-mapping encoded      200000064 bytes
-source-map-js              278356960 bytes
-source-map-0.6.1           397326704 bytes
-source-map-0.8.0           243384784 bytes
-Chrome dev tools           255377536 bytes
+trace-mapping decoded        4983632 bytes
+trace-mapping encoded      200150176 bytes
+source-map-js              278285064 bytes
+source-map-0.6.1           397452456 bytes
+source-map-0.8.0           243363688 bytes
+Chrome dev tools           255335712 bytes
 Smallest memory usage is trace-mapping decoded
 
 Init speed:
-trace-mapping:    decoded JSON input x 1.81 ops/sec ±20.81% (9 runs sampled)
-trace-mapping:    encoded JSON input x 2.14 ops/sec ±36.01% (10 runs sampled)
-trace-mapping:    decoded Object input x 103 ops/sec ±0.54% (77 runs sampled)
-trace-mapping:    encoded Object input x 3.35 ops/sec ±25.98% (12 runs sampled)
-source-map-js:    encoded Object input x 1.08 ops/sec ±12.75% (7 runs sampled)
-source-map-0.6.1: encoded Object input x 0.54 ops/sec ±13.02% (6 runs sampled)
-Chrome dev tools: encoded Object input x 2.75 ops/sec ±17.79% (12 runs sampled)
-Fastest is trace-mapping:    decoded Object input
+trace-mapping:    decoded JSON input x 1.86 ops/sec ±31.60% (9 runs sampled)
+trace-mapping:    encoded JSON input x 2.28 ops/sec ±35.30% (10 runs sampled)
+source-map-js:    encoded Object input x 1.14 ops/sec ±5.51% (7 runs sampled)
+source-map-0.6.1: encoded Object input x 0.51 ops/sec ±16.65% (6 runs sampled)
+Chrome dev tools: encoded Object input x 2.40 ops/sec ±32.11% (12 runs sampled)
+Fastest is Chrome dev tools: encoded Object input,trace-mapping:    encoded JSON input,trace-mapping:    decoded JSON input
 
 Trace speed:
-trace-mapping:    decoded originalPositionFor x 7,276,996 ops/sec ±1.38% (90 runs sampled)
-trace-mapping:    encoded originalPositionFor x 4,717,088 ops/sec ±1.53% (89 runs sampled)
-source-map-js:    encoded originalPositionFor x 1,547,423 ops/sec ±0.91% (97 runs sampled)
-source-map-0.6.1: encoded originalPositionFor x 1,453,214 ops/sec ±1.39% (93 runs sampled)
-source-map-0.8.0: encoded originalPositionFor x 4,077,080 ops/sec ±0.90% (89 runs sampled)
-Chrome dev tools: encoded originalPositionFor x 5,096,269 ops/sec ±0.98% (92 runs sampled)
+trace-mapping:    decoded originalPositionFor x 6,547,243 ops/sec ±1.34% (94 runs sampled)
+trace-mapping:    encoded originalPositionFor x 4,831,629 ops/sec ±1.11% (94 runs sampled)
+source-map-js:    encoded originalPositionFor x 1,458,787 ops/sec ±0.96% (94 runs sampled)
+source-map-0.6.1: encoded originalPositionFor x 1,374,487 ops/sec ±1.01% (91 runs sampled)
+source-map-0.8.0: encoded originalPositionFor x 3,438,212 ops/sec ±6.28% (91 runs sampled)
+Chrome dev tools: encoded originalPositionFor x 4,605,566 ops/sec ±1.36% (88 runs sampled)
 Fastest is trace-mapping:    decoded originalPositionFor
 ```
 
