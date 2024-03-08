@@ -177,23 +177,29 @@ async function bench(file) {
 
   console.log('');
 
-  console.log('Trace speed:');
+  console.log('Trace speed (random):');
   benchmark = new Benchmark.Suite()
     .add('trace-mapping:    decoded originalPositionFor', () => {
       const i = Math.floor(Math.random() * lines.length);
       const line = lines[i];
       if (line.length === 0) return;
-      const j = Math.floor(Math.random() * line.length);
-      const column = line[j][0];
-      currentTraceSegment(currentDecoded, i, column);
+      const shift = Math.ceil(line.length / 100);
+      for (let _ = 0; _ < line.length; _ += shift) {
+        const j = Math.floor(Math.random() * line.length);
+        const column = line[j][0];
+        currentTraceSegment(currentDecoded, i, column);
+      }
     })
     .add('trace-mapping:    encoded originalPositionFor', () => {
       const i = Math.floor(Math.random() * lines.length);
       const line = lines[i];
       if (line.length === 0) return;
-      const j = Math.floor(Math.random() * line.length);
-      const column = line[j][0];
-      currentTraceSegment(currentEncoded, i, column);
+      const shift = Math.ceil(line.length / 100);
+      for (let _ = 0; _ < line.length; _ += shift) {
+        const j = Math.floor(Math.random() * line.length);
+        const column = line[j][0];
+        currentTraceSegment(currentEncoded, i, column);
+      }
     });
   if (diff) {
     new Benchmark.Suite()
@@ -201,17 +207,23 @@ async function bench(file) {
         const i = Math.floor(Math.random() * lines.length);
         const line = lines[i];
         if (line.length === 0) return;
-        const j = Math.floor(Math.random() * line.length);
-        const column = line[j][0];
-        latestTraceSegment(latestDecoded, i, column);
+        const shift = Math.ceil(line.length / 100);
+        for (let _ = 0; _ < line.length; _ += shift) {
+          const j = Math.floor(Math.random() * line.length);
+          const column = line[j][0];
+          latestTraceSegment(latestDecoded, i, column);
+        }
       })
       .add('trace-mapping latest:    encoded originalPositionFor', () => {
         const i = Math.floor(Math.random() * lines.length);
         const line = lines[i];
         if (line.length === 0) return;
-        const j = Math.floor(Math.random() * line.length);
-        const column = line[j][0];
-        latestTraceSegment(latestEncoded, i, column);
+        const shift = Math.ceil(line.length / 100);
+        for (let _ = 0; _ < line.length; _ += shift) {
+          const j = Math.floor(Math.random() * line.length);
+          const column = line[j][0];
+          latestTraceSegment(latestEncoded, i, column);
+        }
       });
   } else {
     benchmark
@@ -219,36 +231,147 @@ async function bench(file) {
         const i = Math.floor(Math.random() * lines.length);
         const line = lines[i];
         if (line.length === 0) return;
-        const j = Math.floor(Math.random() * line.length);
-        const column = line[j][0];
-        smcjs.originalPositionFor({ line: i + 1, column });
+        const shift = Math.ceil(line.length / 100);
+        for (let _ = 0; _ < line.length; _ += shift) {
+          const j = Math.floor(Math.random() * line.length);
+          const column = line[j][0];
+          smcjs.originalPositionFor({ line: i + 1, column });
+        }
       })
       .add('source-map-0.6.1: encoded originalPositionFor', () => {
         const i = Math.floor(Math.random() * lines.length);
         const line = lines[i];
         if (line.length === 0) return;
-        const j = Math.floor(Math.random() * line.length);
-        const column = line[j][0];
-        smc061.originalPositionFor({ line: i + 1, column });
+        const shift = Math.ceil(line.length / 100);
+        for (let _ = 0; _ < line.length; _ += shift) {
+          const j = Math.floor(Math.random() * line.length);
+          const column = line[j][0];
+          smc061.originalPositionFor({ line: i + 1, column });
+        }
       })
       .add('source-map-0.8.0: encoded originalPositionFor', () => {
         const i = Math.floor(Math.random() * lines.length);
         const line = lines[i];
         if (line.length === 0) return;
-        const j = Math.floor(Math.random() * line.length);
-        const column = line[j][0];
-        smcWasm.originalPositionFor({ line: i + 1, column });
+        const shift = Math.ceil(line.length / 100);
+        for (let _ = 0; _ < line.length; _ += shift) {
+          const j = Math.floor(Math.random() * line.length);
+          const column = line[j][0];
+          smcWasm.originalPositionFor({ line: i + 1, column });
+        }
       })
       .add('Chrome dev tools: encoded originalPositionFor', () => {
         const i = Math.floor(Math.random() * lines.length);
         const line = lines[i];
         if (line.length === 0) return;
-        const j = Math.floor(Math.random() * line.length);
-        const column = line[j][0];
-        chromeMap.findEntry(i, column);
+        const shift = Math.ceil(line.length / 100);
+        for (let _ = 0; _ < line.length; _ += shift) {
+          const j = Math.floor(Math.random() * line.length);
+          const column = line[j][0];
+          chromeMap.findEntry(i, column);
+        }
       });
   }
+  // add listeners
+  benchmark
+    .on('error', (event) => console.error(event.target.error))
+    .on('cycle', (event) => {
+      console.log(String(event.target));
+    })
+    .on('complete', function () {
+      console.log('Fastest is ' + this.filter('fastest').map('name'));
+    })
+    .run({});
 
+  console.log('');
+
+  console.log('Trace speed (ascending):');
+  benchmark = new Benchmark.Suite()
+    .add('trace-mapping:    decoded originalPositionFor', () => {
+      const i = Math.floor(Math.random() * lines.length);
+      const line = lines[i];
+      if (line.length === 0) return;
+      const shift = Math.ceil(line.length / 100);
+      for (let j = 0; j < line.length; j += shift) {
+        const column = line[j][0];
+        currentTraceSegment(currentDecoded, i, column);
+      }
+    })
+    .add('trace-mapping:    encoded originalPositionFor', () => {
+      const i = Math.floor(Math.random() * lines.length);
+      const line = lines[i];
+      if (line.length === 0) return;
+      const shift = Math.ceil(line.length / 100);
+      for (let j = 0; j < line.length; j += shift) {
+        const column = line[j][0];
+        currentTraceSegment(currentEncoded, i, column);
+      }
+    });
+  if (diff) {
+    new Benchmark.Suite()
+      .add('trace-mapping latest:    decoded originalPositionFor', () => {
+        const i = Math.floor(Math.random() * lines.length);
+        const line = lines[i];
+        if (line.length === 0) return;
+        const shift = Math.ceil(line.length / 100);
+        for (let j = 0; j < line.length; j += shift) {
+          const column = line[j][0];
+          latestTraceSegment(latestDecoded, i, column);
+        }
+      })
+      .add('trace-mapping latest:    encoded originalPositionFor', () => {
+        const i = Math.floor(Math.random() * lines.length);
+        const line = lines[i];
+        if (line.length === 0) return;
+        const shift = Math.ceil(line.length / 100);
+        for (let j = 0; j < line.length; j += shift) {
+          const column = line[j][0];
+          latestTraceSegment(latestEncoded, i, column);
+        }
+      });
+  } else {
+    benchmark
+      .add('source-map-js:    encoded originalPositionFor', () => {
+        const i = Math.floor(Math.random() * lines.length);
+        const line = lines[i];
+        if (line.length === 0) return;
+        const shift = Math.ceil(line.length / 100);
+        for (let j = 0; j < line.length; j += shift) {
+          const column = line[j][0];
+          smcjs.originalPositionFor({ line: i + 1, column });
+        }
+      })
+      .add('source-map-0.6.1: encoded originalPositionFor', () => {
+        const i = Math.floor(Math.random() * lines.length);
+        const line = lines[i];
+        if (line.length === 0) return;
+        const shift = Math.ceil(line.length / 100);
+        for (let j = 0; j < line.length; j += shift) {
+          const column = line[j][0];
+          smc061.originalPositionFor({ line: i + 1, column });
+        }
+      })
+      .add('source-map-0.8.0: encoded originalPositionFor', () => {
+        const i = Math.floor(Math.random() * lines.length);
+        const line = lines[i];
+        if (line.length === 0) return;
+        const shift = Math.ceil(line.length / 100);
+        for (let j = 0; j < line.length; j += shift) {
+          const column = line[j][0];
+          smcWasm.originalPositionFor({ line: i + 1, column });
+        }
+      })
+      .add('Chrome dev tools: encoded originalPositionFor', () => {
+        const i = Math.floor(Math.random() * lines.length);
+        const line = lines[i];
+        if (line.length === 0) return;
+        const shift = Math.ceil(line.length / 100);
+        for (let j = 0; j < line.length; j += shift) {
+          const column = line[j][0];
+          chromeMap.findEntry(i, column);
+        }
+      });
+  }
   // add listeners
   benchmark
     .on('error', (event) => console.error(event.target.error))
@@ -267,6 +390,7 @@ async function run(files) {
   let first = true;
   for (const file of files) {
     if (!file.endsWith('.map')) continue;
+    if (file !== 'vscode.map') continue;
 
     if (!first) console.log('\n\n***\n\n');
     first = false;
