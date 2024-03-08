@@ -16,6 +16,7 @@ import {
 import { SourceMapConsumer as SourceMapConsumerJs } from 'source-map-js';
 import { SourceMapConsumer as SourceMapConsumer061 } from 'source-map';
 import { SourceMapConsumer as SourceMapConsumerWasm } from 'source-map-wasm';
+import { SourceMap as ChromeMap } from './chrome.mjs';
 
 const dir = relative(process.cwd(), dirname(fileURLToPath(import.meta.url)));
 const diff = !!process.env.DIFF;
@@ -68,7 +69,8 @@ async function bench(file) {
     latestEncoded,
     smcjs,
     smc061,
-    smcWasm;
+    smcWasm,
+    chromeMap;
   currentDecoded = await track('trace-mapping decoded', results, () => {
     const decoded = new CurrentTraceMap(decodedMapData);
     currentOriginalPositionFor(decoded, { line: 1, column: 0 });
@@ -105,6 +107,11 @@ async function bench(file) {
       const smcWasm = await new SourceMapConsumerWasm(encodedMapData);
       smcWasm.originalPositionFor({ line: 1, column: 0 });
       return smcWasm;
+    });
+    chromeMap = await track('Chrome dev tools', results, async () => {
+      const map = await new ChromeMap('url', encodedMapData);
+      map.findEntry(0, 0);
+      return map;
     });
   }
   const winner = results.reduce((min, cur) => {
@@ -144,6 +151,9 @@ async function bench(file) {
       })
       .add('source-map-0.6.1: encoded Object input', () => {
         new SourceMapConsumer061(encodedMapData).originalPositionFor({ line: 1, column: 0 });
+      })
+      .add('Chrome dev tools: encoded Object input', () => {
+        new ChromeMap('url', encodedMapData).findEntry(0, 0);
       });
     // WASM isn't tested because its async and OOMs.
     // .add('source-map-0.8.0: encoded Object input', () => { })
@@ -222,6 +232,14 @@ async function bench(file) {
         const j = Math.floor(Math.random() * line.length);
         const column = line[j][0];
         smcWasm.originalPositionFor({ line: i + 1, column });
+      })
+      .add('Chrome dev tools: encoded originalPositionFor', () => {
+        const i = Math.floor(Math.random() * lines.length);
+        const line = lines[i];
+        if (line.length === 0) return;
+        const j = Math.floor(Math.random() * line.length);
+        const column = line[j][0];
+        chromeMap.findEntry(i, column);
       });
   }
 
