@@ -129,6 +129,12 @@ async function bench(file) {
     })
     .add('trace-mapping:    encoded JSON input', () => {
       currentTraceSegment(new CurrentTraceMap(encodedMapDataJson), 0, 0);
+    })
+    .add('trace-mapping:    decoded Object input', () => {
+      currentTraceSegment(new CurrentTraceMap(decodedMapData), 0, 0);
+    })
+    .add('trace-mapping:    encoded Object input', () => {
+      currentTraceSegment(new CurrentTraceMap(encodedMapData), 0, 0);
     });
   if (diff) {
     benchmark
@@ -137,6 +143,12 @@ async function bench(file) {
       })
       .add('trace-mapping latest:    encoded JSON input', () => {
         latestTraceSegment(new LatestTraceMap(encodedMapDataJson), 0, 0);
+      })
+      .add('trace-mapping latest:    decoded Object input', () => {
+        latestTraceSegment(new LatestTraceMap(decodedMapData), 0, 0);
+      })
+      .add('trace-mapping latest:    encoded Object input', () => {
+        latestTraceSegment(new LatestTraceMap(encodedMapData), 0, 0);
       });
   } else {
     benchmark
