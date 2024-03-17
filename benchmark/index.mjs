@@ -109,7 +109,7 @@ async function bench(file) {
       return smcWasm;
     });
     chromeMap = await track('Chrome dev tools', results, async () => {
-      const map = await new ChromeMap('url', encodedMapData);
+      const map = new ChromeMap('url', encodedMapData);
       map.findEntry(0, 0);
       return map;
     });
@@ -137,7 +137,7 @@ async function bench(file) {
       currentTraceSegment(new CurrentTraceMap(encodedMapData), 0, 0);
     });
   if (diff) {
-    benchmark
+    benchmark = benchmark
       .add('trace-mapping latest:    decoded JSON input', () => {
         latestTraceSegment(new LatestTraceMap(decodedMapDataJson), 0, 0);
       })
@@ -151,7 +151,7 @@ async function bench(file) {
         latestTraceSegment(new LatestTraceMap(encodedMapData), 0, 0);
       });
   } else {
-    benchmark
+    benchmark = benchmark
       .add('source-map-js:    encoded Object input', () => {
         new SourceMapConsumerJs(encodedMapData).originalPositionFor({ line: 1, column: 0 });
       })
@@ -164,8 +164,8 @@ async function bench(file) {
     // WASM isn't tested because its async and OOMs.
     // .add('source-map-0.8.0: encoded Object input', () => { })
   }
+  // add listeners
   benchmark
-    // add listeners
     .on('error', (event) => console.error(event.target.error))
     .on('cycle', (event) => {
       console.log(String(event.target));
@@ -202,7 +202,7 @@ async function bench(file) {
       }
     });
   if (diff) {
-    new Benchmark.Suite()
+    benchmark = benchmark
       .add('trace-mapping latest:    decoded originalPositionFor', () => {
         const i = Math.floor(Math.random() * lines.length);
         const line = lines[i];
@@ -226,7 +226,7 @@ async function bench(file) {
         }
       });
   } else {
-    benchmark
+    benchmark = benchmark
       .add('source-map-js:    encoded originalPositionFor', () => {
         const i = Math.floor(Math.random() * lines.length);
         const line = lines[i];
@@ -308,7 +308,7 @@ async function bench(file) {
       }
     });
   if (diff) {
-    new Benchmark.Suite()
+    benchmark = benchmark
       .add('trace-mapping latest:    decoded originalPositionFor', () => {
         const i = Math.floor(Math.random() * lines.length);
         const line = lines[i];
@@ -330,7 +330,7 @@ async function bench(file) {
         }
       });
   } else {
-    benchmark
+    benchmark = benchmark
       .add('source-map-js:    encoded originalPositionFor', () => {
         const i = Math.floor(Math.random() * lines.length);
         const line = lines[i];
