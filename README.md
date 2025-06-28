@@ -1,3 +1,9 @@
+# Development moved to [monorepo](https://github.com/jridgewell/sourcemaps)
+
+See https://github.com/jridgewell/sourcemaps/tree/main/packages/trace-mapping for latest code.
+
+- - -
+
 # @jridgewell/trace-mapping
 
 > Trace the original position through a source map
